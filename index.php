@@ -9,7 +9,7 @@
 </head>
 <body>
     <?php include('includes/header.php'); ?>
-    <!-- ?php include('includes/aside.php'); ?> -->
+    <?php include('includes/aside.php'); ?>
     <main>
         <!-- Contenido principal de la página de inicio -->
     </main>
