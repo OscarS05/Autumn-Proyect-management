@@ -258,7 +258,7 @@ ul, li {
     background-color: #FFFFFF;
 }
 
-.titles-workspaces-dropdown {
+.title-h4 {
     margin: 5px 0px 8px 8px;
     font-size: 13px;
     font-weight: 650;
@@ -394,4 +394,123 @@ ul, li {
     background-position: center;
     width: 16px;
     height: 14px;
+}
+
+
+/* SIDEBAR */
+
+#sidebar {
+    width: 285px;
+    background-color: white;
+    /* border: 1px solid gray; */
+    position: fixed;
+    top: 52px;
+    left: 75px;
+    display: flex;
+    justify-content: center;
+}
+
+.conteiner-projects-settings {
+    margin: 28px 0px;
+}
+
+.container-workspace-sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.container-workspace-sidebar:hover {
+    background: #E4ECF1;
+}
+
+.container-workspaces-sidebar ul {
+    gap: 2px;
+    display: flex;
+    flex-direction: column;
+    margin-left: 3px;
+}
+
+.content-projects-settings {
+    width: 256px;
+    height: 34px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0px 14px;
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+
+#projects-sidebar {
+    background-color: #D2ECFF;
+}
+
+#projects-sidebar div {
+    background-image: url(../assets/images/layer-group-solid-blue.svg);
+}
+
+#projects-sidebar p {
+    color: #00AEE5;
+}
+
+.content-projects-settings div {
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.content-projects-settings p {
+    font-size: 13.5px;
+    font-weight: 620;
+    margin-left: 15px;
+}
+
+#settings-sidebar:hover {
+    background-color: #E4ECF1;
+}
+
+#settings-sidebar div {
+    background-image: url(../assets/images/gear-solid.svg);
+    
+}
+
+#settings-sidebar p {
+    color: #545C5F;
+}
+
+
+.container-workspaces-sidebar {
+    border-top: 1px solid #EAEAEA;
+}
+
+.h4-sidebar {
+    margin: 28px 0px 14px 1px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.workspace-content-sidebar {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.name-workspace-sidebar {
+    font-size: 14px;
+    font-weight: 650;
+    margin: 0px 12px;
+}
+
+.chevron-down-sidebar {
+    background-image: url(../assets/images/chevron-down-solid.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 12px;
+    height: 12px;
 }

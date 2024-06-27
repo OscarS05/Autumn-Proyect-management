@@ -64,7 +64,7 @@
 
         <div id="content-dropdown-list">
 
-            <h4 class="titles-workspaces-dropdown">Your workspaces</h4>
+            <h4 class="title-h4">Your workspaces</h4>
     
             <ul class="container-your-workspaces">
 
@@ -104,7 +104,7 @@
 
             </ul>
     
-            <h4 class="titles-workspaces-dropdown">Workspaces where you are a guest</h4>
+            <h4 class="title-h4">Workspaces where you are a guest</h4>
 
             <ul id="workspaces-where-youare-aguest" class="container-your-workspaces">
 
