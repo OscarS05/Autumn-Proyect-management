@@ -17,6 +17,7 @@ ul, li {
 
 .chevron-down {
     width: 12px;
+    height: 12px;
 }
 
 .buttons-style {
@@ -28,6 +29,15 @@ ul, li {
     border-radius: 5px;
     font-weight: 100;
     cursor: pointer;
+}
+
+.buttons-style:hover {
+    background-color: #00A1D4;
+}
+
+* {
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* ENVIRONMENT VARIABLES */
@@ -80,20 +90,21 @@ ul, li {
     cursor: pointer;
 }
 
-#containernavbar-workspaces-create {
+#container-workspaces-create {
     display: flex;
     align-items: center;
     gap: 14px;
 }
 
-#conteinernavbar-workspaces {
+#content-workspaces-chevron {
     display: flex;
     border-radius: 5px;
     padding: 7.5px 16.5px;
     cursor: pointer;
+    align-items: center;
 }
 
-#conteinernavbar-workspaces:hover {
+#content-workspaces-chevron:hover {
     background-color: #E4ECF1;
 }
 
@@ -107,24 +118,18 @@ ul, li {
 #chevron-down-navbar {
     margin-left: 9px;
     background-image: url(../assets/images/chevron-down-solid.svg);
-    background-repeat: no-repeat;
-    background-position: center;
 }
 
 #button-create-navbar {
     padding: 7.5px 11px;
 }
 
-#button-create-navbar:hover {
-    background-color: #00A1D4;
-}
-
 /* funcionalidad clickear workspaces + button create */
-#conteinernavbar-workspaces.clicked {
+#content-workspaces-chevron.clicked {
     background-color: #D2ECFF;
 }
 
-#conteinernavbar-workspaces.clicked:hover {
+#content-workspaces-chevron.clicked:hover {
     background-color: #AFDDFF;
 }
 
@@ -134,8 +139,6 @@ ul, li {
 
 #chevron-down-navbar.clicked {
     background-image: url(../assets/images/chevron-down-blue.svg);
-    background-repeat: no-repeat;
-    background-position: center;
 }
 
 #button-create-navbar.clicked {
@@ -170,7 +173,7 @@ ul, li {
     margin-right: 18px;
 }
 
-.conteiner-img-search {
+.content-search {
     padding: 0px 1px 0px 12px;
     display: flex;
     flex-direction: row-reverse;
@@ -179,14 +182,12 @@ ul, li {
 .magnifying-glass {
     width: 12px;
     background-image: url(../assets/images/search-img.svg);
-    background-repeat: no-repeat;
-    background-position: center;
     border: none;
     background-color: #FFFFFF;
     cursor: pointer;
 }
 
-#navbar-search {
+#placeholder-search-navbar {
     font-size: 13px;
     font-family: Lora;
     font-weight: 300;
@@ -195,7 +196,7 @@ ul, li {
     border: none;
 }
 
-.notification_navbar {
+.notification-navbar-img {
     width: 16px;
     display: flex;
     cursor: pointer;
@@ -218,7 +219,7 @@ ul, li {
     background-color: #E4ECF1;
 }
 
-.info_navbar {
+.info-navbar-img {
     width: 18px;
     display: flex;
     cursor: pointer;
@@ -288,12 +289,12 @@ ul, li {
     background-color: #E4ECF1;
 }
 
-.workspace-dropdown {
+.dropdown-workspaces-styles {
     display: flex;
     align-items: center;
 }
 
-.workspace-content {
+.workspace-letter-style {
     width: 40px;
     height: 40px;
     border-radius: 3.5px;
@@ -318,15 +319,15 @@ ul, li {
     max-width: 190px;
 }
 
-.content-personal-workspace div:nth-child(1) {
+#content-personal-workspace div:nth-child(1) {
     background-color: #FFA7A7;
 }
 
-.content-university-workspace div:nth-child(1) {
+#content-university-workspace div:nth-child(1) {
     background-color: #97FF8E;
 }
 
-.content-teacher-workspace div:nth-child(1) {
+#content-teacher-workspace div:nth-child(1) {
     background-color: #D479FF;
 }
 
@@ -368,8 +369,6 @@ ul, li {
 
 .img-title-create-project {
     background-image: url(../assets/images/trello.svg);
-    background-repeat: no-repeat;
-    background-position: center;
     width: 15px;
     height: 16px;
 }
@@ -390,8 +389,6 @@ ul, li {
 
 .img-title-create-workspace {
     background-image: url(../assets/images/users-solid.svg);
-    background-repeat: no-repeat;
-    background-position: center;
     width: 16px;
     height: 14px;
 }
@@ -414,7 +411,7 @@ ul, li {
     margin: 28px 0px;
 }
 
-.container-workspace-sidebar {
+.container-workspace-sidebar-styles {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -423,15 +420,15 @@ ul, li {
     cursor: pointer;
 }
 
-.container-workspace-sidebar:hover {
+.container-workspace-sidebar-styles:hover {
     background: #E4ECF1;
 }
 
-.container-workspaces-sidebar ul {
-    gap: 2px;
+.workspaces-sidebar-styles {
+    /* gap: 2px; */
     display: flex;
     flex-direction: column;
-    margin-left: 3px;
+    /* margin-left: 3px; */
 }
 
 .content-projects-settings {
@@ -445,44 +442,53 @@ ul, li {
     cursor: pointer;
 }
 
-#projects-sidebar {
+.content-projects-settings:hover {
+    background-color: #E4ECF1;
+}
+
+#projects-sidebar.clicked {
     background-color: #D2ECFF;
 }
 
-#projects-sidebar div {
+.img-projects-sidebar {
+    background-image: url(../assets/images/layer-group-solid.svg);
+}
+
+.img-projects-sidebar.clicked {
     background-image: url(../assets/images/layer-group-solid-blue.svg);
 }
 
-#projects-sidebar p {
+#projects-sidebar.clicked p {
     color: #00AEE5;
 }
 
 .content-projects-settings div {
     width: 20px;
     height: 20px;
-    background-repeat: no-repeat;
-    background-position: center;
 }
 
 .content-projects-settings p {
     font-size: 13.5px;
     font-weight: 620;
     margin-left: 15px;
-}
-
-#settings-sidebar:hover {
-    background-color: #E4ECF1;
-}
-
-#settings-sidebar div {
-    background-image: url(../assets/images/gear-solid.svg);
-    
-}
-
-#settings-sidebar p {
     color: #545C5F;
 }
 
+.img-settings-sidebar {
+    background-image: url(../assets/images/gear-solid.svg);
+}
+
+.img-settings-sidebar.clicked {
+    background-image: url(../assets/images/gear-solid-blue.svg);
+}
+
+#settings-sidebar.clicked {
+    background-color: #D2ECFF;
+}
+
+#settings-sidebar.clicked p {
+    color: #00AEE5;
+}
 
 .container-workspaces-sidebar {
     border-top: 1px solid #EAEAEA;
@@ -494,14 +500,14 @@ ul, li {
     font-weight: 700;
 }
 
-.workspace-content-sidebar {
+.workspace-letter-sidebar {
     width: 20px;
     height: 20px;
     font-size: 14px;
     font-weight: 600;
 }
 
-.name-workspace-sidebar {
+.name-workspace-sidebar-styles {
     font-size: 14px;
     font-weight: 650;
     margin: 0px 12px;
@@ -509,8 +515,128 @@ ul, li {
 
 .chevron-down-sidebar {
     background-image: url(../assets/images/chevron-down-solid.svg);
-    background-position: center;
-    background-repeat: no-repeat;
+}
+
+
+
+/* ASIDE */
+
+#aside {
+    width: 270px;
+    height: 589px;
+    border-right: 1px solid #DFDFDF;
+    position: fixed;
+    top: 51px;
+    padding: 28px 0px;
+    box-shadow: 0px 2px 10px -3px rgb(0, 0, 0, 30%);
+}
+
+.workspace-letter-aside {
+    width: 30px;
+    height: 30px;
+    font-weight: bold;
+}
+
+.name-workspace-aside {
+    font-size: 16px;
+    font-weight: bold;
+    color: #3F4547;
+}
+
+.container-workspace-name-aside {
+    padding: 0px 0px 28px 0px;
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.chevron-left-aside {
+    background-image: url(../assets/images/chevron-left-solid.svg);
+}
+
+.img-semester-4 {
+    background-image: url(../assets/images/bosque\ 3.jpeg);
+}
+
+.img-final-thesis {
+    background-image: url(../assets/images/bosque\ 2.jpeg);
+}
+
+.img-ellipsis {
+    background-image: url(../assets/images/ellipsis-solid.svg);
+    cursor: pointer;
+}
+
+.img-plus {
+    background-image: url(../assets/images/plus-solid.svg);
+    cursor: pointer;
+}
+
+.icon-styles {
     width: 12px;
     height: 12px;
+}
+
+.proyect-name-img {
+    width: 20px;
+    height: 20px;
+    background-size: cover;
+    border-radius: 4px;
+}
+
+.h4-aside {
+    font-size: 14px;
+    font-weight: 700;
+    color: #545C5F;
+}
+
+.container-title {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 0px 18px;
+}
+
+.content-icons-aside {
+    display: flex;
+    gap: 15px
+}
+
+.container-proyects-aside {
+    padding: 7px 36px 7px 18px;
+    width: 269px;
+}
+
+.projects-settings-aside {
+    padding: 0px 18px;
+    width: 269px;
+}
+
+.workspace-aside {
+    width: 269px;
+    padding: 7px 18px
+}
+
+.button-invite-members {
+    display: flex;
+    justify-content: center;
+    margin-top: 177px;
+    border-top: 1px solid #dfdfdf;
+    padding-top: 28px;
+}
+
+.icon-user-plus {
+    background-image: url(../assets/images/user-plus-solid.svg);
+    width: 20px;
+    height: 16px;
+}
+
+#button-aside {
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 14px;
+    width: 257px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+    gap: 8px;
 }

@@ -6,7 +6,7 @@
 
             <div id="projects-sidebar" class="content-projects-settings">
 
-                <div></div>
+                <div class="img-projects-sidebar"></div>
     
                 <p>Projects</p>
                 
@@ -14,7 +14,7 @@
 
             <div id="settings-sidebar" class="content-projects-settings">
 
-                <div></div>
+                <div class="img-settings-sidebar"></div>
     
                 <p>Settings</p>
                 
@@ -25,23 +25,22 @@
 
         <div class="container-workspaces-sidebar">
 
-            <h4 class="title-h4 h4-sidebar" >Workspaces</h4>
+            <h4 class="title-h4 h4-sidebar">Workspaces</h4>
 
-            <ul>
+            <ul class="workspaces-sidebar-styles">
 
-                <li id="personal-workspace" class="container-workspace-sidebar">
+                <li id="personal-workspace" class="container-workspace-sidebar-styles">
 
                     <div>
 
-                        <div class="content-personal-workspace workspace-dropdown">
+                        <div id="content-personal-workspace" class="dropdown-workspaces-styles">
                             
-                            <div class="workspace-content workspace-content-sidebar">
+                            <div class="workspace-letter-style workspace-letter-sidebar">
                                 <span>P</span>
                             </div>
                             
-                            <div class="name-workspace name-workspace-sidebar">
+                            <div class="name-workspace name-workspace-sidebar-styles">
                                 <p>Personal workspace</p>
-    
                             </div>
         
                         </div>
@@ -52,21 +51,19 @@
 
                 </li>
 
-                <li id="university-workspace" class="container-workspace-sidebar">
+                <li id="university-workspace" class="container-workspace-sidebar-styles">
 
                     <div>
 
-                        <div class="content-university-workspace workspace-dropdown">
+                        <div id="content-university-workspace" class="dropdown-workspaces-styles">
     
-                            <div class="workspace-content workspace-content-sidebar">
+                            <div class="workspace-letter-style workspace-letter-sidebar">
                                 <span>U</span>
                             </div>
     
-                            <div class="name-workspace name-workspace-sidebar">
+                            <div class="name-workspace name-workspace-sidebar-styles">
                                 <p>University workspace</p>
-    
                             </div>
-    
                             
                         </div>
                         

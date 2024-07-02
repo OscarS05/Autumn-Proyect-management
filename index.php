@@ -9,7 +9,8 @@
 </head>
 <body>
     <?php include('includes/header.php'); ?>
-    <?php include('includes/sidebar.php'); ?>
+    <!-- <?php include('includes/sidebar.php'); ?> -->
+    <?php include('includes/aside.php'); ?>
     <main>
         <!-- Contenido principal de la página de inicio -->
     </main>

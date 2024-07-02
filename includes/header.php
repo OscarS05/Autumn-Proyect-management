@@ -1,7 +1,6 @@
 <header>
     <nav id="navbar">
 
-
         <div id="container-navbar-left">
 
             <div id="container-logo-navbar">
@@ -9,8 +8,8 @@
                 <p>Autumn</p>
             </div>
 
-            <ul id="containernavbar-workspaces-create">
-                <li id="conteinernavbar-workspaces">
+            <ul id="container-workspaces-create">
+                <li id="content-workspaces-chevron">
                     <div class="workspaces-navbar">
                         Workspaces
                     </div>
@@ -27,26 +26,22 @@
 
             <ul>
 
-                <div id="container-search-navbar" class="search-style">
-                    <!-- <div class="conteiner-img-search" >
-                        <img class="magnifying-glass" src="assets/images/search-img.svg" alt="search">
-                        <p>Search</p>
-                    </div> -->
+                <div id="navbar-search" class="search-style">
 
-                    <form action="/search" class="conteiner-img-search">
+                    <form action="/search" class="content-search">
                         <!-- <label for="navbar-search" class="visually-hidden">Search</label> -->
-                        <input type="text" id="navbar-search" placeholder="Search">
+                        <input type="text" id="placeholder-search-navbar" placeholder="Search">
                         <button type="submit" class="magnifying-glass"></button>
                     </form>
 
                 </div>
 
                 <div id="notification-navbar">
-                    <img class="notification_navbar" src="assets/images/notification.svg" alt="notification">
+                    <img class="notification-navbar-img" src="assets/images/notification.svg" alt="notification">
                 </div>
 
                 <div id="info-navbar">
-                    <img class="info_navbar" src="assets/images/info.svg" alt="info">
+                    <img class="info-navbar-img" src="assets/images/info.svg" alt="info">
                 </div>
 
                 <div id="profile-navbar-right">
@@ -58,6 +53,7 @@
             </ul>
 
         </div>
+
     </nav>
 
     <div id="dropdown-workspace-list" class="inactive">
@@ -71,9 +67,9 @@
                 <!-- Colocar id relacionado con el workspace de la pantalla de workspaces -->
                 <li class="container-workspace" id="personal-workspace">
 
-                    <div class="content-personal-workspace workspace-dropdown">
+                    <div id="content-personal-workspace" class="dropdown-workspaces-styles">
                         
-                        <div class="workspace-content">
+                        <div class="workspace-letter-style">
                             <span>P</span>
                         </div>
                         
@@ -87,10 +83,10 @@
 
                 <!-- Debajo estarán los demas li si el usuario crea más workspaces -->
                 <li class="container-workspace" id="university-workspace">
+                        <!-- Cambiar clase del div de los content-workspace -->
+                    <div id="content-university-workspace" class="dropdown-workspaces-styles">
 
-                    <div class="content-university-workspace workspace-dropdown">
-
-                        <div class="workspace-content">
+                        <div class="workspace-letter-style">
                             <span>U</span>
                         </div>
                         
@@ -111,9 +107,9 @@
                 <!-- Colocar id relacionado con el workspace al que el usuario fue invitado de la pantalla de workspaces -->
                 <li class="container-workspace" id="teacher-workspace">
 
-                    <div class="content-teacher-workspace workspace-dropdown">
+                    <div id="content-teacher-workspace" class="dropdown-workspaces-styles">
 
-                        <div class="workspace-content">
+                        <div class="workspace-letter-style">
                             <span>T</span>
                         </div>
         
@@ -164,10 +160,6 @@
                 </div>
 
                 <p class="description-create">A workspace is a set of projects and people. Use it to organize your business, your side project, and your plans with family or friends.</p>
-
-            </div>
-
-            <div>
 
             </div>
 
