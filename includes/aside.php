@@ -1,7 +1,6 @@
 <aside id="aside">
 
     <div class="container-workspace-name-aside">
-        <!-- id dinámico -->
         <div id="university-workspace" class="workspace-aside container-workspace-sidebar-styles">
 
             <div>
@@ -26,7 +25,7 @@
 
     </div>
 
-    <div class="conteiner-projects-settings">
+    <div class="container-projects-settings">
 
         <div id="projects-sidebar" class="projects-settings-aside content-projects-settings">
 
@@ -65,14 +64,13 @@
 
         <ul class="workspaces-sidebar-styles">
 
-            <li id="proyect-semester-4" class="container-proyects-aside container-workspace-sidebar-styles">
+            <li id="project-semester-4" class="container-projects-aside container-workspace-sidebar-styles">
 
                 <div>
 
                     <div id="content-semester-4" class="dropdown-workspaces-styles">
 
-                        <div class="img-semester-4 proyect-name-img">
-                            <!-- <img src="assets/images/bosque\ 3.jpeg" alt="img-project"> -->
+                        <div class="img-semester-4 project-name-img">
                         </div>
                         
                         <div class="name-workspace name-workspace-sidebar-styles">
@@ -85,13 +83,13 @@
 
             </li>
 
-            <li id="proyect-final-thesis" class="container-proyects-aside container-workspace-sidebar-styles">
+            <li id="project-final-thesis" class="container-projects-aside container-workspace-sidebar-styles">
 
                 <div>
 
                     <div id="content-final-thesis" class="dropdown-workspaces-styles">
 
-                        <div class="img-final-thesis proyect-name-img"></div>
+                        <div class="img-final-thesis project-name-img"></div>
 
                         <div class="name-workspace name-workspace-sidebar-styles">
                             <p>Final thesis</p>
@@ -108,7 +106,7 @@
     </div>
 
     <div class="button-invite-members">
-        <button id="button-aside" class="buttons-style">Invit members to the workspace
+        <button id="button-aside" class="buttons-style">Invite members to the workspace
             <div class="icon-user-plus"></div>
         </button>
     </div>

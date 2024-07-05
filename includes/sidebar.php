@@ -2,7 +2,7 @@
 
     <div class="content-sidebar">
 
-        <div class="conteiner-projects-settings">
+        <div class="container-projects-settings">
 
             <div id="projects-sidebar" class="content-projects-settings">
 
