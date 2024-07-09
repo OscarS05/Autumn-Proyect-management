@@ -134,11 +134,18 @@ iconsCreateProject();
 function iconsCreateWorkspace() {
     laterAddMembers.addEventListener('click', function(){
         selectAddMembers.style.background = '#F0F0F0';
-    })
+    });
 
     containerCreateWorkspace.addEventListener('click', function(){
         createAWorkspaceScreen.classList.remove('inactive');
         shadow.classList.remove('inactive');
+    });
+
+    shadow.addEventListener('click', function(){
+        if(!createAWorkspaceScreen.classList.contains('inactive')){
+            createAWorkspaceScreen.classList.add('inactive');
+            shadow.classList.add('inactive');
+        }
     })
 }
 iconsCreateWorkspace();

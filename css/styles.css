@@ -577,6 +577,9 @@ input[type="text"]:focus {
 .container-creation-screen {
     display: flex;
     justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
 }
 
 .creation-screen-styles {
@@ -718,7 +721,6 @@ input[type="text"]:focus {
 
 .bonsai {
     width: 316px;
-    /* height: 291px; */
 }
 
 
