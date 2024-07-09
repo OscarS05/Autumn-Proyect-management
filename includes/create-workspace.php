@@ -1,6 +1,6 @@
 <div class="container-creation-screen">
 
-    <div id="create-a-workspace" class="creation-screen-styles">
+    <div id="create-a-workspace" class="creation-screen-styles inactive">
 
         <form class="form-create-workspace">
             

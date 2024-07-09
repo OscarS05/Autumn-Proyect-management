@@ -11,6 +11,7 @@ let createButtonNavbar = document.querySelector('#button-create-navbar');
 let containerDropdownWorkspaces = document.querySelector('#dropdown-workspace-list');
         // Dropdown create
 let containerDropdownCreate = document.querySelector('#dropdown-create');
+let containerCreateWorkspace = document.querySelector('#create-workspace');
         // Create a project
 let createAProject = document.querySelector('#create-a-project');
 let chevronLeftCreateProject = document.querySelector('.chevron-left-create-project');
@@ -19,8 +20,10 @@ let optionsInputWorkspace = document.querySelector('#options-workspace');
 let selectVisibility = document.querySelector('#select-visibility-content');
 let optionsInputVisibility = document.querySelector('#options-visibility');
         // Create a workspace
+let createAWorkspaceScreen = document.querySelector('#create-a-workspace');
 let selectAddMembers = document.querySelector('.select-add-members');
 let laterAddMembers = document.querySelector('.later-add-members');
+let shadow = document.querySelector('.shadow');
     // Sidebar
 let sidebar = document.querySelector('#sidebar');
 let contentProjectsSidebar = document.querySelector('#projects-sidebar');
@@ -131,6 +134,11 @@ iconsCreateProject();
 function iconsCreateWorkspace() {
     laterAddMembers.addEventListener('click', function(){
         selectAddMembers.style.background = '#F0F0F0';
+    })
+
+    containerCreateWorkspace.addEventListener('click', function(){
+        createAWorkspaceScreen.classList.remove('inactive');
+        shadow.classList.remove('inactive');
     })
 }
 iconsCreateWorkspace();
