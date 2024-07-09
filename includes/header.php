@@ -179,7 +179,7 @@
 
         </div>
 
-        <div id="form-create-projects">
+        <form id="form-create-projects">
 
             <div id=input-name-project>
 
@@ -276,9 +276,10 @@
 
             </div>
 
-        </div>
+        </form>
 
         <button id="button-create-project" class="buttons-style">Create</button>
 
     </div>
+ 
 </header>

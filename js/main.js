@@ -18,6 +18,9 @@ let selectWorkspace = document.querySelector('#select-workspace-content');
 let optionsInputWorkspace = document.querySelector('#options-workspace');
 let selectVisibility = document.querySelector('#select-visibility-content');
 let optionsInputVisibility = document.querySelector('#options-visibility');
+        // Create a workspace
+let selectAddMembers = document.querySelector('.select-add-members');
+let laterAddMembers = document.querySelector('.later-add-members');
     // Sidebar
 let sidebar = document.querySelector('#sidebar');
 let contentProjectsSidebar = document.querySelector('#projects-sidebar');
@@ -50,10 +53,11 @@ function buttonsNavbar() {
 
     containerWorksChevron.addEventListener('click', function() {
     
-        if(!containerDropdownCreate.classList.contains('inactive')){
+        if(!containerDropdownCreate.classList.contains('inactive') || !createAProject.classList.contains('inactive')){
             containerDropdownCreate.classList.add('inactive');
             createButtonNavbar.classList.remove('clicked');
             containerWorksChevron.classList.remove('inactive');
+            createAProject.classList.add('inactive');
         }
     
         this.classList.toggle('clicked');
@@ -123,6 +127,13 @@ function iconsCreateProject(){
 dropdownOptionsInputs();
 iconsCreateProject();
 
+    // create a workspace
+function iconsCreateWorkspace() {
+    laterAddMembers.addEventListener('click', function(){
+        selectAddMembers.style.background = '#F0F0F0';
+    })
+}
+iconsCreateWorkspace();
 
 // funcionalidad al dar click en los botones del sidebar: clicked a color azul en el sidebar
 function clickedProjectsSettingsSidebar() {

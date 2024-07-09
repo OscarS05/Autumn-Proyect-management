@@ -9,11 +9,13 @@
 </head>
 <body>
     <?php include('includes/header.php'); ?>
-    <?php include('includes/sidebar.php'); ?>
+    <!-- <?php include('includes/sidebar.php'); ?>    -->
     <!-- <?php include('includes/aside.php'); ?> -->
+    <?php include('includes/create-workspace.php'); ?>
     <main>
-        <!-- Contenido principal de la página de inicio -->
+
     </main>
+    <section class="shadow"></section>
     <!-- ?php include('includes/footer.php'); ?> -->
     <script src="js/main.js"></script>
 </body>
