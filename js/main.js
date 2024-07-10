@@ -20,10 +20,13 @@ let optionsInputWorkspace = document.querySelector('#options-workspace');
 let selectVisibility = document.querySelector('#select-visibility-content');
 let optionsInputVisibility = document.querySelector('#options-visibility');
         // Create a workspace
+let containerCreateWorkspaceDiv = document.querySelector('#container-create-workspace');
 let createAWorkspaceScreen = document.querySelector('#create-a-workspace');
 let selectAddMembers = document.querySelector('.select-add-members');
 let laterAddMembers = document.querySelector('.later-add-members');
 let shadow = document.querySelector('.shadow');
+        // Create a team
+let ContainerCreateTeam = document.querySelector('#container-screen-create-team');
     // Sidebar
 let sidebar = document.querySelector('#sidebar');
 let contentProjectsSidebar = document.querySelector('#projects-sidebar');
@@ -132,21 +135,33 @@ iconsCreateProject();
 
     // create a workspace
 function iconsCreateWorkspace() {
+    let iconInfoTypeTeam = document.querySelector('.info-input-type-team');
+    let infoHover = document.querySelector('.info-hover');
+
     laterAddMembers.addEventListener('click', function(){
         selectAddMembers.style.background = '#F0F0F0';
     });
 
     containerCreateWorkspace.addEventListener('click', function(){
         createAWorkspaceScreen.classList.remove('inactive');
+        containerCreateWorkspaceDiv.classList.add('size-container');
         shadow.classList.remove('inactive');
     });
 
     shadow.addEventListener('click', function(){
-        if(!createAWorkspaceScreen.classList.contains('inactive')){
+        if(!createAWorkspaceScreen.classList.contains('inactive') || !ContainerCreateTeam.classList.contains('inactive')){
             createAWorkspaceScreen.classList.add('inactive');
             shadow.classList.add('inactive');
         }
-    })
+    });
+
+    iconInfoTypeTeam.addEventListener('mouseenter', function(){
+        infoHover.classList.remove('inactive');
+    });
+
+    iconInfoTypeTeam.addEventListener('mouseleave', function(){
+        infoHover.classList.add('inactive');
+    });
 }
 iconsCreateWorkspace();
 

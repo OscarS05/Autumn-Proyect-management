@@ -1,4 +1,4 @@
-<aside id="aside" class="inactive">
+<aside id="aside" class="">
 
     <div class="container-workspace-name-aside">
         <div id="university-workspace" class="workspace-aside container-workspace-sidebar-styles">

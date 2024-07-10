@@ -1,4 +1,4 @@
-<div class="container-creation-screen">
+<div id="container-create-workspace" class="container-creation-screen">
 
     <div id="create-a-workspace" class="creation-screen-styles inactive">
 
@@ -13,21 +13,21 @@
             
                 </div>
     
-                <div id="create-workspace-name" class="container-inputs-style">
-                    <label for="workspace-name-create" class="title-input">Workspace name:</label>
+                <div id="create-workspace-name" class="container-inputs-style margin-inputs-left">
+                    <label for="workspace-name-create" class="title-input input-name">Workspace name:</label>
                     <input type="text" class="container-inputs-create" placeholder="Homies CO" maxlenght="40">
                 </div>
         
-                <div id="create-description-workspace" class="container-inputs-style">
+                <div id="create-description-workspace" class="container-inputs-style margin-inputs-left">
                     <Label for="description-workspace" class="title-input">Add a description:</Label>
-                    <div type="text" class="container-inputs-create" contenteditable="true">Description of workspace</div>
+                    <div type="text" class="container-inputs-create input-add-description" contenteditable="true">Description of workspace</div>
                 </div>
     
             </div>
     
             <div class="container-center">
     
-                <button id="button-create-workspace" class="buttons-style">Create</button>
+                <button id="button-create-workspace" class="buttons-style button-create-workspace-style">Create</button>
     
             </div>
     
