@@ -4,7 +4,7 @@
 
         <div class="container-projects-settings">
 
-            <div id="projects-sidebar" class="content-projects-settings">
+            <div id="projects-sidebar" class="content-projects-settings projects-sidebar-styles">
 
                 <div class="img-projects-sidebar"></div>
     

@@ -1,4 +1,12 @@
-<aside id="aside" class="">
+<div class="aside-hidden inactive">
+
+    <div class="container-chevron-right">
+        <i class="fa-solid fa-chevron-right" style="color: #3f4547;"></i>
+    </div>
+    
+</div>
+
+<aside id="aside" class="inactive">
 
     <div class="container-workspace-name-aside">
         <div id="university-workspace" class="workspace-aside container-workspace-sidebar-styles">
@@ -19,15 +27,16 @@
                 
             </div>
 
-            <div class="chevron-left-aside chevron-down"></div>
+            <div id="chevron-left-aside" class="chevron-left-aside chevron-down">
+                <i class="fa-solid fa-chevron-left chevron-left-aside-icon" style="color: #3f4547;"></i>
+            </div>
 
         </div>
-
     </div>
 
     <div class="container-projects-settings">
 
-        <div id="projects-sidebar" class="projects-settings-aside content-projects-settings">
+        <div id="projects-aside" class="projects-settings-aside content-projects-settings projects-sidebar-styles">
 
             <div class="img-projects-sidebar"></div>
 
@@ -55,7 +64,7 @@
 
                 <div class="img-ellipsis icon-styles"></div>
         
-                <div class="img-plus icon-styles"></div>
+                <div id="img-plus-aside" class="img-plus icon-styles"></div>
 
             </div>
     
@@ -110,7 +119,7 @@
             <div class="icon-user-plus"></div>
         </button>
     </div>
-
+    
 </aside>
 
 <!-- Falta agregar funcionalidad al chevron-left, al darle click, que se esconda el aside -->

@@ -10,7 +10,12 @@
 </head>
 <body>
     <?php include('includes/header.php'); ?>
-    <!-- <?php include('includes/sidebar.php'); ?> -->
+
+    <main id="sidebar-yourWorkspaces" class="">
+        <?php include('includes/sidebar.php'); ?>
+        <?php include('includes/your-workspaces.php'); ?>
+    </main>
+    
     <?php include('includes/aside.php'); ?>
     <?php include('includes/create-workspace.php'); ?>
     <?php include('includes/create-team.php'); ?>

@@ -27,17 +27,26 @@ let laterAddMembers = document.querySelector('.later-add-members');
 let shadow = document.querySelector('.shadow');
         // Create a team
 let ContainerCreateTeam = document.querySelector('#container-screen-create-team');
+        // Workspaces and projects screen (Main)
+let containerSidebarYourWorkspaces = document.querySelector('#sidebar-yourWorkspaces');
+let yourWorkspacesProjects = document.querySelector('#your-projects');
+let containerYourProjects = document.querySelector('.container-your-projects');
+let buttonTeams = document.querySelector('#button-teams');
     // Sidebar
 let sidebar = document.querySelector('#sidebar');
+let contentSidebar = document.querySelector('.content-sidebar');
 let contentProjectsSidebar = document.querySelector('#projects-sidebar');
 let contentSettingsSidebar = document.querySelector('#settings-sidebar');
 let imgProjectSidebar = document.querySelector('.img-projects-sidebar');
 let imgSettingsSidebar = document.querySelector('.img-settings-sidebar');
     // Aside
 let asideWhite = document.querySelector('#aside');
-let buttonProjectsAside = document.querySelector('#projects-sidebar');
-    // Projects homepage
-let projectsHomepage = document.querySelector('#projects-homepage');
+let projectsAside = document.querySelector('#projects-aside');
+let chevronLeftAside = document.querySelector('#chevron-left-aside');
+let asideHidden = document.querySelector('.aside-hidden');
+let containerChevronRight = document.querySelector('.container-chevron-right');
+let imgPlusAside = document.querySelector('#img-plus-aside');
+
 
 
 
@@ -100,6 +109,8 @@ function buttonsNavbar() {
 }
 buttonsNavbar();
 
+
+
     // create a project
         // dropdown select workspace
 function dropdownOptionsInputs() {
@@ -118,6 +129,8 @@ function dropdownOptionsInputs() {
         }
     });
 }
+
+
         // funcionalidad de los icons chevron left y x-solid
 function iconsCreateProject(){
     document.querySelector('.x-create-project').addEventListener('click', function(){
@@ -132,6 +145,8 @@ function iconsCreateProject(){
 }
 dropdownOptionsInputs();
 iconsCreateProject();
+
+
 
     // create a workspace
 function iconsCreateWorkspace() {
@@ -165,27 +180,40 @@ function iconsCreateWorkspace() {
 }
 iconsCreateWorkspace();
 
-// funcionalidad al dar click en los botones del sidebar: clicked a color azul en el sidebar
+
+
+// funcionalidades al dar click en los botones del sidebar
 function clickedProjectsSettingsSidebar() {
+
+    if (!yourWorkspacesProjects.classList.contains('inactive')) {
+        contentProjectsSidebar.classList.add('clicked');
+        imgProjectSidebar.classList.add('clicked');
+    }
 
     contentProjectsSidebar.addEventListener('click', function() {
 
-        if(contentSettingsSidebar.classList.contains('clicked')){
+        if(!yourWorkspacesProjects.classList.contains('inactive')) {
+            contentProjectsSidebar.classList.add('clicked');
+            imgProjectSidebar.classList.add('clicked');
+        }else if(contentSettingsSidebar.classList.contains('clicked')){
             contentSettingsSidebar.classList.remove('clicked');
             imgSettingsSidebar.classList.remove('clicked');
             contentProjectsSidebar.classList.add('clicked');
             imgProjectSidebar.classList.add('clicked');
             projectsHomepage.classList.remove('inactive');
-        } else {
+        }else {
             this.classList.toggle('clicked');
             imgProjectSidebar.classList.toggle('clicked');
         }
 
-    })
+    });
 
     contentSettingsSidebar.addEventListener('click', function(){
 
-        if(contentProjectsSidebar.classList.contains('clicked')){
+        if(!yourWorkspacesProjects.classList.contains('inactive')){
+            contentSettingsSidebar.classList.remove('clicked');
+            imgSettingsSidebar.classList.remove('clicked');
+        } else if(contentProjectsSidebar.classList.contains('clicked')){
             contentProjectsSidebar.classList.remove('clicked');
             imgProjectSidebar.classList.remove('clicked');
             contentSettingsSidebar.classList.add('clicked');
@@ -195,34 +223,85 @@ function clickedProjectsSettingsSidebar() {
             imgSettingsSidebar.classList.toggle('clicked');
         }
 
-    })
+    });
 
 }
-
 clickedProjectsSettingsSidebar();
+
+
+
+// Workspace and projects screen: Main
+function MainWorkspaceFunctions() {
+
+    buttonTeams.addEventListener('click', function(){
+        contentSidebar.classList.add('inactive');
+        asideWhite.classList.remove('inactive');
+        containerYourProjects.classList.add('inactive');
+        containerSidebarYourWorkspaces.style.height = '0px';
+        sidebar.style.width = '0px';
+        sidebar.style.margin = '0px';
+        yourWorkspacesProjects.style.width = '0px';
+        yourWorkspacesProjects.style.margin = '0px';
+    });
+
+}
+MainWorkspaceFunctions();
+
+
 
 // si se da click al logo, mostrar la página de inicio.
 function logoNavbarFunction() {
     logoNavbar.addEventListener('click', function() {
-        if(!asideWhite.classList.contains('inactive')){
-            asideWhite.classList.add('inactive');
-            sidebar.classList.remove('inactive');
-        }
+        contentSidebar.classList.remove('inactive');
+        asideWhite.classList.add('inactive');
+        containerYourProjects.classList.remove('inactive');
+        containerSidebarYourWorkspaces.style.height = '';
+        sidebar.style.width = '';
+        sidebar.style.margin = '';
+        yourWorkspacesProjects.style.width = '';
+        yourWorkspacesProjects.style.margin = '';
     });
     nameLogo.addEventListener('click', function(){
-        if(!asideWhite.classList.contains('inactive')){
-            asideWhite.classList.add('inactive');
-            sidebar.classList.remove('inactive');
-        }
+        contentSidebar.classList.remove('inactive');
+        asideWhite.classList.add('inactive');
+        containerYourProjects.classList.remove('inactive');
+        containerSidebarYourWorkspaces.style.height = '';
+        sidebar.style.width = '';
+        sidebar.style.margin = '';
+        yourWorkspacesProjects.style.width = '';
+        yourWorkspacesProjects.style.margin = '';
     });
 }
 logoNavbarFunction();
 
-//Dar click a projects del sidebar
-function projects() {
-    buttonProjectsAside.addEventListener('click', function(){
-        if(projectsHomepage.classList.contains('inactive')){
-            projectsHomepage.classList.remove('inactive')
-        }
-    })
+
+
+// Functionalities of aside
+function asideFunctions() {
+    projectsAside.addEventListener('click', function() {
+        contentSidebar.classList.remove('inactive');
+        asideWhite.classList.add('inactive');
+        containerYourProjects.classList.remove('inactive');
+        containerSidebarYourWorkspaces.style.height = '';
+        sidebar.style.width = '';
+        sidebar.style.margin = '';
+        yourWorkspacesProjects.style.width = '';
+        yourWorkspacesProjects.style.margin = '';
+    });
+
+    chevronLeftAside.addEventListener('click', function() {
+        asideWhite.classList.add('inactive');
+        asideHidden.classList.remove('inactive');
+    });
+
+    containerChevronRight.addEventListener('click', function() {
+        asideWhite.classList.remove('inactive');
+        asideHidden.classList.add('inactive');
+    });
+
+    imgPlusAside.addEventListener('click', function(){
+        createAProject.classList.remove('inactive');
+        createButtonNavbar.classList.add('clicked');
+    });
 }
+asideFunctions();

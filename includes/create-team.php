@@ -1,6 +1,6 @@
-<div id="container-screen-create-team" class="container-creation-screen size-container">
+<div id="container-screen-create-team" class="container-creation-screen">
 
-    <div id="create-a-team" class="creation-screen-styles">
+    <div id="create-a-team" class="creation-screen-styles inactive">
 
         <form id="form-create-team" class="form-create-workspace">
             
