@@ -6,7 +6,7 @@
 
             <div id="projects-sidebar" class="content-projects-settings projects-sidebar-styles">
 
-                <div class="img-projects-sidebar"></div>
+                <i class="fa-solid fa-layer-group img-projects-sidebar"></i>
     
                 <p>Projects</p>
                 
@@ -14,7 +14,7 @@
 
             <div id="settings-sidebar" class="content-projects-settings">
 
-                <div class="img-settings-sidebar"></div>
+                <i class="fa-solid fa-gear img-settings-sidebar"></i>
     
                 <p>Settings</p>
                 
@@ -47,7 +47,7 @@
 
                     </div>
     
-                    <div class="chevron-down chevron-down-sidebar"></div>
+                    <i class="fa-solid fa-chevron-down chevron-down chevron-down-sidebar" style="color: #363c42;"></i>
 
                 </li>
 
@@ -69,7 +69,7 @@
                         
                     </div>
                     
-                    <div class="chevron-down chevron-down-sidebar"></div>
+                    <i class="fa-solid fa-chevron-down chevron-down chevron-down-sidebar" style="color: #363c42;"></i>
     
                 </li>
 

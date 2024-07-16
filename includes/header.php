@@ -13,7 +13,7 @@
                     <div class="workspaces-navbar">
                         Workspaces
                     </div>
-                    <div class="chevron-down" id="chevron-down-navbar"></div>
+                    <i id="chevron-down-navbar" class="fa-solid fa-chevron-down chevron-down"></i>
                 </li>
 
                 <button class="buttons-style" id="button-create-navbar">Create</button>
@@ -31,17 +31,17 @@
                     <form action="/search" class="content-search">
                         <!-- <label for="navbar-search" class="visually-hidden">Search</label> -->
                         <input type="text" id="placeholder-search-navbar" placeholder="Search">
-                        <button type="submit" class="magnifying-glass"></button>
+                        <i class="fa-solid fa-magnifying-glass magnifying-glass" style="color: #697377;"></i>
                     </form>
 
                 </div>
 
                 <div id="notification-navbar">
-                    <img class="notification-navbar-img" src="assets/images/notification.svg" alt="notification">
+                    <i class="fa-solid fa-bell notification-navbar-img"></i>
                 </div>
 
                 <div id="info-navbar">
-                    <img class="info-navbar-img" src="assets/images/info.svg" alt="info">
+                    <i class="fa-solid fa-circle-info info-navbar-img"></i>
                 </div>
 
                 <div id="profile-navbar-right">
@@ -135,8 +135,7 @@
                 
                 <div class="title-create">
 
-                    <div class="img-title-create-project"></div>
-    
+                    <i class="fa-brands fa-trello img-title-create-project" style="color: #545c5f;"></i>
                     <p>Create a project</p>
 
                 </div>
@@ -153,7 +152,7 @@
                 
                 <div class="title-create">
 
-                    <div class="img-title-create-workspace"></div>
+                    <i class="fa-solid fa-users img-title-create-workspace" style="color: #545c5f;"></i>
     
                     <p>Create a workspace</p>
 
@@ -171,11 +170,11 @@
 
         <div class="title-create-project">
 
-            <div class="chevron-left-create-project chevron-down"></div>
+            <i class="fa-solid fa-chevron-left chevron-left-create-project chevron-down" style="color: #3f4547;"></i>
 
             <h1 class="h4-create-project">Create a project</h1>
 
-            <div class="x-solid x-create-project"></div>
+            <i class="fa-solid fa-x x-solid x-create-project" style="color: #3f4547;"></i>
 
         </div>
 
@@ -196,7 +195,7 @@
                     <div class="inputs-create-project select-input">
 
                         <span>Personal workspace</span>
-                        <div class="chevron-down chevron-down-select"></div>
+                        <i class="fa-solid fa-chevron-down chevron-down chevron-down-select" style="#363c42"></i>
 
                     </div>
 
@@ -219,21 +218,23 @@
                     <div class="inputs-create-project select-input">
 
                         <span>Private</span>
-                        <div class="chevron-down chevron-down-select"></div>
+                        <i class="fa-solid fa-chevron-down chevron-down chevron-down-select" style="#363c42"></i>
 
                     </div>
 
                     <ul id="options-visibility" class="options inactive">
 
                         <li class="visibility-options-styles options-style">
-                            <img src="assets/images/lock-solid.svg" class="lock-icon" alt="lock">
+                            <i class="fa-solid fa-lock lock-icon" style="color: #3f4547;"></i>
+                            
                             <div>
                                 <p>Private</p>
                                 <p>Only members of the project will be able to see the content of this project.</p>
                             </div>
                         </li>
                         <li class="visibility-options-styles options-style">
-                            <img src="assets/images/users-solid.svg" class="users-icon" alt="users">
+                            <i class="fa-solid fa-users users-icon" style="color: #3f4547;"></i>
+
                             <div>
                                 <p>Workspace</p>
                                 <p>All members of the "x-workspace" workspace can view and edit this project.</p>

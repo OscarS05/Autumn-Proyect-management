@@ -16,15 +16,19 @@
                 <div class="container-projects">
     
                     <div id="project-1" class="projects-styles">
-    
-                        <p>Project 1</p>
-    
+                        <div class="div-hover-projects">
+
+                            <p>Project 1</p>
+
+                        </div>
                     </div>
     
                     <div id="family-project" class="projects-styles">
-    
-                        <p>Family project</p>
-    
+                        <div class="div-hover-projects">
+
+                            <p>Family project</p>
+
+                        </div>
                     </div>
     
                 </div>
@@ -88,21 +92,27 @@
                 <div class="container-projects">
         
                     <div id="project-1" class="projects-styles">
-        
-                        <p>Project 1</p>
-        
+                        <div class="div-hover-projects">
+
+                            <p>Project 1</p>
+
+                        </div>
                     </div>
         
                     <div id="family-project" class="projects-styles">
-        
-                        <p>Family project</p>
-        
+                        <div class="div-hover-projects">
+
+                            <p>Family project</p>
+
+                        </div>
                     </div>
         
                     <div id="create-new-project" class="new-project-styles projects-styles">
-        
-                        <p>Create a new project</p>
-        
+                        <div class="div-hover-new-projects">
+
+                            <p>Create a new project</p>
+
+                        </div>
                     </div>
         
                 </div>
@@ -160,21 +170,25 @@
                 <div class="container-projects">
         
                     <div id="semester-4" class="projects-styles">
-        
-                        <p>Semester 4</p>
-        
+                        <div class="div-hover-projects">
+
+                            <p>Semester 4</p>
+
+                        </div>
                     </div>
         
                     <div id="final-thesis" class="projects-styles">
-        
-                        <p>Final thesis</p>
-        
+                        <div class="div-hover-projects">
+
+                            <p>Final thesis</p>
+
+                        </div>
                     </div>
         
                     <div id="create-new-project" class="new-project-styles projects-styles">
-        
+
                         <p>Create a new project</p>
-        
+
                     </div>
         
                 </div>
@@ -187,14 +201,14 @@
     
             <h3 class="title-workspace">Workspace in which you are a guest</h3>
     
-            <div id="container-personal-workspace">
+            <div id="container-teacher-workspace">
     
                 <div class="container-title-buttons">
     
                     <div class="container-name-workspace">
     
                         <i class="fa-solid fa-users users-a-guest" style="color: #3f4547;"></i>
-                        <span class="name-workspace-main">Personal workspace</span>
+                        <span class="name-workspace-main">Teacher workspace</span>
     
                     </div>
     
@@ -203,9 +217,11 @@
                 <div class="container-projects">
     
                     <div id="syllabus-project" class="projects-styles">
-    
-                        <p>Syllabus</p>
-    
+                        <div class="div-hover-projects">
+                            
+                            <p>Syllabus</p>
+
+                        </div>
                     </div>
     
                 </div>

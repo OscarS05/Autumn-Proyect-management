@@ -38,7 +38,7 @@
 
         <div id="projects-aside" class="projects-settings-aside content-projects-settings projects-sidebar-styles">
 
-            <div class="img-projects-sidebar"></div>
+            <i class="fa-solid fa-layer-group img-projects-sidebar"></i>
 
             <p>Projects</p>
             
@@ -46,7 +46,7 @@
 
         <div id="settings-sidebar" class="projects-settings-aside content-projects-settings">
 
-            <div class="img-settings-sidebar"></div>
+            <i class="fa-solid fa-gear img-settings-sidebar"></i>
 
             <p>Workspace settings</p>
             
@@ -62,9 +62,9 @@
 
             <div class="content-icons-aside">
 
-                <div class="img-ellipsis icon-styles"></div>
-        
-                <div id="img-plus-aside" class="img-plus icon-styles"></div>
+                <i class="fa-solid fa-ellipsis i-size-aside" style="color: #363c42;"></i>
+
+                <i id="img-plus-aside" class="fa-solid fa-plus i-size-aside" style="color: #363c42;"></i>
 
             </div>
     
@@ -116,10 +116,9 @@
 
     <div class="button-invite-members">
         <button id="button-aside" class="buttons-style">Invite members to the workspace
-            <div class="icon-user-plus"></div>
+            <!-- <div class="icon-user-plus"></div> -->
+            <i class="fa-solid fa-user-plus icon-user-plus" style="color: #ffffff;"></i>
         </button>
     </div>
     
 </aside>
-
-<!-- Falta agregar funcionalidad al chevron-left, al darle click, que se esconda el aside -->

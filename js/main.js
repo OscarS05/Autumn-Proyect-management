@@ -115,7 +115,12 @@ buttonsNavbar();
         // dropdown select workspace
 function dropdownOptionsInputs() {
     selectWorkspace.addEventListener('click', function() {
-        optionsInputWorkspace.classList.toggle('inactive');
+        if(!optionsInputVisibility.classList.contains('inactive')) {
+            optionsInputVisibility.classList.add('inactive');
+            optionsInputWorkspace.classList.remove('inactive');
+        } else {
+            optionsInputWorkspace.classList.toggle('inactive');
+        }
     });
 
     selectVisibility.addEventListener('click', function() {

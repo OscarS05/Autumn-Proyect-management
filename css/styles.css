@@ -18,9 +18,12 @@ ul, li {
     list-style: none;
 }
 
+i {
+    cursor: pointer;
+}
+
 .chevron-down {
-    width: 12px;
-    height: 12px;
+    font-size: 12px;
 }
 
 .buttons-style {
@@ -119,8 +122,8 @@ input[type="text"]:focus {
 }
 
 #chevron-down-navbar {
+    color: #363c42;
     margin-left: 9px;
-    background-image: url(../assets/images/chevron-down-solid.svg);
 }
 
 #button-create-navbar {
@@ -141,7 +144,7 @@ input[type="text"]:focus {
 }
 
 #chevron-down-navbar.clicked {
-    background-image: url(../assets/images/chevron-down-blue.svg);
+    color: #00AEE5;
 }
 
 #button-create-navbar.clicked {
@@ -180,13 +183,11 @@ input[type="text"]:focus {
     padding: 0px 1px 0px 12px;
     display: flex;
     flex-direction: row-reverse;
+    align-items: center;
 }
 
 .magnifying-glass {
-    width: 12px;
-    background-image: url(../assets/images/search-img.svg);
-    border: none;
-    background-color: #FFFFFF;
+    font-size: 12px;
     cursor: pointer;
 }
 
@@ -200,8 +201,7 @@ input[type="text"]:focus {
 }
 
 .notification-navbar-img {
-    width: 16px;
-    display: flex;
+    font-size: 18px;
     cursor: pointer;
 }
 
@@ -223,8 +223,7 @@ input[type="text"]:focus {
 }
 
 .info-navbar-img {
-    width: 18px;
-    display: flex;
+    font-size: 18px;
     cursor: pointer;
 }
 
@@ -371,9 +370,7 @@ input[type="text"]:focus {
 }
 
 .img-title-create-project {
-    background-image: url(../assets/images/trello.svg);
-    width: 15px;
-    height: 16px;
+    font-size: 15px;
 }
 
 .title-create p {
@@ -391,9 +388,7 @@ input[type="text"]:focus {
 
 
 .img-title-create-workspace {
-    background-image: url(../assets/images/users-solid.svg);
-    width: 16px;
-    height: 14px;
+    font-size: 14px;
 }
 
     /* CREATE A PROJECT */
@@ -424,11 +419,6 @@ input[type="text"]:focus {
     gap: 10px;
 }
 
-.chevron-left-create-project{
-    background-image: url(../assets/images/chevron-left-solid.svg);
-    cursor: pointer;
-}
-
 .h4-create-project {
     font-weight: bold;
     font-size: 15px;
@@ -436,10 +426,7 @@ input[type="text"]:focus {
 }
 
 .x-solid {
-    background-image: url(../assets/images/x-solid.svg);
-    width: 11px;
-    height: 10.5px;
-    cursor: pointer;
+    font-size: 11px;
 }
 
 .labels-create-project {
@@ -505,14 +492,12 @@ input[type="text"]:focus {
 }
 
 .lock-icon {
-    width: 34px;
-    height: 13px;
+    font-size: 16px;
     margin: 0px 20px;
 }
 
 .users-icon {
-    width: 16px;
-    height: 14px;
+    font-size: 16px;
     margin: 0px 20px;
 }
 
@@ -522,10 +507,6 @@ input[type="text"]:focus {
 
 .visibility-options-styles div p:nth-child(2) {
     margin: 5px 0px;
-}
-
-.chevron-down-select {
-    background-image: url(../assets/images/chevron-down-solid.svg);
 }
 
 .img-background-style {
@@ -799,20 +780,19 @@ input[type="text"]:focus {
 }
 
 .img-projects-sidebar {
-    background-image: url(../assets/images/layer-group-solid.svg);
+    color: #545c5f;
 }
 
 .img-projects-sidebar.clicked {
-    background-image: url(../assets/images/layer-group-solid-blue.svg);
+    color: #00AEE5;
 }
 
 .projects-sidebar-styles.clicked p {
     color: #00AEE5;
 }
 
-.content-projects-settings div {
-    width: 20px;
-    height: 20px;
+.content-projects-settings i {
+    font-size: 18px;
 }
 
 .content-projects-settings p {
@@ -823,11 +803,11 @@ input[type="text"]:focus {
 }
 
 .img-settings-sidebar {
-    background-image: url(../assets/images/gear-solid.svg);
+    color: #545c5f;
 }
 
 .img-settings-sidebar.clicked {
-    background-image: url(../assets/images/gear-solid-blue.svg);
+    color: #00AEE5;
 }
 
 #settings-sidebar.clicked {
@@ -859,10 +839,6 @@ input[type="text"]:focus {
     font-size: 14px;
     font-weight: 650;
     margin: 0px 12px;
-}
-
-.chevron-down-sidebar {
-    background-image: url(../assets/images/chevron-down-solid.svg);
 }
 
 
@@ -906,6 +882,8 @@ input[type="text"]:focus {
     align-items: center;
     justify-content: center;
     border-radius: 14px;
+    width: 8px;
+    height: 8px;
 }
 
 .chevron-left-aside-icon {
@@ -951,19 +929,17 @@ input[type="text"]:focus {
     background-image: url(../assets/images/bosque-2.jpeg);
 }
 
-.img-ellipsis {
-    background-image: url(../assets/images/ellipsis-solid.svg);
-    cursor: pointer;
+.i-size-aside {
+    font-size: 13px;
+    display: flex;
+    padding: 6px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
 }
 
-.img-plus {
-    background-image: url(../assets/images/plus-solid.svg);
-    cursor: pointer;
-}
-
-.icon-styles {
-    width: 12px;
-    height: 12px;
+.i-size-aside:hover {
+    background-color: #E4ECF1;
 }
 
 .project-name-img {
@@ -982,13 +958,13 @@ input[type="text"]:focus {
 .container-title {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
     padding: 0px 18px;
 }
 
 .content-icons-aside {
     display: flex;
-    gap: 15px
 }
 
 .container-projects-aside {
@@ -1015,9 +991,7 @@ input[type="text"]:focus {
 }
 
 .icon-user-plus {
-    background-image: url(../assets/images/user-plus-solid.svg);
-    width: 20px;
-    height: 16px;
+    font-size: 14px;
 }
 
 #button-aside {
@@ -1157,6 +1131,10 @@ input[type="text"]:focus {
     width: 16px;
 }
 
+.buttons-workspace-style:hover {
+    background-color: #00000023;
+}
+
 .buttons-workspace-style span {
     color: #454545;
     font-size: 13px;
@@ -1182,8 +1160,21 @@ input[type="text"]:focus {
     height: 91px;
     border-radius: 3px;
     background-size: cover;
-    padding: 15px 16px;
     cursor: pointer;
+}
+
+.new-project-styles:hover {
+    background-color: #00000023;
+}
+
+.div-hover-projects {
+    width: 100%;
+    height: 100%;
+    padding: 15px 16px;
+}
+
+.div-hover-projects:hover {
+    background-color: rgba(0, 0, 0, 0.26);
 }
 
 .new-project-styles {
