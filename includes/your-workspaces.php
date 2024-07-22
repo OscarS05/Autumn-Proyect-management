@@ -15,7 +15,7 @@
     
                 <div class="container-projects">
     
-                    <div id="project-1" class="projects-styles">
+                    <div id="project-1" class="projects-styles project">
                         <div class="div-hover-projects">
 
                             <p>Project 1</p>
@@ -23,7 +23,7 @@
                         </div>
                     </div>
     
-                    <div id="family-project" class="projects-styles">
+                    <div id="family-project" class="projects-styles project">
                         <div class="div-hover-projects">
 
                             <p>Family project</p>
@@ -91,7 +91,7 @@
         
                 <div class="container-projects">
         
-                    <div id="project-1" class="projects-styles">
+                    <div id="project-1" class="projects-styles project">
                         <div class="div-hover-projects">
 
                             <p>Project 1</p>
@@ -99,7 +99,7 @@
                         </div>
                     </div>
         
-                    <div id="family-project" class="projects-styles">
+                    <div id="family-project" class="projects-styles project">
                         <div class="div-hover-projects">
 
                             <p>Family project</p>
@@ -107,7 +107,7 @@
                         </div>
                     </div>
         
-                    <div id="create-new-project" class="new-project-styles projects-styles">
+                    <div id="create-new-project" class="new-project-styles projects-styles project">
                         <div class="div-hover-new-projects">
 
                             <p>Create a new project</p>
@@ -169,7 +169,7 @@
         
                 <div class="container-projects">
         
-                    <div id="semester-4" class="projects-styles">
+                    <div id="semester-4" class="projects-styles project">
                         <div class="div-hover-projects">
 
                             <p>Semester 4</p>
@@ -177,7 +177,7 @@
                         </div>
                     </div>
         
-                    <div id="final-thesis" class="projects-styles">
+                    <div id="final-thesis" class="projects-styles project">
                         <div class="div-hover-projects">
 
                             <p>Final thesis</p>
@@ -185,7 +185,7 @@
                         </div>
                     </div>
         
-                    <div id="create-new-project" class="new-project-styles projects-styles">
+                    <div id="create-new-project" class="new-project-styles projects-styles project">
 
                         <p>Create a new project</p>
 
@@ -216,7 +216,7 @@
     
                 <div class="container-projects">
     
-                    <div id="syllabus-project" class="projects-styles">
+                    <div id="syllabus-project" class="projects-styles project">
                         <div class="div-hover-projects">
                             
                             <p>Syllabus</p>

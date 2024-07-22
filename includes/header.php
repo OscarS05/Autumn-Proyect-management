@@ -30,8 +30,8 @@
 
                     <form action="/search" class="content-search">
                         <!-- <label for="navbar-search" class="visually-hidden">Search</label> -->
-                        <input type="text" id="placeholder-search-navbar" placeholder="Search">
-                        <i class="fa-solid fa-magnifying-glass magnifying-glass" style="color: #697377;"></i>
+                        <input type="text" id="placeholder-search-navbar" class="search-styles" placeholder="Search">
+                        <i class="fa-solid fa-magnifying-glass magnifying-glass"></i>
                     </form>
 
                 </div>
