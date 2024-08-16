@@ -44,7 +44,7 @@
                     <i class="fa-solid fa-circle-info info-navbar-img"></i>
                 </div>
 
-                <div id="profile-navbar-right">
+                <div class="profile-navbar-right">
                     <div class="profile-navbar">
                         <span>OM</span>
                     </div>
