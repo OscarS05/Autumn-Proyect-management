@@ -1,4 +1,4 @@
-<div id="container-create-workspace" class="container-creation-screen">
+<div id="container-create-workspace" class="container-creation-screen inactive">
 
     <div id="create-a-workspace" class="creation-screen-styles inactive">
 

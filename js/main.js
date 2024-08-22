@@ -31,14 +31,56 @@ let selectWorkspace = document.querySelector('#select-workspace-content');
 let optionsInputWorkspace = document.querySelector('#options-workspace');
 let selectVisibility = document.querySelector('#select-visibility-content');
 let optionsInputVisibility = document.querySelector('#options-visibility');
+
         // Create a workspace
 let containerCreateWorkspaceDiv = document.querySelector('#container-create-workspace');
 let createAWorkspaceScreen = document.querySelector('#create-a-workspace');
 let selectAddMembers = document.querySelector('.select-add-members');
 let laterAddMembers = document.querySelector('.later-add-members');
 let shadow = document.querySelector('.shadow');
+let openCreateWorkspace = () => {
+    createAWorkspaceScreen.classList.remove('inactive');
+    containerCreateWorkspaceDiv.classList.add('size-container');
+    containerCreateWorkspaceDiv.classList.remove('inactive');
+    containerCreateWorkspaceDiv.classList.remove('inactive');
+    containerProjectScreen.style.height = '0px';
+    containerSidebarYourWorkspaces.style.height = '0px';
+
+    body.style.overflow = 'hidden';
+    shadow.classList.remove('inactive');
+
+    if(!containerSidebarYourWorkspaces.classList.contains('inactive')){
+        mainTeamsList.classList.add('inactive');
+    }
+}
+let closeCreateWorkspace = () => {
+    createAWorkspaceScreen.classList.add('inactive');
+    containerCreateWorkspaceDiv.classList.remove('size-container');
+    containerCreateWorkspaceDiv.classList.add('inactive');
+    containerSidebarYourWorkspaces.style.height = '';
+    containerProjectScreen.style.height = '';
+    // body.style.overflow = '';
+    shadow.classList.add('inactive');
+}
+
         // Create a team
-let ContainerCreateTeam = document.querySelector('#container-screen-create-team');
+let containerCreateTeam = document.querySelector('#container-screen-create-team');
+let createATeam = document.querySelector('#create-a-team');
+let openCreateTeam = () => {
+    containerCreateTeam.classList.remove('inactive');
+    createATeam.classList.remove('inactive');
+    shadow.classList.remove('inactive');
+    containerCreateWorkspaceDiv.classList.add('inactive');
+    body.style.overflow = 'hidden';
+}
+let closeCreateTeam = () => {
+    containerCreateTeam.classList.add('inactive');
+    createATeam.classList.add('inactive');
+    shadow.classList.add('inactive');
+    containerCreateWorkspaceDiv.classList.remove('inactive');
+    body.style.overflow = 'hidden';
+}
+
         // Workspaces and projects screen (Main)
 let containerSidebarYourWorkspaces = document.querySelector('#sidebar-yourWorkspaces');
 let yourWorkspacesProjects = document.querySelector('#your-projects');
@@ -48,15 +90,18 @@ let projects = document.querySelector('.project');
 let openWorkspacesProjectsSidebar = () => {
     containerYourProjects.classList.remove('inactive');
     containerSidebarYourWorkspaces.style.height = '';
+    containerSidebarYourWorkspaces.classList.remove('inactive');
     yourWorkspacesProjects.style.width = '';
     yourWorkspacesProjects.style.margin = '';
 }
 let closeWorkspacesProjectsSidebar = () => {
     containerYourProjects.classList.add('inactive');
     containerSidebarYourWorkspaces.style.height = '0px';
+    containerSidebarYourWorkspaces.classList.add('inactive');
     yourWorkspacesProjects.style.width = '0px';
     yourWorkspacesProjects.style.margin = '0px';
 }
+
     // Sidebar
 let sidebar = document.querySelector('#sidebar');
 let contentSidebar = document.querySelector('.content-sidebar');
@@ -83,7 +128,9 @@ let containerChevronRight = document.querySelector('.container-chevron-right');
 let imgPlusAside = document.querySelector('#img-plus-aside');
 let topDivs = document.querySelector('.top-divs');
 let buttonAside = document.querySelector('#button-aside');
+let containerProjectScreen = document.querySelector('#background-project-screen');
 let openAsideWhite = () => {
+    containerProjectScreen.style.display = 'flex';
     buttonAside.classList.remove('inactive');
     buttonAside.style.display = 'flex';
     asideWhite.style.width = '288px';
@@ -97,7 +144,6 @@ let closeAsideWhite = () => {
     projectScreen.classList.add('inactive');
 }
     // Project screen
-let containerProjectScreen = document.querySelector('#background-project-screen');
 let projectScreen = document.querySelector('#project-screen');
 let lists = document.querySelector('.lists');
 let screenCard = document.querySelector('#screen-card');
@@ -140,9 +186,16 @@ let itemMembersBtn = document.querySelectorAll('.assign-members-btn');
 let items = document.querySelectorAll('.container-right-item-checklist');
 let cancelEditItem = document.querySelectorAll('.cancel-edit-item');
 let quitAttachment = document.querySelectorAll('.quit-attachment');
+    // Teams list
+let mainTeamsList = document.querySelector('.container-teams-list');
+let addTeamButton = document.querySelector('.add-team-button');
 
 
-
+// Pendientes:
+// Si escondo el aside en project screen, que project screen se desplace hacia la izquierda en vez de esconderse
+// Definir que lenguaje de backend usar. Investigar que lenguajes de backend o frameworks son más demandados y con la menor oferta posible
+// Al finalizar el backend y luego de salir de trabajos del SENA, REFACTORIZAR todo el código de js, de css. El html solo si es necesario
+// Ponerle el addEventListener a todos los projects y a todos lo botones de teams
 
 
 
@@ -197,19 +250,15 @@ function buttonsNavbar() {
             createAProject.classList.add('inactive');
         }
 
-    })
+    });
 
     document.querySelector('#create-project').addEventListener('click', function(){
         containerDropdownCreate.classList.add('inactive');
         createAProject.classList.remove('inactive');
-    })
+    });
 
     containerCreateWorkspace.addEventListener('click', function(){
-        createAWorkspaceScreen.classList.remove('inactive');
-        containerCreateWorkspaceDiv.classList.add('size-container');
-        containerSidebarYourWorkspaces.style.height = '0px';
-        body.style.overflow = 'hidden';
-        shadow.classList.remove('inactive');
+        openCreateWorkspace();
     });
 
 }
@@ -281,16 +330,14 @@ iconsCreateWorkspace();
 
     // shadow
 shadow.addEventListener('click', function(){
-    if(!createAWorkspaceScreen.classList.contains('inactive') || !ContainerCreateTeam.classList.contains('inactive')){
-        createAWorkspaceScreen.classList.add('inactive');
-        shadow.classList.add('inactive');
-    }
+    closeCreateTeam();
+    closeCreateWorkspace();
 
-    if(!body.classList.contains('header-aside-black')){
-        containerCreateWorkspaceDiv.classList.remove('size-container');
-        containerSidebarYourWorkspaces.style.height = '';
-        body.style.overflowY = 'scroll';
-    }
+    // if(!body.classList.contains('header-aside-black')){
+    //     containerCreateWorkspaceDiv.classList.remove('size-container');
+    //     containerSidebarYourWorkspaces.style.height = '';
+    //     body.style.overflowY = 'scroll';
+    // }
 
 
     if(body.classList.contains('header-aside-black')){
@@ -359,6 +406,7 @@ function MainWorkspaceFunctions() {
         openAsideWhite();
         closeSidebar();
         closeWorkspacesProjectsSidebar();
+        mainTeamsList.classList.remove('inactive');
     });
 
     projects.addEventListener('click', function(){
@@ -398,6 +446,12 @@ function asideFunctions() {
     chevronLeftAside.addEventListener('click', function() {
         closeAsideWhite();
         asideHidden.classList.remove('inactive');
+
+        if(body.classList.contains('header-aside-black')){
+            projectScreen.classList.remove('inactive');
+        } else {
+
+        }
     });
 
     containerChevronRight.addEventListener('click', function() {
@@ -750,3 +804,13 @@ function functionsCardScreen() {
     // Comments
 }
 functionsCardScreen();
+
+
+
+// Teams list
+function teamsListFunctions(){
+    addTeamButton.addEventListener('click', function(){
+        openCreateTeam();
+    });
+}
+teamsListFunctions();

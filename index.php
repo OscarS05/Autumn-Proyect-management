@@ -11,6 +11,7 @@
 </head>
 <body class="">
     <?php include('includes/header.php'); ?>
+    <!-- <?php include('includes/sign-up-sign-in.php'); ?> -->
 
     <main id="sidebar-yourWorkspaces" class="">
         <?php include('includes/sidebar.php'); ?>
@@ -20,10 +21,11 @@
     <main id="background-project-screen" class="background-styles-project">
         <?php include('includes/aside.php'); ?>
         <?php include('includes/project-screen.php'); ?>
+        <?php include('includes/teams-list.php'); ?>
+        <?php include('includes/create-team.php'); ?>
     </main>
-
+    
     <?php include('includes/create-workspace.php'); ?>
-    <?php include('includes/create-team.php'); ?>
 
     <section class="shadow inactive"></section>
     <!-- ?php include('includes/footer.php'); ?> -->

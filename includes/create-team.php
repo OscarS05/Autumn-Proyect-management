@@ -1,4 +1,4 @@
-<div id="container-screen-create-team" class="container-creation-screen">
+<div id="container-screen-create-team" class="container-creation-screen inactive">
 
     <div id="create-a-team" class="creation-screen-styles inactive">
 
