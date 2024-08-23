@@ -141,6 +141,12 @@ let items = document.querySelectorAll('.container-right-item-checklist');
 let cancelEditItem = document.querySelectorAll('.cancel-edit-item');
 let quitAttachment = document.querySelectorAll('.quit-attachment');
 
+// Sign in
+let signInScreen = document.querySelector('#sign-in');
+let initialState = () => {
+    containerSidebarYourWorkspaces.classList.add('inactive');
+    navbar.classList.add('inactive');
+}
 
 
 
@@ -750,3 +756,14 @@ function functionsCardScreen() {
     // Comments
 }
 functionsCardScreen();
+
+
+
+
+// Sign in
+function functionsSignIn(){
+    if(!signInScreen.classList.contains('inactive')){
+        initialState();
+    }
+}
+functionsSignIn();

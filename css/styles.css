@@ -2443,3 +2443,124 @@ button {
     align-items: center;
     justify-content: space-between;
 }
+
+
+
+
+/* Sign in */
+
+.sign-in-container-styles {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(../assets/images/sign-in.jpeg);
+}
+
+.sign-in-content {
+    width: 350px;
+    height: 360px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 3px 10px -1px rgb(0, 0, 0, 30%);
+    background: transparent;
+    backdrop-filter: blur(20px);
+}
+
+.sign-in-content h1 {
+    color: #FFFFFF;
+    margin: 0px 0px 15px 0px;
+}
+
+.inputs-style {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #dfdede;
+    border-radius: 14px;
+    padding: 5px 10px;
+    align-items: center;
+    width: 294px;
+    height: 34px;
+    margin: 18px 0px 22px 0px;
+    font-size: 14px;
+    color: #FFFFFF;
+}
+
+.inputs-style p {
+    font-size: 14px;
+    color: #FFFFFF;
+}
+
+.sign-in-options {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    align-items: center;
+    color: #FFFFFF;
+    margin: 0px 0px 18px 0px;;
+}
+
+.sign-in-options div {
+    display: flex;
+    gap: 5px;
+    color: #FFFFFF;
+}
+
+.button-sign-in {
+    width: 248px;
+    height: 34px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 14px;
+    background-color: #FFFFFF;
+    color: #333;
+    font-weight: bold;
+}
+
+.button-sign-in:hover {
+    background-color: #EFEFEF;
+}
+
+.text-footer-sign-in {
+    font-size: 13px;
+    color: #FFFFFF;
+    margin: 10px 0px 0px 0px;
+    text-align: center;
+}
+
+.text-footer-sign-in strong:hover, .sign-in-options p:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.checkbox-remember-me {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #FFFFFF;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.checkbox-remember-me:checked {
+    background-color: white;
+    position: relative;
+}
+
+.checkbox-remember-me:checked:before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0px;
+    width: 4px;
+    height: 6px;
+    border: solid #000;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
