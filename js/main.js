@@ -186,7 +186,9 @@ let itemMembersBtn = document.querySelectorAll('.assign-members-btn');
 let items = document.querySelectorAll('.container-right-item-checklist');
 let cancelEditItem = document.querySelectorAll('.cancel-edit-item');
 let quitAttachment = document.querySelectorAll('.quit-attachment');
-    // Teams list
+
+
+// Teams list
 let mainTeamsList = document.querySelector('.container-teams-list');
 let addTeamButton = document.querySelector('.add-team-button');
 
@@ -814,3 +816,25 @@ function teamsListFunctions(){
     });
 }
 teamsListFunctions();
+
+
+
+
+// Sign in
+function functionsSignIn(){
+    let buttonRegister = document.querySelector('.register');
+    let buttonLogin = document.querySelector('.login');
+
+    if(!containerSignInUp.classList.contains('inactive')){
+        initialState();
+    }
+
+    buttonRegister.addEventListener('click', function(){
+        openSignUp();
+    });
+
+    buttonLogin.addEventListener('click', function(){
+        closeSignUp();
+    });
+}
+functionsSignIn();
