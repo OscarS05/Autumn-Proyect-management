@@ -143,9 +143,23 @@ let quitAttachment = document.querySelectorAll('.quit-attachment');
 
 // Sign in
 let signInScreen = document.querySelector('#sign-in');
+let signUpScreen = document.querySelector('#sign-up');
+let containerSignInUp = document.querySelector('#sign-in-up');
 let initialState = () => {
     containerSidebarYourWorkspaces.classList.add('inactive');
     navbar.classList.add('inactive');
+}
+let openSignUp = () => {
+    containerSignInUp.classList.remove('sign-in-background');
+    containerSignInUp.classList.add('sign-up-background');
+    signInScreen.classList.add('inactive');
+    signUpScreen.classList.remove('inactive');
+}
+let closeSignUp = () => {
+    containerSignInUp.classList.add('sign-in-background');
+    containerSignInUp.classList.remove('sign-up-background');
+    signInScreen.classList.remove('inactive');
+    signUpScreen.classList.add('inactive');
 }
 
 
@@ -762,8 +776,20 @@ functionsCardScreen();
 
 // Sign in
 function functionsSignIn(){
-    if(!signInScreen.classList.contains('inactive')){
+    let buttonRegister = document.querySelector('.register');
+    let buttonLogin = document.querySelector('.login');
+
+    if(!containerSignInUp.classList.contains('inactive')){
         initialState();
     }
+
+    console.log(buttonRegister)
+    buttonRegister.addEventListener('click', function(){
+        openSignUp();
+    });
+
+    buttonLogin.addEventListener('click', function(){
+        closeSignUp();
+    });
 }
 functionsSignIn();

@@ -2455,12 +2455,23 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.sign-in-background {
     background-image: url(../assets/images/sign-in.jpeg);
+}
+
+.sign-up-background {
+    background-image: url(../assets/images/sign-up.jpeg);
+}
+
+.sign-up-background #sign-up {
+    height: 446px;
 }
 
 .sign-in-content {
     width: 350px;
-    height: 360px;
+    height: 380px;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
