@@ -15,7 +15,7 @@
     
                 <div>
     
-                    <div id="content-university-workspace" class="dropdown-workspaces-styles">
+                    <div id="content-university-workspace" class="content-name-workspace dropdown-workspaces-styles">
     
                         <div class="workspace-letter-style workspace-letter-aside">
                             <span>U</span>
@@ -42,16 +42,19 @@
     
                 <i class="fa-solid fa-layer-group img-projects-sidebar"></i>
     
-                <p>Projects</p>
+                <p>Lobby</p>
                 
             </div>
     
-            <div id="settings-aside" class="projects-settings-aside content-projects-settings">
-    
-                <i class="fa-solid fa-gear img-settings-sidebar"></i>
-    
-                <p>Workspace settings</p>
-                
+            <div>
+                <div id="settings-aside" class="button-settings-workspace projects-settings-aside content-projects-settings">
+        
+                    <i class="fa-solid fa-gear img-settings-sidebar"></i>
+        
+                    <p>Workspace settings</p>
+                </div>
+
+                <?php include('includes/settings-workspace.php'); ?>
             </div>
     
         </div>
@@ -64,7 +67,7 @@
     
                 <div class="content-icons-aside">
     
-                    <i class="fa-solid fa-ellipsis i-size-aside"></i>
+                    <i class="fa-solid fa-ellipsis i-size-aside ellipsis-projects-aside"></i>
     
                     <i id="img-plus-aside" class="fa-solid fa-plus i-size-aside"></i>
     
@@ -75,11 +78,11 @@
     
             <ul class="workspaces-sidebar-styles">
     
-                <li id="project-semester-4" class="container-projects-aside container-workspace-sidebar-styles">
+                <li id="project-semester-4" class="project container-projects-aside container-workspace-sidebar-styles">
     
                     <div>
     
-                        <div id="content-semester-4" class="dropdown-workspaces-styles">
+                        <div id="content-semester-4" class="projects-aside dropdown-workspaces-styles">
     
                             <div class="img-semester-4 project-name-img">
                             </div>
@@ -94,11 +97,11 @@
     
                 </li>
     
-                <li id="project-final-thesis" class="container-projects-aside container-workspace-sidebar-styles">
+                <li id="project-final-thesis" class="project container-projects-aside container-workspace-sidebar-styles">
     
                     <div>
-    
-                        <div id="content-final-thesis" class="dropdown-workspaces-styles">
+
+                        <div id="content-final-thesis" class="projects-aside dropdown-workspaces-styles">
     
                             <div class="img-final-thesis project-name-img"></div>
     
@@ -119,9 +122,11 @@
     </div>
 
     <div class="button-invite-members">
-        <button id="button-aside" class="buttons-style inactive">Invite members to the workspace
+        <button class="invite-members buttons-style button-aside inactive">Invite members to the workspace
             <i class="fa-solid fa-user-plus icon-user-plus" style="color: #ffffff;"></i>
         </button>
+
+        <?php include('includes/modal-add-members.php'); ?>
     </div>
     
 </aside>

@@ -1,7 +1,13 @@
 <section id="sign-in" class="sign-in-content">
     <h1>Sign in to Autumn</h1>
 
-    <form>
+    <div class="sign-in-error inactive">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+
+        <p>The email address or password is incorrect</p>
+    </div>
+
+    <form id="sign-in-form">
         <div class="inputs-style">
             <p>Email address</p>
 
@@ -33,6 +39,12 @@
 <section id="sign-up" class="sign-in-content inactive">
     <h1>Sign up to Autumn</h1>
 
+    <div class="sign-in-error inactive">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+
+        <p>The email address or password is incorrect</p>
+    </div>
+
     <form>
         <div class="inputs-style">
             <p>Email address</p>
@@ -58,7 +70,7 @@
             <i class="fa-solid fa-lock" style="color: #ffffff;"></i>
         </div>
 
-        <button class="buttons-style button-sign-in">Sign in</button>
+        <button class="buttons-style button-sign-in">Sign up</button>
 
         <p class="text-footer-sign-in">Have an account? <strong class="login">Sign in!</strong></p>
     </form>

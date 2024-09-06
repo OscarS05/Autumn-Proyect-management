@@ -3,23 +3,13 @@
     <div class="content-sidebar">
 
         <div class="container-projects-settings">
-
-            <div id="projects-sidebar" class="content-projects-settings projects-sidebar-styles">
+            <div id="lobby-sidebar" class="content-projects-settings projects-sidebar-styles">
 
                 <i class="fa-solid fa-layer-group img-projects-sidebar"></i>
     
-                <p>Projects</p>
+                <p>Lobby</p>
                 
             </div>
-
-            <div id="settings-sidebar" class="content-projects-settings">
-
-                <i class="fa-solid fa-gear img-settings-sidebar"></i>
-    
-                <p>Settings</p>
-                
-            </div>
-
         </div>
 
 
@@ -29,55 +19,75 @@
 
             <ul class="workspaces-sidebar-styles">
 
-                <li id="personal-workspace" class="container-workspace-sidebar-styles">
+                <li id="personal-workspace" class="projects-list container-workspace-sidebar-styles">
 
-                    <div>
-
-                        <div id="content-personal-workspace" class="dropdown-workspaces-styles">
-                            
-                            <div class="workspace-letter-style workspace-letter-sidebar">
-                                <span>P</span>
-                            </div>
-                            
-                            <div class="name-workspace name-workspace-sidebar-styles">
-                                <p>Personal workspace</p>
-                            </div>
-        
-                        </div>
-
-                    </div>
+                    <div class="content-workspace-btn">
+                        <div>
     
-                    <i class="fa-solid fa-chevron-down chevron-down chevron-down-sidebar" style="color: #363c42;"></i>
+                            <div id="content-personal-workspace" class="dropdown-workspaces-styles">
+                                
+                                <div class="workspace-letter-style workspace-letter-sidebar">
+                                    <span>P</span>
+                                </div>
+                                
+                                <div class="name-workspace name-workspace-sidebar-styles">
+                                    <p>Personal workspace</p>
+                                </div>
+            
+                            </div>
+    
+                        </div>
+        
+                        <i class="fa-solid fa-chevron-down chevron-down chevron-down-sidebar" style="color: #363c42;"></i>
+                    </div>
 
+                    <div class="project-list-dropdown-container inactive">
+                        <div id="content-family-project" class="dropdown-workspace dropdown-workspaces-styles">
+
+                            <div class="img-semester-4 project-name-img"></div>
+
+                            <div class="name-workspace name-workspace-sidebar-styles">
+                                <p>Family project</p>
+                            </div>
+                        
+                        </div>
+                    </div>
                 </li>
 
-                <li id="university-workspace" class="container-workspace-sidebar-styles">
+                <li id="project-semester-4" class="projects-list container-workspace-sidebar-styles">
+                    <div class="content-workspace-btn">
+                        <div>
 
-                    <div>
-
-                        <div id="content-university-workspace" class="dropdown-workspaces-styles">
-    
-                            <div class="workspace-letter-style workspace-letter-sidebar">
-                                <span>U</span>
-                            </div>
-    
-                            <div class="name-workspace name-workspace-sidebar-styles">
-                                <p>University workspace</p>
+                            <div id="content-university-workspace" class="dropdown-workspaces-styles">
+        
+                                <div class="workspace-letter-style workspace-letter-sidebar">
+                                    <span>U</span>
+                                </div>
+        
+                                <div class="name-workspace name-workspace-sidebar-styles">
+                                    <p>University workspace</p>
+                                </div>
+                                
                             </div>
                             
                         </div>
                         
+                        <i class="fa-solid fa-chevron-down chevron-down chevron-down-sidebar" style="color: #363c42;"></i>
                     </div>
-                    
-                    <i class="fa-solid fa-chevron-down chevron-down chevron-down-sidebar" style="color: #363c42;"></i>
-    
+
+                    <div class="project-list-dropdown-container inactive">
+                        <div id="content-final-thesis" class="dropdown-workspace dropdown-workspaces-styles">
+
+                            <div class="img-final-thesis project-name-img"></div>
+
+                            <div class="name-workspace name-workspace-sidebar-styles">
+                                <p>Final thesis</p>
+                            </div>
+                        
+                        </div>
+                    </div>
                 </li>
-
-
             </ul>
-
         </div>
-
     </div>
-
 </aside>

@@ -759,19 +759,63 @@
                 <span>Semester 4</span>
             </div>
         
-            <div id="members-project-icon">
-                <i class="fa-solid fa-users" style="color: #ffffff;"></i>
+            <div>
+                <div id="members-project-icon">
+                    <i class="fa-solid fa-users" style="color: #ffffff;"></i>
+                </div>
+                
+                <ul class="options-visibility options inactive">
+
+                    <li class="visibility-options-styles options-style">
+                        <i class="fa-solid fa-lock lock-icon" style="color: #3f4547;"></i>
+                        
+                        <div>
+                            <p>Private</p>
+                            <p>Only members of the project will be able to see the content of this project.</p>
+                        </div>
+                    </li>
+                    <li class="visibility-options-styles options-style">
+                        <i class="fa-solid fa-users users-icon" style="color: #3f4547;"></i>
+
+                        <div>
+                            <p>Workspace</p>
+                            <p>All members of the "x-workspace" workspace can view and edit this project.</p>
+                        </div>
+                    </li>
+
+                </ul>
             </div>
         </div>
 
         <div class="content-right-header-planning-project">
-            <button id="share-project" class="buttons-style">
-                <i class="fa-solid fa-user-plus user-plus-share-project" style="color: #ffffff;"></i>
-                Share
-            </button>
+            <div id="planning-project-menu" class="project-menu ellipsis">
+                <i class="fa-solid fa-ellipsis project" style="color: #ffffff;"></i>
+            </div>
 
-            <div id="planning-project-menu" class="ellipsis">
-                <i class="fa-solid fa-ellipsis" style="color: #ffffff;"></i>
+            <div class="project-settings-container workspace-settings-dropdown inactive">
+                <div id="update-background">
+                    <span class="labels-create-project">Background:</span>
+
+                    <div class="container-images">
+                        <img data-bg="bosque-1.png" src="assets/images/bosque-1.png" class="img-background-style" alt="bosque-1">
+
+                        <img data-bg="bosque-2.jpeg" src="assets/images/bosque-2.jpeg" class="img-background-style" alt="bosque-2">
+                        
+                        <img data-bg="bosque-3.jpeg" src="assets/images/bosque-3.jpeg" class="img-background-style" alt="bosque-3">
+                        
+                        <img  data-bg="bosque-4.jpeg" src="assets/images/bosque-4.jpeg" class="img-background-style" alt="bosque-4">
+                        
+                        <img data-bg="bosque-5.jpg" src="assets/images/bosque-5.jpg" class="img-background-style" alt="bosque-5">
+                    </div>
+
+                    <div class="container-preview">
+                        <div class="preview-background">
+                            <img src="assets/images/preview-background.png" class="preview-background-img" alt="preview-background">
+                        </div>
+                    </div>
+                </div>
+
+                <?php include('includes/leave.php');?>
             </div>
         </div>
     </header>
@@ -795,16 +839,20 @@
                     </span>
                 </li>
 
-                <footer class="add-a-list container-add-a-list">
+                <li>
+                    <?php include('includes/add-card.php')?>
+                </li>
+
+                <footer class="add-a-list-button add-a-list container-add-a-list">
                     <i class="fa-solid fa-plus"></i>
-                    <p>Add a list</p>
+                    <p>Add card</p>
                 </footer>
             </ul>
         </section>
 
         <section class="add-a-list styles-white-add-a-list container-add-a-list">
             <i class="fa-solid fa-plus"></i>
-            <p>Add a list</p>
+            <p>Add list</p>
         </section>
         
     </section>

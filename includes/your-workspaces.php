@@ -57,28 +57,32 @@
         
                     <div class="content-buttons">
         
-                        <div id="button-projects" class="buttons-workspace-style">
+                        <!-- <div id="button-projects" class="projects-btn buttons-workspace-style">
         
                             <i class="fa-solid fa-layer-group" style="color: #6a6a6a;"></i>
                             <span>Projects</span>
         
-                        </div>
+                        </div> -->
         
-                        <div id="button-members" class="buttons-workspace-style">
+                        <div class="btn-members buttons-workspace-style">
         
                             <i class="fa-solid fa-user" style="color: #6a6a6a;"></i>
                             <span>Members (<span>1</span>)</span>
         
                         </div>
-        
-                        <div id="button-settings" class="buttons-workspace-style">
-        
-                            <i class="fa-solid fa-gear" style="color: #6a6a6a;"></i>
-                            <span>Settings</span>
-        
+
+                        <div>
+                            <div id="button-settings" class="button-settings-workspace buttons-workspace-style">
+            
+                                <i class="fa-solid fa-gear" style="color: #6a6a6a;"></i>
+                                <span>Settings</span>
+            
+                            </div>
+
+                            <?php include('includes/settings-workspace.php'); ?>
                         </div>
         
-                        <div id="button-teams" class="buttons-workspace-style">
+                        <div class="buttons-workspace-style button-team">
         
                             <i class="fa-solid fa-users" style="color: #6a6a6a;"></i>
                             <span>Teams</span>
@@ -107,7 +111,7 @@
                         </div>
                     </div>
         
-                    <div id="create-new-project" class="new-project-styles projects-styles project">
+                    <div class="new-project new-project-styles projects-styles">
                         <div class="div-hover-new-projects">
 
                             <p>Create a new project</p>
@@ -135,28 +139,32 @@
         
                     <div class="content-buttons">
         
-                        <div id="button-projects" class="buttons-workspace-style">
+                        <!-- <div id="button-projects" class="projects-btn buttons-workspace-style">
         
                             <i class="fa-solid fa-layer-group" style="color: #6a6a6a;"></i>
                             <span>Projects</span>
         
-                        </div>
+                        </div> -->
         
-                        <div id="button-members" class="buttons-workspace-style">
+                        <div class="btn-members buttons-workspace-style">
         
                             <i class="fa-solid fa-user" style="color: #6a6a6a;"></i>
                             <span>Members (<span>1</span>)</span>
         
                         </div>
         
-                        <div id="button-settings" class="buttons-workspace-style">
-        
-                            <i class="fa-solid fa-gear" style="color: #6a6a6a;"></i>
-                            <span>Settings</span>
-        
+                        <div>
+                            <div id="button-settings" class="button-settings-workspace buttons-workspace-style">
+            
+                                <i class="fa-solid fa-gear" style="color: #6a6a6a;"></i>
+                                <span>Settings</span>
+            
+                            </div>
+
+                            <?php include('includes/settings-workspace.php'); ?>
                         </div>
         
-                        <div id="button-teams" class="buttons-workspace-style">
+                        <div class="buttons-workspace-style button-team">
         
                             <i class="fa-solid fa-users" style="color: #6a6a6a;"></i>
                             <span>Teams</span>
@@ -185,7 +193,7 @@
                         </div>
                     </div>
         
-                    <div id="create-new-project" class="new-project-styles projects-styles project">
+                    <div class="new-project new-project-styles projects-styles">
 
                         <p>Create a new project</p>
 

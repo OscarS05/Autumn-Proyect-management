@@ -30,7 +30,7 @@
 
                     <form action="/search" class="content-search">
                         <!-- <label for="navbar-search" class="visually-hidden">Search</label> -->
-                        <input type="text" id="placeholder-search-navbar" class="search-styles" placeholder="Search">
+                        <input type="text" id="placeholder-search-navbar" class="search search-styles" placeholder="Search">
                         <i class="fa-solid fa-magnifying-glass magnifying-glass"></i>
                     </form>
 
@@ -67,7 +67,7 @@
                 <!-- Colocar id relacionado con el workspace de la pantalla de workspaces -->
                 <li class="container-workspace" id="personal-workspace">
 
-                    <div id="content-personal-workspace" class="dropdown-workspaces-styles">
+                    <div id="content-personal-workspace" class="workspace-li dropdown-workspaces-styles">
                         
                         <div class="workspace-letter-style">
                             <span>P</span>
@@ -78,13 +78,23 @@
                         </div>
 
                     </div>
-    
+
+                    <div class="project-list-dropdown-container inactive">
+                        <div id="content-family-project" class="dropdown-workspace dropdown-workspaces-styles">
+                            <div class="img-semester-4 project-name-img"></div>
+
+                            <div class="name-workspace name-workspace-sidebar-styles">
+                                <p>Family project</p>
+                            </div>
+                        </div>
+                    </div>    
                 </li>
 
                 <!-- Debajo estarán los demas li si el usuario crea más workspaces -->
+
                 <li class="container-workspace" id="university-workspace">
                         <!-- Cambiar clase del div de los content-workspace -->
-                    <div id="content-university-workspace" class="dropdown-workspaces-styles">
+                    <div id="content-university-workspace" class="workspace-li dropdown-workspaces-styles">
 
                         <div class="workspace-letter-style">
                             <span>U</span>
@@ -96,6 +106,17 @@
 
                     </div>
     
+                    <div class="project-list-dropdown-container inactive">
+                        <div id="content-final-thesis" class="dropdown-workspace dropdown-workspaces-styles">
+
+                            <div class="img-final-thesis project-name-img"></div>
+
+                            <div class="name-workspace name-workspace-sidebar-styles">
+                                <p>Final thesis</p>
+                            </div>
+                        
+                        </div>
+                    </div>
                 </li>
 
             </ul>
@@ -107,7 +128,7 @@
                 <!-- Colocar id relacionado con el workspace al que el usuario fue invitado de la pantalla de workspaces -->
                 <li class="container-workspace" id="teacher-workspace">
 
-                    <div id="content-teacher-workspace" class="dropdown-workspaces-styles">
+                    <div id="content-teacher-workspace" class="workspace-li dropdown-workspaces-styles">
 
                         <div class="workspace-letter-style">
                             <span>T</span>
@@ -118,7 +139,18 @@
                         </div>
 
                     </div>
-    
+
+                    <div class="project-list-dropdown-container inactive">
+                        <div id="content-final-thesis" class="dropdown-workspace dropdown-workspaces-styles">
+
+                            <div class="img-ayllabus project-name-img"></div>
+
+                            <div class="name-workspace name-workspace-sidebar-styles">
+                                <p>Syllabus</p>
+                            </div>
+                        
+                        </div>
+                    </div>
                 </li>
     
             </ul>
@@ -251,30 +283,29 @@
 
                 <span class="labels-create-project">Background:</span>
 
-                    <div class="container-images">
+                <div class="container-images">
+
+                    <img data-bg="bosque-1.png" src="assets/images/bosque-1.png" class="img-background-style" alt="bosque-1">
+
+                    <img data-bg="bosque-2.jpeg" src="assets/images/bosque-2.jpeg" class="img-background-style" alt="bosque-2">
+                    
+                    <img data-bg="bosque-3.jpeg" src="assets/images/bosque-3.jpeg" class="img-background-style" alt="bosque-3">
+                    
+                    <img  data-bg="bosque-4.jpeg" src="assets/images/bosque-4.jpeg" class="img-background-style" alt="bosque-4">
+                    
+                    <img data-bg="bosque-5.jpg" src="assets/images/bosque-5.jpg" class="img-background-style" alt="bosque-5">
+
+                </div>
+
+                <div class="container-preview">
+
+                    <div class="preview-background">
     
-                        <img data-bg="bosque-1.png" src="assets/images/bosque-1.png" class="img-background-style" alt="bosque-1">
-    
-                        <img data-bg="bosque-2.jpeg" src="assets/images/bosque-2.jpeg" class="img-background-style" alt="bosque-2">
-                        
-                        <img data-bg="bosque-3.jpeg" src="assets/images/bosque-3.jpeg" class="img-background-style" alt="bosque-3">
-                        
-                        <img  data-bg="bosque-4.jpeg" src="assets/images/bosque-4.jpeg" class="img-background-style" alt="bosque-4">
-                        
-                        <img data-bg="bosque-5.jpg" src="assets/images/bosque-5.jpg" class="img-background-style" alt="bosque-5">
+                        <img src="assets/images/preview-background.png" class="preview-background-img" alt="preview-background">
     
                     </div>
 
-                    <div class="container-preview">
-    
-                        <div class="preview-background">
-        
-                            <img src="assets/images/preview-background.png" class="preview-background-img" alt="preview-background">
-        
-                        </div>
-
-                    </div>
-
+                </div>
             </div>
 
         </form>

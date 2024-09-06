@@ -15,7 +15,6 @@
     </main>
 
     <?php include('includes/header.php'); ?>
-    <!-- <?php include('includes/sign-up-sign-in.php'); ?> -->
 
     <main id="sidebar-yourWorkspaces" class="">
         <?php include('includes/sidebar.php'); ?>
@@ -27,13 +26,19 @@
         <?php include('includes/project-screen.php'); ?>
         <?php include('includes/teams-list.php'); ?>
         <?php include('includes/create-team.php'); ?>
+        <?php include('includes/list-of-members.php'); ?>
     </main>
     
     <?php include('includes/create-workspace.php'); ?>
-
+    
+    <?php include('includes/workspace-invitation-screen.php'); ?>
     <section class="shadow inactive"></section>
-    <!-- ?php include('includes/footer.php'); ?> -->
+
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+    <div id="feature-warning" class="feature-warning">
+        This is just a decorative button, this feature is not included in the project.
+    </div>
 
     <script>
         let commentsText = new Quill('#editor-container-task-1', {
