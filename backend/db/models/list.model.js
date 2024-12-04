@@ -1,9 +1,9 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
 
 
-const USER_TABLE = 'users';
+const LIST_TABLE = 'lists';
 
-const UserSchema = {
+const ListSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -14,26 +14,7 @@ const UserSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  email: {
-    allowNull: false,
-    type: DataTypes.STRING,
-    unique: true,
-  },
-  password: {
-    allowNull: false,
-    type: DataTypes.STRING
-  },
-  recoveryToken: {
-    field: 'recovery_token',
-    allowNull: true,
-    type: Sequelize.DataTypes.STRING
-  },
-  role: {
-    allowNull: false,
-    type: DataTypes.STRING,
-    defaultValue: 'customer'
-  },
-  createdAt: {
+  createAt: {
     allowNull: false,
     type: DataTypes.DATE,
     field: 'created_at',
@@ -41,7 +22,7 @@ const UserSchema = {
   }
 }
 
-class User extends Model {
+class List extends Model {
   static associate(models) {
     // this.hasOne(models.Customer, {
     //   as: 'customer',
@@ -52,12 +33,12 @@ class User extends Model {
   static config(sequelize) {
     return {
       sequelize,
-      tableName: USER_TABLE,
-      modelName: 'User',
+      tableName: LIST_TABLE,
+      modelName: 'List',
       timestamps: false
     }
   }
 }
 
 
-module.exports = { USER_TABLE, UserSchema, User }
+module.exports = { LIST_TABLE, ListSchema, List }
