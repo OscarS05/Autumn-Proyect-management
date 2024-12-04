@@ -1,10 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 
-// const { checkApiKey } = require('./middlewares/auth.handler');
-// const { logErrors, errorHandler, boomErrorHandler, ormErrorHandler } = require('./middlewares/error.handler');
+const { logErrors, errorHandler, boomErrorHandler, ormErrorHandler } = require('./middlewares/error.handler');
 
-// const routerApi = require('./routes');
+const routerApi = require('./routes');
 const { config } = require('./config/config');
 
 const port = config.port || 3000;
@@ -24,13 +23,13 @@ const options = {
 }
 app.use(cors(options));
 
-// require('./utils/auth');
+require('./utils/auth');
 
-// routerApi(app);
+routerApi(app);
 
-// app.use(logErrors);
-// app.use(ormErrorHandler);
-// app.use(boomErrorHandler);
-// app.use(errorHandler);
+app.use(logErrors);
+app.use(ormErrorHandler);
+app.use(boomErrorHandler);
+app.use(errorHandler);
 
 app.listen(port);
