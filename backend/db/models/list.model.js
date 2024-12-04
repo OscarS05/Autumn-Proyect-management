@@ -1,4 +1,5 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
+const { USER_TABLE } = require('./user.model');
 
 
 const LIST_TABLE = 'lists';
@@ -14,6 +15,17 @@ const ListSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
+  userId:{
+    field: 'user_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: USER_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
@@ -24,10 +36,11 @@ const ListSchema = {
 
 class List extends Model {
   static associate(models) {
-    // this.hasOne(models.Customer, {
-    //   as: 'customer',
-    //   foreignKey: 'userId'
-    // });
+    this.belongsTo(models.User, { as: 'user' });
+    this.hasMany(models.Cards, {
+      as: 'card',
+      foreignKey: 'listId',
+    });
   }
 
   static config(sequelize) {
