@@ -1,9 +1,9 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
 
 
-const LIST_TABLE = 'lists';
+const CARD_TABLE = 'cards';
 
-const ListSchema = {
+const CardSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -14,6 +14,11 @@ const ListSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
+  // listId: {
+  //   field: 'list_id',
+  //   allowNull: false,
+  //   type: DataTypes.INTEGER
+  // },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
@@ -22,7 +27,7 @@ const ListSchema = {
   }
 }
 
-class List extends Model {
+class Card extends Model {
   static associate(models) {
     // this.hasOne(models.Customer, {
     //   as: 'customer',
@@ -33,12 +38,12 @@ class List extends Model {
   static config(sequelize) {
     return {
       sequelize,
-      tableName: LIST_TABLE,
-      modelName: 'List',
+      tableName: CARD_TABLE,
+      modelName: 'Card',
       timestamps: false
     }
   }
 }
 
 
-module.exports = { LIST_TABLE, ListSchema, List }
+module.exports = { CARD_TABLE, CardSchema, Card }
