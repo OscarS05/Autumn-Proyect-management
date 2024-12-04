@@ -14,7 +14,6 @@ const createUserSchema = Joi.object({
     .valid(Joi.ref('password'))
     .required()
     .messages({ 'any.only': 'Las contraseñas no coinciden' }),
-  role: role.required()
 });
 
 
