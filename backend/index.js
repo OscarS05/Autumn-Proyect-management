@@ -3,7 +3,7 @@ const cors = require('cors');
 
 const { logErrors, errorHandler, boomErrorHandler, ormErrorHandler } = require('./middlewares/error.handler');
 
-const routerApi = require('./routes');
+const routerApi = require('./routes/index');
 const { config } = require('./config/config');
 
 const port = config.port || 3000;
@@ -24,6 +24,7 @@ const options = {
 app.use(cors(options));
 
 require('./utils/auth');
+require('./utils/cron');
 
 routerApi(app);
 
