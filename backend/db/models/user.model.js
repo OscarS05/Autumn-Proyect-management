@@ -33,6 +33,12 @@ const UserSchema = {
     type: DataTypes.STRING,
     defaultValue: 'member'
   },
+  isVerified: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    field: 'is_verified',
+    defaultValue: false,
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
