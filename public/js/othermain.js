@@ -1,6 +1,6 @@
-// VARIABLES
+
     //Elements
-let body = document.querySelector('body');
+export let body = document.querySelector('body');
 let logoFunction = () => {
     closeAsideWhite();
     openSidebar();
@@ -202,35 +202,6 @@ let quitAttachment = document.querySelectorAll('.quit-attachment');
 let mainTeamsList = document.querySelector('.container-teams-list');
 let addTeamButton = document.querySelector('.add-team-button');
 
-// Sign in
-let signInScreen = document.querySelector('#sign-in');
-let signUpScreen = document.querySelector('#sign-up');
-let containerSignInUp = document.querySelector('#sign-in-up');
-let signUpErrorWindow = document.querySelector('.sign-in-error');
-let signInForm = document.querySelector('#sign-in-form');
-
-let initialState = () => {
-    containerSidebarYourWorkspaces.classList.add('inactive');
-    navbar.classList.add('inactive');
-}
-
-let finalState = () => {
-    containerSignInUp.classList.add('inactive');
-    containerSidebarYourWorkspaces.classList.remove('inactive');
-    navbar.classList.remove('inactive');
-}
-let openSignUp = () => {
-    containerSignInUp.classList.remove('sign-in-background');
-    containerSignInUp.classList.add('sign-up-background');
-    signInScreen.classList.add('inactive');
-    signUpScreen.classList.remove('inactive');
-}
-let closeSignUp = () => {
-    containerSignInUp.classList.add('sign-in-background');
-    containerSignInUp.classList.remove('sign-up-background');
-    signInScreen.classList.remove('inactive');
-    signUpScreen.classList.add('inactive');
-}
 
 // List of members
 let containerListOfMembers = document.querySelector('#workspace-members');
@@ -304,7 +275,7 @@ searches();
 
 
 
-// funcionalidad botones workspace y create del NAVBAR 
+// funcionalidad botones workspace y create del NAVBAR
 function buttonsNavbar() {
     document.querySelector('#notification-navbar').addEventListener('click', featureWarning);
     document.querySelector('#info-navbar').addEventListener('click', featureWarning);
@@ -314,14 +285,14 @@ function buttonsNavbar() {
 
 
     containerWorksChevron.addEventListener('click', function() {
-    
+
         if(!containerDropdownCreate.classList.contains('inactive') || !createAProject.classList.contains('inactive')){
             containerDropdownCreate.classList.add('inactive');
             createButtonNavbar.classList.remove('clicked');
             containerWorksChevron.classList.remove('inactive');
             createAProject.classList.add('inactive');
         }
-    
+
         this.classList.toggle('clicked');
         workspacesNavbar.classList.toggle('clicked');
         chevronDownNavbar.classList.toggle('clicked');
@@ -329,7 +300,7 @@ function buttonsNavbar() {
     });
 
     createButtonNavbar.addEventListener('click', function() {
-    
+
         if(createAProject.classList.contains('inactive')){
             if(!containerWorksChevron.classList.contains('inactive')){
                 containerDropdownWorkspaces.classList.add('inactive');
@@ -337,7 +308,7 @@ function buttonsNavbar() {
                 chevronDownNavbar.classList.remove('clicked');
                 containerWorksChevron.classList.remove('clicked');
             }
-        
+
             this.classList.toggle('clicked');
             containerDropdownCreate.classList.toggle('inactive');
         } else {
@@ -350,7 +321,7 @@ function buttonsNavbar() {
 
     document.querySelector('#create-project').addEventListener('click', function(){
         containerDropdownCreate.classList.add('inactive');
-        
+
         if(!createAProject.classList.contains('inactive')){
             createAProject.classList.add('inactive');
         } else {
@@ -556,7 +527,7 @@ function MainWorkspaceFunctions() {
         });
         confirmDelete.classList.add('inactive');
         settings.classList.add('inactive');
-        
+
         deleteWorkspaceBtn.forEach(function(btn){
             btn.addEventListener('click', function(){
                 // deleteWorkspaceBtn.classList.add('inactive');
@@ -595,7 +566,7 @@ function MainWorkspaceFunctions() {
                 settings.classList.remove('inactive');
             });
         });
-       }); 
+       });
     });
 
     btnMembers.forEach(function(btn){
@@ -681,7 +652,7 @@ function asideFunctions() {
             }
         });
     });
-    
+
 }
 asideFunctions();
 
@@ -806,7 +777,7 @@ function functionsCardScreen() {
 
             let containerIcons = ellipsis.closest('.container-options-item-checklist');
             let containerDeleteItem = containerIcons.querySelector('.container-delete-item-checklist');
-            
+
             AllDeleteItemContainer.forEach(function(deleter){
                 if(deleter !== containerDeleteItem){
                     deleter.classList.add('inactive');
@@ -825,7 +796,7 @@ function functionsCardScreen() {
                 }
             });
 
-            
+
             if(containerDeleteItem.classList.contains('inactive')) {
                 containerDeleteItem.classList.remove('inactive');
             } else if(!containerDeleteItem.classList.contains('inactive')){
@@ -884,7 +855,7 @@ function functionsCardScreen() {
                 }
             });
 
-            
+
             if(containerDatePicker.classList.contains('inactive')) {
                 containerDatePicker.classList.remove('inactive');
             } else if(!containerDatePicker.classList.contains('inactive')){
@@ -916,8 +887,8 @@ function functionsCardScreen() {
                     modal.classList.add('inactive');
                 }
             });
-            
-            
+
+
             if(containerAssignMembers.classList.contains('inactive')) {
                 containerAssignMembers.classList.remove('inactive');
             } else if(!containerAssignMembers.classList.contains('inactive')){
@@ -959,7 +930,7 @@ function functionsCardScreen() {
             const startDate = containerDatePicker.querySelector('.input-start-date');
             const endDate = containerDatePicker.querySelector('.input-end-date');
             const modifyDate = containerDatePicker.querySelector('.modify-date-btn');
-            
+
             if (startDate.value && endDate.value) {
                 containerDatePicker.classList.add('inactive');
                 this.classList.add('inactive');
@@ -988,12 +959,12 @@ function functionsCardScreen() {
 
     items.forEach(function(item){
         let itemsCheck = document.querySelectorAll('.container-right-item-checklist');
-        
+
         item.addEventListener('click', function(){
             const fullItem = item.closest('.item-checklist');
             const checkboxItem = fullItem.firstElementChild;
             const editItem = item.previousElementSibling;
-            
+
             itemsCheck.forEach(function(element){
                 if(element !== item){
                     let editItems = element.previousElementSibling;
@@ -1011,7 +982,7 @@ function functionsCardScreen() {
             checkboxItem.style.alignSelf = 'start';
         });
     });
-    
+
     cancelEditItem.forEach(function(btn){
         btn.addEventListener('click', function(){
             let editItem = btn.closest('.container-edit-item');
@@ -1033,7 +1004,7 @@ function functionsCardScreen() {
             attachment.classList.add('inactive');
         });
     });
-    
+
     editAttachmentBtn.forEach(function(btn){
         btn.addEventListener('click', function(event){
             // event.stopPropagation();
@@ -1041,7 +1012,7 @@ function functionsCardScreen() {
             editAttachment.classList.toggle('inactive');
         });
     });
-    
+
     closeEditAttach.forEach(function(close){
         close.addEventListener('click', function(event){
             let editAttachment = close.closest('.edit-attachment');
@@ -1067,7 +1038,7 @@ function teamsListFunctions(){
     addTeamButton.addEventListener('click', function(){
         openCreateTeam();
     });
-    
+
     window.onclick = function(event) {
         if (event.target == containerCreateTeam) {
             closeCreateTeam();
@@ -1094,7 +1065,7 @@ function teamsListFunctions(){
             let teamMembers = settingsTeamDropdown.querySelector('.edit-team-owner');
             let teamMembersDropdown = teamMembers.nextElementSibling;
             let addMembersButton = teamMembersDropdown.querySelector('.add-members-button');
-            
+
             // Members settings
             let teamMembersSettingsBtn = settingsTeamDropdown.querySelector('.team-members-settings');
             let teamMembersSettingsDropdown = teamMembersSettingsBtn.nextElementSibling;
@@ -1116,7 +1087,7 @@ function teamsListFunctions(){
 
 
             settingsTeamDropdown.classList.toggle('inactive');
-            
+
 
             settingsTeamBtn.addEventListener('click', function(){
                 settingsTeamDropdown.style.left = '-480%';
@@ -1133,7 +1104,7 @@ function teamsListFunctions(){
                 deleteTeamBtn.classList.add('inactive');
                 leaveBtn.classList.add('inactive');
             });
-            
+
             cancelDeleteTeam.addEventListener('click', function(){
                 settingsTeamContainer.classList.add('inactive');
                 confirmDeleteContainer.classList.add('inactive');
@@ -1143,7 +1114,7 @@ function teamsListFunctions(){
                 deleteTeamBtn.classList.remove('inactive');
                 leaveBtn.classList.remove('inactive');
             });
-            
+
             console.log(cancelChangesBtn);
             cancelChangesBtn.addEventListener('click', function(){
                 settingsTeamContainer.classList.add('inactive');
@@ -1200,12 +1171,12 @@ function workspaceMembersScreen(){
             let switchToAdministratorBtn = permissionsDropdown.querySelector('.switch-to-administrator');
             let confirmSwitchToAdmin = switchToAdministratorBtn.nextElementSibling;
             let cancelSwitchRole = confirmSwitchToAdmin.querySelector('.cancel-switch-role');
-            
+
             let switchToMemberBtn = permissionsDropdown.querySelector('.switch-to-member');
             let confirmSwitchToMember = switchToMemberBtn.nextElementSibling;
             let cancelSwitch = confirmSwitchToMember.querySelector('.cancel-switch-role');
-            
-            
+
+
             permissionsDropdown.classList.toggle('inactive');
             confirmSwitchToAdmin.classList.add('inactive');
             confirmSwitchToMember.classList.add('inactive');
@@ -1256,7 +1227,7 @@ function workspaceMembersScreen(){
             let confirmLeave = btn.nextElementSibling;
             confirmLeave.classList.toggle('inactive');
             btn.classList.toggle('inactive');
-             
+
             // Falta el de abandonar proyecto
             if(!containerListOfMembers.classList.contains('inactive')){
                 // Leave in team members
@@ -1288,38 +1259,5 @@ function workspaceMembersScreen(){
     });
 }
 workspaceMembersScreen();
-
-
-
-// Sign in
-function functionsSignIn(){
-    let goToSignUpScreen = document.querySelector('.register');
-    let goToLoginScreen = document.querySelector('.login');
-    let btnSignIn = document.querySelector('.button-sign-in');
-
-    if(!containerSignInUp.classList.contains('inactive')){
-        initialState();
-    }
-
-    goToSignUpScreen.addEventListener('click', function(){
-        openSignUp();
-    });
-
-    goToLoginScreen.addEventListener('click', function(){
-        closeSignUp();
-    });
-
-    btnSignIn.addEventListener('click', function(){
-        finalState();
-    });
-
-    signInForm.addEventListener('submit', function(event){
-        event.preventDefault(); // Evita que el formulario se envíe y recargue la página
-
-        // Aquí puedes agregar la lógica que quieres ejecutar al hacer clic en el botón
-        alert('Form submitted!'); // Ejemplo de acción
-    });
-}
-functionsSignIn();
 
 
