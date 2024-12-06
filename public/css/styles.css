@@ -5,7 +5,6 @@
     margin: 0;
     background-position: center;
     background-repeat: no-repeat;
-    /* object-fit: cover */
 }
 
 body {
@@ -46,7 +45,7 @@ i {
     color: #FFFFFF;
 }
 
-input[type="text"]:focus, textarea, textarea:focus, .modal-assign-date input:focus, input[type="date"]:focus {
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea, textarea:focus, .modal-assign-date input:focus, input[type="date"]:focus {
     border: 2px solid #00AEE5;
     outline: none;
 }
@@ -66,11 +65,6 @@ button {
 .inactive {
     display: none !important;
 }
-
-.hidden {
-    display: none !important;
-}
-
 
 
 
@@ -1305,7 +1299,7 @@ button {
 
 #project-1 {
     background-image: url(../assets/images/bosque-1.png);
-    
+
 }
 
 #family-project {
@@ -1433,7 +1427,7 @@ button {
 
 .delete-workspace-btn, .workspace-members-settings {
     background-color: #E8EAEB;
-    color: #3F4547;                                                     
+    color: #3F4547;
     font-weight: 500;
 }
 
@@ -1469,7 +1463,7 @@ button {
     padding: 10px 12px;
     color: #191c1c;
     font-family: Lora;
-    margin: 6px 0px; 
+    margin: 6px 0px;
 }
 
 .container-btns-workspace-settings {
@@ -2814,151 +2808,7 @@ button {
 
 
 
-/* Sign in - Sign up */
 
-.sign-in-container-styles {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.sign-in-background {
-    background-image: url(../assets/images/sign-in.jpeg);
-}
-
-.sign-up-background {
-    background-image: url(../assets/images/sign-up.jpeg);
-}
-
-.sign-up-background #sign-up {
-    height: 446px;
-}
-
-.sign-in-content {
-    width: 350px;
-    height: 380px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0px 3px 10px -1px rgb(0, 0, 0, 30%);
-    background: transparent;
-    backdrop-filter: blur(20px);
-}
-
-.sign-in-content h1 {
-    color: #FFFFFF;
-    margin: 0px 0px 15px 0px;
-}
-
-.inputs-style {
-    display: flex;
-    justify-content: space-between;
-    border: 1px solid #dfdede;
-    border-radius: 14px;
-    padding: 5px 10px;
-    align-items: center;
-    width: 294px;
-    height: 34px;
-    margin: 18px 0px 22px 0px;
-    font-size: 14px;
-    color: #FFFFFF;
-}
-
-.inputs-style p {
-    font-size: 14px;
-    color: #FFFFFF;
-}
-
-.sign-in-options {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    align-items: center;
-    color: #FFFFFF;
-    margin: 0px 0px 18px 0px;;
-}
-
-.sign-in-options div {
-    display: flex;
-    gap: 5px;
-    color: #FFFFFF;
-}
-
-.button-sign-in {
-    width: 248px;
-    height: 34px;
-    margin: 0 auto;
-    display: block;
-    border-radius: 14px;
-    background-color: #FFFFFF;
-    color: #333;
-    font-weight: bold;
-}
-
-.button-sign-in:hover {
-    background-color: #EFEFEF;
-}
-
-.text-footer-sign-in {
-    font-size: 13px;
-    color: #FFFFFF;
-    margin: 10px 0px 0px 0px;
-    text-align: center;
-}
-
-.text-footer-sign-in strong:hover, .sign-in-options p:hover {
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.checkbox-remember-me {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    width: 14px;
-    height: 14px;
-    border: 2px solid #FFFFFF;
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-.checkbox-remember-me:checked {
-    background-color: white;
-    position: relative;
-}
-
-.checkbox-remember-me:checked:before {
-    content: "";
-    position: absolute;
-    left: 2px;
-    top: 0px;
-    width: 4px;
-    height: 6px;
-    border: solid #000;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-.sign-in-error {
-    width: 259px;
-    height: 50px;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    box-shadow: 0px 3px 10px -1px rgb(0, 0, 0, 30%);
-    color: #FFFFFF;
-    border: 1px solid #BABABA;
-    border-radius: 6px;
-}
-
-.sign-in-error i {
-    margin: 0px 10px 0px 16px;
-    color: #dd5959;
-}
 
 
 
@@ -3043,7 +2893,7 @@ button {
     padding: 0px;
 }
 
-.header-aside-white .invite-members-btn {    
+.header-aside-white .invite-members-btn {
     display: flex;
     align-items: center;
     justify-content: center;
