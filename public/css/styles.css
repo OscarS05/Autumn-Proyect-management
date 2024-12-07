@@ -50,6 +50,10 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
     outline: none;
 }
 
+input::placeholder {
+  color: #ffffff;
+}
+
 button {
     cursor: pointer;
     outline: none;

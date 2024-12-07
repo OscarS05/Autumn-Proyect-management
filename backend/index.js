@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const { logErrors, errorHandler, boomErrorHandler, ormErrorHandler } = require('./middlewares/error.handler');
 
@@ -10,8 +11,9 @@ const port = config.port || 3000;
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
-const whitelist = ['http://localhost:5500'];
+const whitelist = ['http://localhost:8000'];
 const options = {
   origin: (origin, callback) => {
     if(whitelist.includes(origin) || !origin){

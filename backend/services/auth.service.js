@@ -11,14 +11,46 @@ const { config } = require('./../config/config');
 class AuthService {
   constructor() {}
 
+  signToken(user){
+    const payload = {
+      sub: user.id,
+      role: user.role
+    };
+    const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, {expiresIn: '7d'});
+    const accessToken = jwt.sign(payload, config.jwtSecret, {expiresIn: '1h'});
+    return({ user, refreshToken, accessToken });
+  }
+
+  async generateAccessToken(refreshToken){
+    if (!refreshToken){
+      throw boom.unauthorized('Unauthorized. Invalid refresh token');
+    }
+    const payloadAccess = jwt.verify(refreshToken, config.jwtRefreshSecret);
+    if (!payloadAccess){
+      throw boom.unauthorized('Unauthorized. Invalid or expired refresh token');
+    }
+
+    const user = await service.findOne(payload.sub)
+    if (!user) {
+      throw boom.unauthorized('User not found');
+    }
+    const payload = {
+      sub: user.id,
+      role: user.role
+    }
+    const newRefreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '7d' });
+    const accessToken = jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' });
+    return { accessToken, newRefreshToken};
+  }
+
   async sendEmailConfirmation(email){
     const user = await service.findByEmail(email);
     if(!user){
       throw boom.notFound('User not found');
     }
-    const payload = { sub: user.id };
+    const payload = { sub: user.id, rol: user.rol};
     const token = jwt.sign(payload, config.jwtSecret, { expiresIn: '15min' });
-    const link = `http://autumnManagement.com/sign-up/verify-email?token=${token}`
+    const link = `${config.frontUrl}/sign-up/verify-email/email-confirmed?token=${token}`
     await service.update(user.id, {recoveryToken: token});
     const mail = {
       from: config.smtpEmail,
@@ -28,8 +60,7 @@ class AuthService {
     }
 
     const send = await this.sendMail(mail);
-    // ENVIAR EL TOKEN SOLO DE MANERA TEMPORAL MIENTRAS SE HACE EL FRONT
-    return { send, token };
+    return { send, link };
   }
 
   async verifyEmail(token){
@@ -46,6 +77,7 @@ class AuthService {
       throw boom.badRequest('Email already verified');
     }
     await service.update(payload.sub, { isVerified: true, recoveryToken: null});
+    return user;
   }
 
   async sendMail(infoMail){
