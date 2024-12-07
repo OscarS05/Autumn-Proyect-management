@@ -10,7 +10,9 @@ const config = {
   dbHost: process.env.DB_HOST,
   dbName: process.env.DB_NAME,
   dbUrl: process.env.DATABASE_URL,
-  jwtSecret: process.env.JWT_SECRET,
+  frontUrl: process.env.URL_FRONT,
+  jwtSecret: process.env.JWT_ACCESS_SECRET,
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   smtpEmail: process.env.SMTP_EMAIL,
   smtpPass: process.env.SMTP_PASS
 }

@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 
-.auth-state {
+.auth-state, .path-not-found {
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -16,11 +16,11 @@
   background-image: url(../../assets/images/sign-up.jpeg);
 }
 
-.sign-up {
-  height: 480px !important;
+#sign-up {
+  height: 480px;
 }
 
-.auth-container {
+.auth-container, .sent-email-content {
   width: 370px;
   height: 380px;
   border-radius: 8px;
@@ -38,13 +38,16 @@
   margin: 0px 0px 8px 0px;
 }
 
-/* hERE */
 .inputs-container {
   position: relative;
   width: 294px;
 }
 
-.inputs-container label {
+.sent-email-subtitle {
+  margin: 20px 50px 30px 50px;
+}
+
+.inputs-container label, .sent-email-subtitle {
   font-size: 14px;
   color: #FFFFFF;
 }
@@ -82,7 +85,7 @@
   color: #FFFFFF;
 }
 
-.button-sign-in {
+.auth-button-styles {
   width: 248px;
   height: 34px;
   margin: 0 auto;
@@ -93,18 +96,22 @@
   font-weight: bold;
 }
 
-.button-sign-in:hover {
+.auth-button-styles:hover {
   background-color: #EFEFEF;
 }
 
-.text-footer-sign-in {
+.text-footer {
+  margin: 24px 0px 0px 0px;
+}
+
+.text-footer-sign-in, .text-footer {
   font-size: 13px;
   color: #FFFFFF;
   margin: 10px 0px 0px 0px;
   text-align: center;
 }
 
-.text-footer-sign-in strong:hover, .sign-in-options p:hover {
+.text-footer-sign-in strong:hover, .sign-in-options p:hover, .text-footer strong:hover {
   text-decoration: underline;
   cursor: pointer;
 }
