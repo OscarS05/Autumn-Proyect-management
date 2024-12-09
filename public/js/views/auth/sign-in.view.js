@@ -1,5 +1,5 @@
-import { signInHandler } from "../controllers/auth.controller.js";
-import { renderRoute } from "../router.js";
+import { signInHandler } from "../../controllers/auth.controller.js";
+import { renderRoute } from "../../router.js";
 
 export function renderSignIn(root){
   root.innerHTML = `

@@ -1,4 +1,4 @@
-import { changePasswordHandler } from "../controllers/auth.controller.js";
+import { changePasswordHandler } from "../../controllers/auth.controller.js";
 
 export function renderChangePassword(root){
   root.innerHTML = `

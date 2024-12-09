@@ -1,4 +1,4 @@
-import { handleResendVerificationEmail } from "../controllers/auth.controller.js";
+import { handleResendVerificationEmail } from "../../controllers/auth.controller.js";
 
 export function renderVerifyEmail(root){
   root.innerHTML = `

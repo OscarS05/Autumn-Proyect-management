@@ -1,5 +1,5 @@
-import { navigateTo, renderRoute } from "../router.js";
-import { handleSignUp } from "../controllers/auth.controller.js";
+import { navigateTo, renderRoute } from "../../router.js";
+import { handleSignUp } from "../../controllers/auth.controller.js";
 
 export function renderSignUp(root) {
     root.innerHTML = `

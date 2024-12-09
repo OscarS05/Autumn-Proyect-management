@@ -1,5 +1,5 @@
-import { sendEmailToChangePassword } from "../controllers/auth.controller.js";
-import { renderRoute } from "../router.js";
+import { sendEmailToChangePassword } from "../../controllers/auth.controller.js";
+import { renderRoute } from "../../router.js";
 
 export function renderRecoveryPassword(root){
   root.innerHTML = `

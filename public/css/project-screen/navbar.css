@@ -1,0 +1,225 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+/* HEADER BLACK --- PROJECT SCREEN */
+.header-aside-black {
+  width: 100vw;
+  height: 100vh;
+  background-image: url(../../assets/images/bosque-1.png);
+  background-size: cover;
+}
+
+.header-aside-black #navbar, .header-aside-black .workspaces-navbar, .header-aside-black #name-logo, .header-aside-black .magnifying-glass, .header-aside-black .search-styles::placeholder, .header-aside-black #chevron-down-navbar {
+  color: #FFFFFF;
+}
+
+.header-aside-black #content-workspaces-chevron:hover, .header-aside-black #notification-navbar:hover, .header-aside-black #info-navbar:hover, .header-aside-black .content-projects-settings:hover, .header-aside-black .container-projects-aside:hover, .header-aside-black .chevron-left-aside:hover, .header-aside-black .profile-navbar-right:hover, .header-aside-black .i-size-aside:hover {
+  background-color: #c2c2c230;
+}
+
+.profile-navbar-right {
+  position: relative;
+  cursor: pointer;
+}
+
+
+
+
+/* NAVBAR */
+#navbar {
+  display: flex;
+  height: 52px;
+  border-bottom: 1px solid #dfdfdf;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+  background-color: white;
+  width: 100%;
+  grid-area: navbar;
+}
+
+.header-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  z-index: 1000;
+}
+
+  /* NAVBAR LEFT */
+#container-navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+#container-logo-navbar {
+  display: flex;
+  align-items: center;
+}
+
+.logo-navbar {
+  width: 55px;
+  height: 56px;
+  margin-left: 11px;
+  cursor: pointer;
+}
+
+#name-logo {
+  font-weight: bold;
+  color: #3F4547;
+  font-size: 18px;
+  margin: 0px 35px 0px 0px;
+  position: relative;
+  left: -5px;
+  cursor: pointer;
+}
+
+#container-workspaces-create {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#content-workspaces-chevron {
+  display: flex;
+  border-radius: 5px;
+  padding: 7.5px 16.5px;
+  cursor: pointer;
+  align-items: center;
+}
+
+#content-workspaces-chevron:hover {
+  background-color: #E4ECF1;
+}
+
+.workspaces-navbar {
+  color: #363C42;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+#chevron-down-navbar {
+  color: #363c42;
+  margin-left: 9px;
+}
+
+#button-create-navbar {
+  padding: 7.5px 11px;
+}
+
+#content-workspaces-chevron.clicked {
+  background-color: #D2ECFF;
+}
+
+#content-workspaces-chevron.clicked:hover {
+  background-color: #AFDDFF;
+}
+
+.workspaces-navbar.clicked {
+  color: #00AEE5;
+}
+
+#chevron-down-navbar.clicked {
+  color: #00AEE5;
+}
+
+#button-create-navbar.clicked {
+  background-color: #D2ECFF;
+  color: #00AEE5;
+  font-weight: 600;
+}
+
+#button-create-navbar.clicked:hover {
+  background-color: #AFDDFF;
+}
+
+  /* NAVBAR RIGHT */
+#navbar-right {
+  display: flex;
+  height: 52px;
+  width: 363px;
+}
+
+#navbar-right ul {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.search-style {
+  border: 1px solid #DFDFDF;
+  border-radius: 5px;
+  margin-right: 18px;
+}
+
+.content-search {
+  padding: 0px 1px 0px 12px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.magnifying-glass {
+  color: #697377;
+  font-size: 12px;
+}
+
+.search-styles {
+  font-size: 13px;
+  font-family: Lora;
+  font-weight: 300;
+  color: #697377;
+  margin: 4px 14px 4px 6px;
+  background-color: #0000;
+  border: none;
+}
+
+.notification-navbar-img {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#notification-navbar,
+#info-navbar,
+.profile-navbar-right {
+  width: 33px;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+}
+
+#notification-navbar:hover,
+#info-navbar:hover,
+.profile-navbar-right:hover {
+  background-color: #E4ECF1;
+}
+
+.info-navbar-img {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.profile-navbar {
+  border-radius: 50px;
+  background: #B9C4FF;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  width: 26px;
+  height: 25px;
+  justify-content: center;
+}
+
+.profile-navbar span {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
