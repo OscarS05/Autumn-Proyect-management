@@ -21,7 +21,8 @@ export function renderVerifyEmail(root){
 
   document.getElementById('sent-email-container').addEventListener('click', async (event) => {
     if(event.target.id === "resend-email"){
-      handleResendVerificationEmail();
+      const email = localStorage.getItem('email');
+      handleResendVerificationEmail(email);
     }
   });
 }
