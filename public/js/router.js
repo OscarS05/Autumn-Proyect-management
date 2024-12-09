@@ -1,10 +1,10 @@
-import { renderSignIn } from "./views/sign-in.view.js";
-import { renderSignUp } from "./views/sign-up.view.js";
-import { renderRecoveryPassword } from "./views/recovery-password.view.js";
-import { renderVerifyEmail } from "./views/verify-email.view.js";
-import { renderEmailConfirmed } from "./views/email-confirmed.view.js";
-import { renderProjectScreen } from "./views/project-screen.view.js";
-import { renderChangePassword } from "./views/render-change-password.view.js";
+import { renderSignIn } from "./views/auth/sign-in.view.js";
+import { renderSignUp } from "./views/auth/sign-up.view.js";
+import { renderRecoveryPassword } from "./views/auth/recovery-password.view.js";
+import { renderVerifyEmail } from "./views/auth/verify-email.view.js";
+import { renderEmailConfirmed } from "./views/auth/email-confirmed.view.js";
+import { renderChangePassword } from "./views/auth/render-change-password.view.js";
+import { renderProjectScreen } from "./views/project-screen/project-screen.view.js";
 
 const routes = {
   // Auth
