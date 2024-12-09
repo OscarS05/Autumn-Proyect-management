@@ -1,4 +1,4 @@
-import { renderRoute } from "../router.js";
+import { navigateTo, renderRoute } from "../router.js";
 import { handleSignUp } from "../controllers/auth.controller.js";
 
 export function renderSignUp(root) {
@@ -45,11 +45,11 @@ export function renderSignUp(root) {
 
   document.getElementById('sign-up').addEventListener('click', (event) => {
     if(event.target.id === 'sign-up-button'){
+      event.preventDefault();
       handleSignUp();
     }
     if(event.target.id === 'go-to-sign-in'){
-      window.history.pushState(null, '', '/sign-in');
-      renderRoute('/sign-in');
+      navigateTo('/sign-in');
     }
   });
 }

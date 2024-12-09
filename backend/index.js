@@ -11,7 +11,7 @@ const port = config.port || 3000;
 const app = express();
 
 app.use(express.json());
-app.use(cookieParser());
+
 
 const whitelist = ['http://localhost:8000'];
 const options = {
@@ -21,9 +21,12 @@ const options = {
     } else {
       callback(new Error("No permitido"));
     }
-  }
+  },
+  credentials: true,
 }
 app.use(cors(options));
+app.use(cookieParser());
+app.options('*', cors(options));
 
 require('./utils/auth');
 require('./utils/cron');
@@ -34,5 +37,6 @@ app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
+
 
 app.listen(port);

@@ -12,10 +12,16 @@ const createUserSchema = Joi.object({
   confirmPassword: Joi.object()
     .valid(Joi.ref('password'))
     .required()
-    .messages({ 'any.only': 'Las contraseñas no coinciden' }),
+    .messages({ 'any.only': 'Passwords do not match' }),
+});
+
+const changePassword = Joi.object({
+  newPassword: password.required(),
+  confirmNewPassword: Joi.object()
+    .valid(Joi.ref('newPassword'))
+    .required()
+    .messages({ 'any.only': 'Passwords do not match' }),
 });
 
 
-
-
-module.exports = { createUserSchema }
+module.exports = { createUserSchema, changePassword }

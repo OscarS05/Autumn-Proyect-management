@@ -7,8 +7,8 @@ class UserService {
 
   async create(data) {
     const { password, confirmPassword } = data;
-    if(password !== confirmPassword){
-      throw boom.badRequest('Bad request');
+    if (password !== confirmPassword) {
+      throw boom.badRequest('Passwords do not match');
     }
     const hash = await bcrypt.hash(password, 10);
     const newUser = await models.User.create({
@@ -21,8 +21,15 @@ class UserService {
 
   async update(id, changes) {
     const user = await this.findOne(id);
-    const rta = await user.update(changes);
-    return rta;
+    if (!user) {
+      throw boom.notFound('User not found');
+    }
+    try {
+      const rta = await user.update(changes);
+      return rta;
+    } catch (error) {
+      throw boom.badRequest('Failed to update user');
+    }
   }
 
   async delete(id){

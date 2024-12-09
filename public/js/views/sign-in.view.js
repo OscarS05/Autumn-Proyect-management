@@ -1,3 +1,4 @@
+import { signInHandler } from "../controllers/auth.controller.js";
 import { renderRoute } from "../router.js";
 
 export function renderSignIn(root){
@@ -23,8 +24,8 @@ export function renderSignIn(root){
           </div>
           <div class="sign-in-options">
               <div>
-                  <input type="checkbox" class="checkbox-remember-me" name="remember-sign-in">
-                  Remember me
+                  <input type="checkbox" id="remember-session" class="checkbox-remember-me" name="rememberMe">
+                  <label for="remember-session">Remember me</label>
               </div>
               <p id="forgot-password">Forgot password?</p>
           </div>
@@ -36,11 +37,11 @@ export function renderSignIn(root){
   `;
 
   document.getElementById('sign-in').addEventListener('click', (event) => {
-    if(event.target.id === 'sign-in-button'){
-      window.history.pushState(null, `/project-screen`);
-      renderRoute('/project-screen');
+    event.preventDefault();
+    if (event.target.id === 'sign-in-button') {
+      signInHandler();
     }
-    if(event.target.id === 'forgot-password'){
+    if(event.target.id === 'forgot-password'){;
       window.history.pushState(null, '', '/sign-in/recovery-password');
       renderRoute('/sign-in/recovery-password');
     }

@@ -1,3 +1,4 @@
+import { sendEmailToChangePassword } from "../controllers/auth.controller.js";
 import { renderRoute } from "../router.js";
 
 export function renderRecoveryPassword(root){
@@ -10,13 +11,13 @@ export function renderRecoveryPassword(root){
             <p>The email address is incorrect or not exist</p>
         </div>
 
-        <form id="recovery-password-form">
+        <form id="password-recovery-form">
           <div class="inputs-container">
               <label>Email address</label>
               <i class="fa-solid fa-user" style="color: #FFFFFF; font-size: 12px;"></i>
               <input type="email" id="email-sign-in" name="email" placeholder="example@email.com" required>
           </div>
-          <button id="send-email-to-change-password" class="buttons-style">Send email</button>
+          <button id="send-email-to-change-password" class="buttons-style auth-button-styles">Send email</button>
           <p class="text-footer-sign-in">Don't have an account? <strong id="go-to-sign-up">Sign up!</strong></p>
         </form>
       </section>
@@ -24,9 +25,9 @@ export function renderRecoveryPassword(root){
   `;
 
   document.getElementById('recovery-password').addEventListener('click', (event) => {
+    event.preventDefault();
     if(event.target.id === 'send-email-to-change-password'){
-      window.history.pushState(null, '', '/sign-in/recovery-password/verify-email');
-      renderRoute('/sign-in/recovery-password/verify-email');
+      sendEmailToChangePassword();
     }
     if(event.target.id === 'go-to-sign-up'){
       window.history.pushState(null, '', '/sign-up');

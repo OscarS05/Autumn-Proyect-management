@@ -3,15 +3,21 @@ import { renderSignUp } from "./views/sign-up.view.js";
 import { renderRecoveryPassword } from "./views/recovery-password.view.js";
 import { renderVerifyEmail } from "./views/verify-email.view.js";
 import { renderEmailConfirmed } from "./views/email-confirmed.view.js";
+import { renderProjectScreen } from "./views/project-screen.view.js";
+import { renderChangePassword } from "./views/render-change-password.view.js";
 
 const routes = {
+  // Auth
   '/sign-in': renderSignIn,
-  '/sign-up': renderSignUp,
   '/sign-in/recovery-password': renderRecoveryPassword,
   '/sign-in/recovery-password/verify-email': renderVerifyEmail,
-  '/sign-in/recovery-password/email-confirmed': renderEmailConfirmed,
+  '/sign-in/change-password': renderChangePassword,
+  '/sign-up': renderSignUp,
   '/sign-up/verify-email': renderVerifyEmail,
-  '/sign-up/verify-email/email-confirmed': renderEmailConfirmed,
+  '/auth/verify-email/email-confirmed': renderEmailConfirmed,
+
+  // ProjectScreen
+  '/project-screen': renderProjectScreen,
 };
 
 export function renderRoute(route) {
@@ -39,9 +45,7 @@ if (location.pathname === '/') {
   renderRoute(location.pathname);
 }
 
-// window.history.pushState(null, '', '/sign-up/verify-email/email-confirmed');
-// renderRoute('/sign-up/verify-email/email-confirmed');
-// export function navigateTo(route) {
-//   window.history.pushState(null, '', route);
-//   renderRoute(route);
-// }
+export function navigateTo(route) {
+  window.history.pushState(null, '', route);
+  renderRoute(route);
+}
