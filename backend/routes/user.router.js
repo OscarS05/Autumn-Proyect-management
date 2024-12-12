@@ -10,6 +10,16 @@ const { createUserSchema } = require('./../schemas/user.schema');
 const router = express.Router();
 const service = new UserService();
 
+router.get('/:email', async (req, res, next) => {
+  try {
+    const { email } = req.params;
+    const cardId = await service.findByEmail(email);
+    res.json(cardId);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/', async (req, res, next) => {
   try {
     const users = await service.findAll();
@@ -35,5 +45,6 @@ router.post('/sign-up',
     }
   }
 );
+
 
 module.exports = router;

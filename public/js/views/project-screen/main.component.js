@@ -1,4 +1,5 @@
 import { AddCard } from './add-card.component.js';
+import { renderLists } from './renderList.component.js';
 
 export function Main(lists){
   return `
@@ -41,53 +42,13 @@ export function Main(lists){
       </header>
 
       <div class="lists-layout">
-        <section id="lists-cards" class="container-lists-cards">
-          ${lists.map(
-              (list, index) => `
-                <section id="list-${index}" class="list-container list cards-style">
-                  <header class="header-title-card">
-                    <h3 class="title-card">${list.title}</h3>
-                    <i class="config-list fa-solid fa-ellipsis project" style="color: #3f4547;"></i>
-                    <div class="dropdown-list dropdown-menu workspace-settings-dropdown inactive">
-                      <ul>
-                        <li class="delete-list-option">Eliminar lista</li>
-                      </ul>
-                    </div>
-                  </header>
-                  <ul class="container-lists">
-                    ${list.cards
-                      .map(
-                        (card) => `
-                        <li class="cards lists">
-                          <span>${card.title}</span>
-                          <i class="config-card fa-solid fa-ellipsis project" style="color: #3f4547;"></i>
-                          <div class="dropdown-card dropdown-menu workspace-settings-dropdown inactive">
-                            <ul>
-                              <li class="delete-card-option">Eliminar tarjeta</li>
-                            </ul>
-                          </div>
-                        </li>
-                      `
-                      )
-                      .join('')}
-                    <li>
-                      ${AddCard()}
-                    </li>
-                    <footer class="add-a-list-button add-a-list container-add-a-list">
-                      <i class="fa-solid fa-plus"></i>
-                      <p>Add card</p>
-                    </footer>
-                  </ul>
-                </section>
-              `
-            )
-          .join('')}
-        </section>
+        ${renderLists(lists)}
 
-        <section class="add-a-list styles-white-add-a-list container-add-a-list">
+        <section id="add-new-list" class="add-a-list styles-white-add-a-list container-add-a-list">
           <i class="fa-solid fa-plus"></i>
           <p>Add list</p>
         </section>
+        <div id="add-list-container"></div>
       </div>
     </section>
   `;

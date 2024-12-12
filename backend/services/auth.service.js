@@ -32,26 +32,8 @@ class AuthService {
       sub: user.id,
       role: user.role
     };
-    const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, {expiresIn: user.rememberMe ? '30d' : '7d'});
-    const accessToken = jwt.sign(payload, config.jwtSecret, {expiresIn: '1h'});
-    return({ refreshToken, accessToken });
-  }
-
-  async generateAccessToken(refreshToken){
-    if (!refreshToken){
-      throw boom.unauthorized('Unauthorized. Invalid refresh token');
-    }
-    const payloadAccess = jwt.verify(refreshToken, config.jwtRefreshSecret);
-    if (!payloadAccess){
-      throw boom.unauthorized('Unauthorized. Invalid or expired refresh token');
-    }
-
-    const user = await service.findOne(payload.sub)
-    if (!user) {
-      throw boom.unauthorized('User not found');
-    }
-    const { accessToken, newRefreshToken } = this.signToken(user);
-    return { accessToken, newRefreshToken};
+    const accessToken = jwt.sign(payload, config.jwtSecret);
+    return({ accessToken });
   }
 
   async sendEmailConfirmation(email){
@@ -75,14 +57,14 @@ class AuthService {
   }
 
   async verifyEmailToActivateAccount(token){
-    const user = this.verifyEmail(token)
+    const user = await this.verifyEmail(token);
     if(user.recoveryToken !== token){
       throw boom.unauthorized();
     }
     if(user.isVerified){
       throw boom.badRequest('The user is already verified. Please, sign in!');
     }
-    await service.update(payload.sub, { isVerified: true, recoveryToken: null});
+    await service.update(user.id, { isVerified: true, recoveryToken: null});
     return user;
   }
 

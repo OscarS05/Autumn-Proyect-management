@@ -17,14 +17,7 @@ router.post('/sign-in',
     try {
       const user = req.body;
       const rememberMe = req.body.rememberMe
-      const { accessToken, refreshToken } = service.signToken(user);
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: config.isProd || false,
-        sameSite: 'strict',
-        path: '/',
-        maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000,
-      });
+      const { accessToken } = service.signToken(user);
       res.status(200).json({accessToken});
     } catch (error) {
       next(error);
@@ -37,14 +30,7 @@ router.post('/verify-email',
     try {
       const token = req.headers.authorization?.split(' ')[1];
       const user = await service.verifyEmailToActivateAccount(token);
-      const { accessToken, refreshToken } = service.signToken(user);
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: config.isProd || false,
-        sameSite: 'strict',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
+      const { accessToken } = service.signToken(user);
       res.status(200).json({accessToken});
     } catch (error) {
       next(error);
@@ -67,7 +53,7 @@ router.post('/verify-email-to-recover-password',
   }
 );
 
-router.post('/change-password',
+router.patch('/change-password',
   validatorHandler(changePassword, 'body'),
   async (req, res, next) => {
     try {
@@ -100,24 +86,11 @@ router.post('/resend-verification-email',
   }
 );
 
-router.post('/refresh-token',
-  passport.authenticate('refresh-token', { session: false }),
+router.post('/validate-token',
+  passport.authenticate('jwt', {session: false}),
   async (req, res, next) => {
-    try {
-      const { refreshToken } = req.cookies;
-      const { newAccessToken, newRefreshToken } = await service.generateAccessToken(refreshToken);
-      res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        secure: config.isProd || false,
-        sameSite: 'strict',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-      res.status(200).json({newAccessToken});
-    } catch (error) {
-      next(error)
-    }
+    res.status(200).json({ message: 'Valid token' });
   }
-);
+)
 
 module.exports = router;

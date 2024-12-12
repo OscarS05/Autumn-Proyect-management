@@ -1,5 +1,4 @@
 import { navigateTo, renderRoute } from '../router.js';
-import { fetchWithToken } from '../utils/tokens.js';
 
 export const API_BASE = 'http://localhost:3000'
 const API_SIGN_UP = 'http://localhost:3000/api/v1/user';
@@ -67,7 +66,8 @@ export async function verifyEmailToActivateAccount() {
     }
     const { accessToken } = await response.json();
     if(accessToken){
-      window.accessToken = accessToken;
+      localStorage.removeItem('accessToken');
+      localStorage.setItem('accessToken', accessToken);
       alert('¡Email verified successfully!');
       localStorage.removeItem('email');
       navigateTo('/project-screen');
@@ -102,7 +102,6 @@ export async function verifyEmailToRecoverPassword(){
     if(message === 'Email verified successfully'){
       alert('¡Email verified successfully!');
       localStorage.removeItem('email');
-      localStorage.removeItem('state');
       window.token = token;
       navigateTo('/sign-in/change-password');
       return message;
@@ -116,13 +115,12 @@ export async function verifyEmailToRecoverPassword(){
 
 export async function changePassword(credentials){
   const response = await fetch(`${API_AUTH}/change-password`, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${window.token || ''}`
     },
     body: JSON.stringify(credentials),
-    credentials: 'include'
   });
   if (!response.ok) {
     const error = await response.json();
@@ -130,4 +128,3 @@ export async function changePassword(credentials){
   }
   return await response.json();
 }
-

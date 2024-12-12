@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 
 const { logErrors, errorHandler, boomErrorHandler, ormErrorHandler } = require('./middlewares/error.handler');
 
@@ -12,21 +11,14 @@ const app = express();
 
 app.use(express.json());
 
+const whiteList = ['http://localhost:8000'];
+app.options('*', cors());
 
-const whitelist = ['http://localhost:8000'];
-const options = {
-  origin: (origin, callback) => {
-    if(whitelist.includes(origin) || !origin){
-      callback(null, true);
-    } else {
-      callback(new Error("No permitido"));
-    }
-  },
-  credentials: true,
-}
-app.use(cors(options));
-app.use(cookieParser());
-app.options('*', cors(options));
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 require('./utils/auth');
 require('./utils/cron');
@@ -38,5 +30,11 @@ app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ message: err.message });
+});
 
-app.listen(port);
+app.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
+});
