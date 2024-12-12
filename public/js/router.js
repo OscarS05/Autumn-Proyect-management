@@ -20,7 +20,7 @@ const routes = {
   '/project-screen': renderProjectScreen,
 };
 
-export function renderRoute(route) {
+export async function renderRoute(route) {
   const root = document.getElementById('root');
 
   const renderFunction = routes[route];
@@ -45,7 +45,7 @@ if (location.pathname === '/') {
   renderRoute(location.pathname);
 }
 
-export function navigateTo(route) {
+export async function navigateTo(route) {
   window.history.pushState(null, '', route);
   renderRoute(route);
 }

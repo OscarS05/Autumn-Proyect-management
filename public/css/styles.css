@@ -45,7 +45,7 @@ i {
     color: #FFFFFF;
 }
 
-input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea, textarea:focus, .modal-assign-date input:focus, input[type="date"]:focus {
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea, textarea:focus, .modal-assign-date input:focus, input[type="date"]:focus, input {
     border: 2px solid #00AEE5;
     outline: none;
 }
@@ -1526,7 +1526,7 @@ button {
     margin: 0px 3px 0px 32px;
 }
 
-.name-new-item {
+.name-new-item, .input-new-list {
     box-shadow: 0px 1px 5px -2px rgb(0, 0, 0, 30%);
     width: 100%;
     min-height: 30px;

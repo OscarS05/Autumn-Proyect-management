@@ -1,39 +1,26 @@
 import { Navbar } from './navbar.component.js';
 import { Aside } from './aside.component.js';
 import { Main } from './main.component.js';
+import { navigateTo } from '../../router.js';
+import { createCardHandler, createListHandler } from '../../controllers/project-screen.controller.js';
+import { deleteCard, deleteList, getAllLists, updateCard, updateList } from '../../api/project-screen.api.js';
+import { renderLists } from './renderList.component.js';
+import { AddCard } from './add-card.component.js';
 
-const projectData = {
-  lists: [
-    {
-      title: 'To Do',
-      cards: [
-        { title: 'Task 1' },
-        { title: 'Task 2' },
-      ],
-    },
-    {
-      title: 'In Progress',
-      cards: [
-        { title: 'Task 3' },
-      ],
-    },
-    {
-      title: 'Completed',
-      cards: [
-        { title: 'Task 1' },
-        { title: 'Task 2' },
-      ],
-    },
-    {
-      title: 'Not started',
-      cards: [
-        { title: 'Task 3' },
-      ],
-    },
-  ],
+export const projectData = {
+  lists: [],
 };
 
-export function renderProjectScreen(root) {
+function addListToProjectData(list) {
+  const newList = {
+    id: list.id,
+    title: list.name,
+    cards: list.card,
+  };
+  projectData.lists.push(newList);
+}
+
+export async function renderProjectScreen(root) {
   root.innerHTML = `
     <div id="project-screen-container" class="header-aside-white header-aside-black" style="overflow-y: hidden;">
       <header class="header-navbar">
@@ -46,45 +33,160 @@ export function renderProjectScreen(root) {
     </div>
   `;
 
+  try {
+    const allLists = await getAllLists();
+    allLists.forEach(list => {
+      addListToProjectData(list);
+    });
 
-  // document.getElementById('create-list-btn').addEventListener('click', () => {
-  //   const newList = {
-  //     title: 'New List',
-  //     cards: [],
-  //   };
-  //   projectData.lists.push(newList);
-  //   renderProjectScreen();
-  // });
+    updateListsUI(root);
+  } catch (error) {
+    console.error('Error fetching lists:', error);
+    alert('Failed reload lists the page');
+  }
 
-  // Card & lists
-  document.getElementById('lists-cards').addEventListener('click', (event) => {
-    if(event.target.classList.contains('add-a-list-button')){
-      const listElement = event.target.closest('.list');
+  function updateListsUI(root) {
+    const listsContainer = document.querySelector('#lists-cards');
+    if (!listsContainer) return;
 
-      const addANewCardButton = listElement.querySelector('.add-a-list-button');
-      const addCardInput = listElement.querySelector('#add-card');
-      addANewCardButton.classList.add('inactive');
-      addCardInput.classList.remove('inactive');
-    }
-    if (event.target.classList.contains('close-add-card')) {
-      const listElement = event.target.closest('.list');
+    listsContainer.outerHTML = renderLists(projectData.lists);
+  }
 
-      const addCardInput = listElement.querySelector('#add-card');
-      addCardInput.classList.add('inactive');
-      const addANewCardButton = listElement.querySelector('.add-a-list-button');
-      addANewCardButton.classList.remove('inactive');
+
+  // List navigation and card settings
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.config-list') && !event.target.closest('.config-card') && !event.target.closest('.dropdown-menu')) {
+      const allDropdowns = document.querySelectorAll('.dropdown-list, .dropdown-card');
+      allDropdowns.forEach((dropdown) => dropdown.classList.add('inactive'));
     }
   });
 
-  // Config list & config card
+
+  // Create new list
+  document.getElementById('add-new-list').addEventListener('click', () => {
+    const container = document.getElementById('add-list-container');
+    if (container.querySelector('input')) return;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Enter list name';
+    input.id = 'add-list';
+    input.classList.add('input-new-list');
+
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Save';
+    saveButton.classList.add('buttons-style');
+
+    saveButton.addEventListener('click', async () => {
+      const listName = input.value.trim();
+      if (!listName) {
+        alert('Please provide a name for the list.');
+        return;
+      }
+      const response = await createListHandler(listName);
+      const data = await response.json();
+
+      if(response.status == 201){
+        const containerLists = document.getElementById('lists-cards');
+        const addNewListBtn = container.querySelector('.add-new-list');
+        const newListSection = document.createElement('section');
+        const addCardContainer = newListSection.querySelector('#add-card');
+        newListSection.id = data.id;
+        newListSection.classList.add('list-container', 'list', 'cards-style');
+
+        newListSection.innerHTML = `
+          <header class="header-title-card">
+            <h3 class="title-card">${data.name}</h3>
+            <i class="config-list fa-solid fa-ellipsis project" style="color: #3f4547;"></i>
+            <div class="dropdown-list dropdown-menu workspace-settings-dropdown inactive">
+              <ul>
+                <li class="delete-list-option">Eliminar lista</li>
+              </ul>
+            </div>
+          </header>
+          <ul class="container-lists">
+            ${AddCard()}
+            <footer class="add-a-card-button add-a-list container-add-a-list">
+              <i class="fa-solid fa-plus"></i>
+              <p>Add card</p>
+            </footer>
+          </ul>
+        `;
+        containerLists.insertBefore(newListSection, addNewListBtn);
+        input.remove();
+        saveButton.remove();
+      }
+    });
+
+    container.appendChild(input);
+    container.appendChild(saveButton);
+    input.focus();
+  });
+  // Create new card
+  const targetContainer = document.getElementById('lists-cards');
+  targetContainer.addEventListener('click', async (event) => {
+    const target = event.target;
+
+    if (target.closest('.add-a-card-button')) {
+      const listContainer = target.closest('.list-container');
+      console.log(listContainer);
+      const addCardContainer = listContainer.querySelector('#add-card');
+      console.log(addCardContainer);
+      if (addCardContainer) {
+        addCardContainer.classList.remove('inactive');
+      }
+    }
+
+    if (target.id === 'add-card-btn') {
+      const listContainer = target.closest('.list-container');
+      const addCardContainer = listContainer.querySelector('#add-card');
+      const textarea = addCardContainer.querySelector('.name-new-item');
+      const cardName = textarea.value.trim();
+      if (cardName) {
+        const response = await createCardHandler({ cardName: cardName, listId: listContainer.id });
+        const data = await response.json();
+        if(response.status == 201){
+          const cardList = listContainer.querySelector('.container-lists');
+          cardList.insertBefore(
+            document.createElement('li'),
+            addCardContainer
+          ).outerHTML = `
+            <li id="${data.id}" class="cards lists">
+              <span>${data.name}</span>
+              <i class="config-card fa-solid fa-ellipsis project" style="color: #3f4547;"></i>
+              <div class="dropdown-card dropdown-menu workspace-settings-dropdown inactive">
+                <ul>
+                  <li class="delete-card-option">Eliminar tarjeta</li>
+                </ul>
+              </div>
+            </li>
+          `;
+
+          textarea.value = '';
+          addCardContainer.classList.add('inactive');
+        } else {
+          console.error('Failed to create card:', data);
+        }
+      } else {
+        alert('Card title cannot be empty.');
+      }
+    }
+
+    if (target.classList.contains('close-add-card')) {
+      const addCardContainer = target.closest('#add-card');
+      addCardContainer.classList.add('inactive');
+    }
+  });
+
+  // Delete list or card
   const listsContainer = document.getElementById('lists-cards');
-  listsContainer.addEventListener('click', (event) => {
+  listsContainer.addEventListener('click', async (event) => {
     const allDropdowns = document.querySelectorAll('.dropdown-list, .dropdown-card');
     allDropdowns.forEach((dropdown) => dropdown.classList.add('inactive'));
+
     if (event.target.classList.contains('config-list')) {
       const listElement = event.target.closest('.list');
       const dropdown = listElement.querySelector('.dropdown-list');
-      console.log(dropdown);
       dropdown.classList.toggle('inactive');
       return;
     }
@@ -96,23 +198,50 @@ export function renderProjectScreen(root) {
     }
     if (event.target.classList.contains('delete-list-option')) {
       const listElement = event.target.closest('.list');
-      listElement.remove();
+      const listId = listElement.id;
+      const listName = listElement.querySelector('.title-card').textContent;
+      try {
+        const response = await deleteList({ listName: listName });
+
+        if (response.ok) {
+          listElement.remove();
+          console.log(`List with name ${listName} was deleted successfully.`);
+        } else {
+          const errorData = await response.json();
+          console.error('Error deleting list:', errorData.message);
+          alert('Failed to delete the list. Please try again.');
+        }
+      } catch (error) {
+        console.error('Network error while deleting list:', error);
+        alert('Network error. Please try again later.');
+      }
       return;
     }
     if (event.target.classList.contains('delete-card-option')) {
       const cardElement = event.target.closest('.cards');
-      cardElement.remove();
+      const listId = event.target.closest('.list-container').id;
+      const cardName = cardElement.querySelector('span').textContent;
+
+      try {
+        const response = await deleteCard({ cardName: cardName, listId: listId});
+
+        if(response.ok){
+          cardElement.remove();
+          console.log(`Card with name ${cardName} was deleted successfully.`);
+        }else {
+          const errorData = await response.json();
+          console.error('Error deleting card:', errorData.message);
+          alert('Failed to delete the card. Please try again.');
+        }
+      } catch (error) {
+        console.error('Network error while deleting card:', error);
+        alert('Network error. Please try again later.');
+      }
       return;
     }
   });
-  document.addEventListener('click', (event) => {
-    if (!event.target.closest('.config-list') && !event.target.closest('.config-card') && !event.target.closest('.dropdown-menu')) {
-      const allDropdowns = document.querySelectorAll('.dropdown-list, .dropdown-card');
-      allDropdowns.forEach((dropdown) => dropdown.classList.add('inactive'));
-    }
-  });
 
-  // Change name to lists and cards
+  // Update list name
   document.getElementById('lists-cards').addEventListener('dblclick', (event) => {
     if (event.target.classList.contains('title-card')) {
       const titleElement = event.target;
@@ -126,13 +255,46 @@ export function renderProjectScreen(root) {
       titleElement.replaceWith(input);
       input.focus();
 
-      const saveTitle = () => {
-        const newTitle = input.value.trim() || currentTitle;
-        const newTitleElement = document.createElement('h3');
-        newTitleElement.classList.add('title-card');
-        newTitleElement.textContent = newTitle;
+      let isSaving = false;
 
-        input.replaceWith(newTitleElement);
+      const saveTitle = async () => {
+        if (isSaving) return;
+        isSaving = true;
+
+        const newTitle = input.value.trim() || currentTitle;
+
+        try {
+          const response = await updateList({ listName: currentTitle, newName: newTitle });
+
+          if (response.ok) {
+            const newTitleElement = document.createElement('h3');
+            newTitleElement.classList.add('title-card');
+            newTitleElement.textContent = newTitle;
+
+            input.replaceWith(newTitleElement);
+            console.log(`List title updated to "${newTitle}" successfully.`);
+          } else {
+            const errorData = await response.json();
+            console.error('Error updating list title:', errorData.message);
+            alert('Failed to update the list title. Please try again.');
+            cancelEdit();
+          }
+
+        } catch (error) {
+          console.error('Network error while updating list title:', error);
+          alert('Network error. Please try again later.');
+          cancelEdit();
+        } finally {
+          isSaving = false;
+        }
+      };
+
+      const cancelEdit = () => {
+        const originalTitleElement = document.createElement('h3');
+        originalTitleElement.classList.add('title-card');
+        originalTitleElement.textContent = currentTitle;
+
+        input.replaceWith(originalTitleElement);
       };
 
       input.addEventListener('blur', saveTitle);
@@ -143,11 +305,12 @@ export function renderProjectScreen(root) {
       });
     }
   });
-
+  // Update list card
   document.getElementById('lists-cards').addEventListener('dblclick', (event) => {
     if (event.target.closest('.cards span')) {
       const cardTitleElement = event.target;
       const currentCardTitle = cardTitleElement.textContent;
+      const listId = cardTitleElement.closest('.list-container').id
 
       const input = document.createElement('input');
       input.type = 'text';
@@ -157,17 +320,51 @@ export function renderProjectScreen(root) {
       cardTitleElement.replaceWith(input);
       input.focus();
 
-      const saveCardTitle = () => {
-        const newCardTitle = input.value.trim() || currentCardTitle;
-        const newCardTitleElement = document.createElement('span');
-        newCardTitleElement.textContent = newCardTitle;
+      let isSaving = false;
 
-        input.replaceWith(newCardTitleElement);
+      const saveTitle = async () => {
+        if(isSaving) return;
+        isSaving = true;
+
+        const newTitle = input.value.trim() || currentCardTitle;
+        console.log('this is newtitle', newTitle, 'this is currecardtitle', currentCardTitle, 'this is listid', listId);
+
+        try {
+          const response = await updateCard({ cardName: currentCardTitle, newName: newTitle, listId: listId });
+
+          if (response.ok) {
+            const newTitleElement = document.createElement('span');
+            newTitleElement.textContent = newTitle;
+
+            input.replaceWith(newTitleElement);
+            console.log(`List title updated to "${newTitle}" successfully.`);
+          } else {
+            const errorData = await response.json();
+            console.error('Error updating card title:', errorData.message);
+            alert('Failed to update the card title. Please try again.');
+            cancelEdit();
+          }
+
+        } catch (error) {
+          console.error('Network error while updating list card:', error);
+          alert('Network error. Please try again later.');
+          cancelEdit();
+        } finally {
+          isSaving = false;
+        }
+      }
+
+      const cancelEdit = () => {
+        const originalTitleElement = document.createElement('span');
+        originalTitleElement.textContent = currentCardTitle;
+
+        input.replaceWith(originalTitleElement);
       };
-      input.addEventListener('blur', saveCardTitle);
+
+      input.addEventListener('blur', saveTitle);
       input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-          saveCardTitle();
+          saveTitle();
         }
       });
     }
@@ -237,7 +434,7 @@ export function renderProjectScreen(root) {
   profileNavbar.addEventListener('click', () => {
     dropdownMenu.classList.toggle('inactive');
   });
-  dropdownMenu.addEventListener('click', (event) => {
+  dropdownMenu.addEventListener('click', async (event) => {
     if (!profileNavbar.contains(event.target) && !dropdownMenu.contains(event.target)) {
       dropdownMenu.classList.remove('inactive');
     }

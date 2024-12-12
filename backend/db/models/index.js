@@ -7,7 +7,6 @@ function setupModels(sequelize){
   List.init(ListSchema, List.config(sequelize));
   Card.init(CardSchema, Card.config(sequelize));
 
-  User.associate(sequelize.models);
   List.associate(sequelize.models);
   Card.associate(sequelize.models);
 }

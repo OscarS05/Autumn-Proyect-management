@@ -15,17 +15,17 @@ const ListSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  userId:{
-    field: 'user_id',
-    allowNull: false,
-    type: DataTypes.INTEGER,
-    references: {
-      model: USER_TABLE,
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE'
-  },
+  // userId:{
+  //   field: 'user_id',
+  //   allowNull: false,
+  //   type: DataTypes.INTEGER,
+  //   references: {
+  //     model: USER_TABLE,
+  //     key: 'id',
+  //   },
+  //   onUpdate: 'CASCADE',
+  //   onDelete: 'CASCADE'
+  // },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
@@ -36,7 +36,6 @@ const ListSchema = {
 
 class List extends Model {
   static associate(models) {
-    this.belongsTo(models.User, { as: 'user' });
     this.hasMany(models.Card, {
       as: 'card',
       foreignKey: 'listId',
