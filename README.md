@@ -77,6 +77,16 @@ The `backend` folder contains everything related to the server-side logic:
     npm run start
     ```
 
+
+## Tags
+
+In this project we use the following tags to organize and classify the different versions and states of the project:
+
+- **`v1.0`**: Initial version containing the entire front-end design completed along with basic navigation, but no pagination, functionality or back-end.
+- **`v2.0`**: Functional project version with authentication and CRUD of lists and cards
+
+
+
 ## License
 
 This project is licensed under the MIT License.
