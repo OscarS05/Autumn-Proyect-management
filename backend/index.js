@@ -34,6 +34,10 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
+app.get('/', (req, res) => {
+  res.redirect('/sign-in');
+});
+
 app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
