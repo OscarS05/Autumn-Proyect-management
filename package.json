@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "vite-dev": "vite",
-    "vite-build": "vite build",
-    "vite-preview": "vite preview",
     "dev": "nodemon backend/index.js",
     "start": "node backend/index.js",
     "lint": "eslint",

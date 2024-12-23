@@ -11,7 +11,7 @@ const app = express();
 
 app.use(express.json());
 
-const whiteList = ['http://localhost:8000'];
+const whiteList = [config.frontUrl];
 app.options('*', cors());
 
 app.use(cors({
@@ -29,11 +29,6 @@ app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
-
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({ message: err.message });
-});
 
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);

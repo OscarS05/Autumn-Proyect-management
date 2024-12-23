@@ -1,37 +1,89 @@
-# **Autumn Project Management Platform**
+# **Autumn - Project Management Platform**
 
-**Autumn** is a project management platform, built with HTML/CSS/JS/PHP for modules and backend with Python (Django). This is SENA's final project, a project with only one member at the moment.
+## Description
+Autumn is a project management platform inspired by Trello. The platform allows users to create and manage projects in an intuitive and organized way. Like Trello, it focuses on organizing projects into boards, lists, and cards. Users can perform CRUD (Create, Read, Update, Delete) operations on lists and cards. 
 
-## **v0.1 tag:**
-GA6-220501096-AA4-EV03 Diseño front-end que cumpla con los requerimientos del proyecto.
-This tag was created for a specific SENA activity. This version contains the frontend layout with:
-- **The project screen**
-- **Sidebar**
-- **Side**
-- **Header**
-- **Create-workspace**
-- **Create-project**
+The platform also supports:
+- **Authentication**: Users can sign up, log in, and authenticate using JWT tokens.
+- **Sign-up & Email Verification**: New users can sign up, and email verification is required before they can start using the platform.
+- **Password Recovery**: Users can recover their passwords via email using JWT tokens.
 
-And missing:
-- **Login registration functionalities**
-- **AddEventListeners to all elements with cursor:pointer**
-- **Workspace-settings**
-- **Team-settings**
-- **Workspace-members**
-- **Team-list**
-- **Project-list dropdown windows**
-- **Invite-members**
+The primary goal of Autumn is to provide a simple and efficient way for teams and individuals to manage their projects, similar to Trello's visual approach, using lists and cards as the core organizational structure.
 
-## **v1.0 tag: Step 1. The design of all frontend screens with basic navigation is complete.**
+## Project Structure
 
-This tag was created to save the entire finished frontend layout with only basic navigation and no functionalities and backend. This tag marks the completion of the first step.
+### Frontend (public)
+The `public` folder contains everything related to the frontend:
+- **index.html**: Contains only a single HTML line. All the content is dynamically rendered from JavaScript.
+- **js**: This folder contains the main JavaScript file, `router.js`, which handles routing and the rendering of different views. The views are modular and located in the `views` folder. Other important files are:
+  - **controllers**: Handles the interaction between views and the data.
+  - **api**: Contains functions to interact with the backend API.
+- **css**: The CSS folder is organized by views, with each view having its own styles. There is also a general styles file for shared styling.
+- **assets**: Contains images and other static files.
+- **components**: Previously used for PHP modular design but is not in use at the moment.
 
-## Steps
+### Backend (backend)
+The `backend` folder contains everything related to the server-side logic:
+- **config**: Contains environment variables managed with `dotenv`.
+- **db**: Handles the configuration of Sequelize CLI, database connections, model structure, relationships, and migrations.
+- **libs**: Contains the Sequelize configuration that is used outside of the CLI and other general utility libraries.
+- **middlewares**: Manages error handling and data validation.
+- **routes**: Contains the API endpoints for handling requests.
+- **schemas**: Defines data validation schemas using JOI.
+- **services**: Implements business logic using Object-Oriented Programming (OOP).
+- **utils**: Stores Passport.js strategies for authentication and a CRON job that deletes unverified users after 7 days.
+- **index.js**: The main entry point for the backend, which centralizes all the configurations and initializes the server.
 
-**1.** Create the entire frontend layout with components. _**Done**_
+## Requirements to Run
 
-**2.** Create functionalities and backend with OOP, JS, Python (Django), and MySQL.  _**In progress**_
+1. Install the necessary dependencies using npm:
+    ```bash
+    npm install
+    ```
 
-**3.** Do testing. _**Not started**_
+2. Build the project (if needed):
+    ```bash
+    npm run build
+    ```
+    *(Note: If your project does not require a build step, you can skip this.)*
 
-**4.** Deploy to Hostinger so everyone can see. _**Not started**_
+3. For development, run the following:
+    ```bash
+    npm run dev
+    ```
+
+4. For production, use:
+    ```bash
+    npm run start
+    ```
+
+## Installation and Usage Instructions
+
+1. Clone the repository:
+    ```bash
+    git clone <repository-url>
+    ```
+
+2. Install the dependencies:
+    ```bash
+    npm install
+    ```
+
+3. Configure the `.env` file in the root of the backend directory. Ensure the required environment variables (such as database URL, JWT secret, etc.) are correctly set.
+
+4. In the `frontend/js/api/api.js` file, change the base URL of the API depending on whether you're in development or production mode.
+
+5. Run the development server:
+    ```bash
+    npm run dev
+    ```
+
+   Or for production:
+    ```bash
+    npm run start
+    ```
+
+## License
+
+This project is licensed under the MIT License.
+

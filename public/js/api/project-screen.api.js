@@ -1,8 +1,8 @@
 import { navigateTo, renderRoute } from '../router.js';
 import { API_BASE } from './auth.js'
 
-const API_LIST = 'http://localhost:3000/api/v1/list'
-const API_CARD = 'http://localhost:3000/api/v1/card'
+const API_LIST = `${API_BASE}/api/v1/list`;
+const API_CARD = `${API_BASE}/api/v1/card`;
 
 export async function createList(userData){
   const response = await fetch(`${API_LIST}/create-list`, {

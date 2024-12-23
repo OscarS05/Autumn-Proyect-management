@@ -1,8 +1,12 @@
 import { navigateTo, renderRoute } from '../router.js';
 
-export const API_BASE = 'http://localhost:3000'
-const API_SIGN_UP = 'http://localhost:3000/api/v1/user';
-export const API_AUTH = 'http://localhost:3000/api/v1/auth';
+// export const API_BASE = 'http://localhost:3000';
+export const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000'
+  : 'https://mi-app.render.com';
+
+const API_SIGN_UP = `${API_BASE}/api/v1/user`;
+export const API_AUTH = `${API_BASE}/api/v1/auth`;
 
 export async function signUp(userData) {
   const response = await fetch(`${API_SIGN_UP}/sign-up`, {
