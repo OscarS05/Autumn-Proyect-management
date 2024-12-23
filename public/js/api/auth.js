@@ -3,7 +3,7 @@ import { navigateTo, renderRoute } from '../router.js';
 // export const API_BASE = 'http://localhost:3000';
 export const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000'
-  : 'https://mi-app.render.com';
+  : 'https://autumn-z778.onrender.com';
 
 const API_SIGN_UP = `${API_BASE}/api/v1/user`;
 export const API_AUTH = `${API_BASE}/api/v1/auth`;
