@@ -1,3 +1,5 @@
+console.log('JS Script Loaded');
+
 import { renderSignIn } from "./views/auth/sign-in.view.js";
 import { renderSignUp } from "./views/auth/sign-up.view.js";
 import { renderRecoveryPassword } from "./views/auth/recovery-password.view.js";

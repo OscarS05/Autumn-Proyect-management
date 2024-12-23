@@ -6,6 +6,8 @@ const { logErrors, errorHandler, boomErrorHandler, ormErrorHandler } = require('
 const routerApi = require('./routes/index');
 const { config } = require('./config/config');
 
+const path = require('path');
+
 const port = config.port || 3000;
 const app = express();
 
@@ -24,6 +26,12 @@ require('./utils/auth');
 require('./utils/cron');
 
 routerApi(app);
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.use(logErrors);
 app.use(ormErrorHandler);
