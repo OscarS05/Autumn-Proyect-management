@@ -41,18 +41,12 @@ The `backend` folder contains everything related to the server-side logic:
     npm install
     ```
 
-2. Build the project (if needed):
-    ```bash
-    npm run build
-    ```
-    *(Note: If your project does not require a build step, you can skip this.)*
-
-3. For development, run the following:
+2. For development, run the following:
     ```bash
     npm run dev
     ```
 
-4. For production, use:
+3. For production, use:
     ```bash
     npm run start
     ```
@@ -71,7 +65,7 @@ The `backend` folder contains everything related to the server-side logic:
 
 3. Configure the `.env` file in the root of the backend directory. Ensure the required environment variables (such as database URL, JWT secret, etc.) are correctly set.
 
-4. In the `frontend/js/api/api.js` file, change the base URL of the API depending on whether you're in development or production mode.
+4. In the `public/js/api/api.js` file, change the base URL of the API depending on whether you're in development or production mode.
 
 5. Run the development server:
     ```bash
