@@ -1,10 +1,11 @@
 import { navigateTo, renderRoute } from '../router.js';
 
 // export const API_BASE = 'http://localhost:3000';
-export const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+export const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '8000'
   ? 'http://localhost:3000'
   : 'http://localhost:10000';
 
+console.log('THIS IS API_BASE: ', API_BASE);
 const API_SIGN_UP = `${API_BASE}/api/v1/user`;
 export const API_AUTH = `${API_BASE}/api/v1/auth`;
 
