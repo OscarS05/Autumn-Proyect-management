@@ -1,11 +1,10 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
-const { LIST_TABLE } = require('./list.model');
-const { allow } = require('joi');
+const { WORKSPACE_MEMBER_TABLE } = require('./workspace-member.model');
 
 
-const CARD_TABLE = 'cards';
+const TEAM_TABLE = 'teams';
 
-const CardSchema = {
+const TeamSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -16,20 +15,16 @@ const CardSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  description: {
+  ownerId:{
+    field: 'owner_id',
     allowNull: true,
-    type: DataTypes.STRING
-  },
-  listId: {
-    field: 'list_id',
-    allowNull: false,
     type: DataTypes.INTEGER,
     references: {
-      model: LIST_TABLE,
+      model: WORKSPACE_MEMBER_TABLE,
       key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'CASCADE'
+    onDelete: 'SET NULL'
   },
   createdAt: {
     allowNull: false,
@@ -39,20 +34,24 @@ const CardSchema = {
   }
 }
 
-class Card extends Model {
+class Team extends Model {
   static associate(models) {
-    this.belongsTo(models.List, { as: 'list' });
+    this.belongsToMany(models.WorkspaceMember, {
+      through: models.TeamMember,
+      foreignKey: 'teamId',
+      as: 'members',
+    });s
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: CARD_TABLE,
-      modelName: 'Card',
+      tableName: TEAM_TABLE,
+      modelName: 'Team',
       timestamps: false
     }
   }
 }
 
 
-module.exports = { CARD_TABLE, CardSchema, Card }
+module.exports = { TEAM_TABLE, TeamSchema, Team };

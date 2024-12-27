@@ -49,6 +49,11 @@ const UserSchema = {
 
 class User extends Model {
   static associate(models) {
+    this.belongsToMany(models.Workspace, {
+      through: models.WorkspaceMember,
+      foreignKey: 'userId',
+      as: 'workspaces'
+    });
   }
 
   static config(sequelize) {

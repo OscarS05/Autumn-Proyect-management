@@ -1,5 +1,5 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
-const { USER_TABLE } = require('./user.model');
+const { PROJECT_TABLE } = require('./project.model');
 
 
 const LIST_TABLE = 'lists';
@@ -15,17 +15,17 @@ const ListSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  // userId:{
-  //   field: 'user_id',
-  //   allowNull: false,
-  //   type: DataTypes.INTEGER,
-  //   references: {
-  //     model: USER_TABLE,
-  //     key: 'id',
-  //   },
-  //   onUpdate: 'CASCADE',
-  //   onDelete: 'CASCADE'
-  // },
+  projectId:{
+    field: 'project_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: PROJECT_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE'
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
@@ -36,6 +36,8 @@ const ListSchema = {
 
 class List extends Model {
   static associate(models) {
+    this.belongsTo(models.Project, { as: 'project' });
+
     this.hasMany(models.Card, {
       as: 'card',
       foreignKey: 'listId',
