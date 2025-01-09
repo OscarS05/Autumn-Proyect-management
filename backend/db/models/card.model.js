@@ -42,6 +42,17 @@ const CardSchema = {
 class Card extends Model {
   static associate(models) {
     this.belongsTo(models.List, { as: 'list' });
+
+    this.belongsToMany(models.ProjectMember, {
+      through: models.CardMember,
+      foreignKey: 'cardId',
+      as: 'members',
+    });
+
+    this.hasMany(models.CardAttachment, {
+      foreignKey: 'cardId',
+      as: 'attachments'
+    });
   }
 
   static config(sequelize) {

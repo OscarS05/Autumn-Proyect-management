@@ -40,7 +40,7 @@ class Team extends Model {
       through: models.TeamMember,
       foreignKey: 'teamId',
       as: 'members',
-    });s
+    });
   }
 
   static config(sequelize) {

@@ -1,5 +1,6 @@
 'use strict';
 
+const { CARD_MEMBER_TABLE } = require("../models/card-member.model");
 const { PROJECT_MEMBER_TABLE } = require("../models/project-member.model");
 const { PROJECT_TABLE } = require("../models/project.model");
 const { TEAM_MEMBER_TABLE } = require("../models/team-member.model");
@@ -262,6 +263,53 @@ module.exports = {
         defaultValue: Sequelize.NOW
       }
     });
+    await queryInterface.createTable(CARD_MEMBER_TABLE, {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER
+      },
+      projectMemberId:{
+        field: 'project_member_id',
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: {
+          model: PROJECT_MEMBER_TABLE,
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      cardId:{
+        field: 'card_id',
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: {
+          model: CARD_TABLE,
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      teamId:{
+        field: 'team_id',
+        allowNull: true,
+        type: DataTypes.INTEGER,
+        references: {
+          model: TEAM_TABLE,
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      addedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        field: 'added_at',
+        defaultValue: Sequelize.NOW
+      }
+    });
   },
 
   async down (queryInterface, Sequelize) {
@@ -271,5 +319,6 @@ module.exports = {
     await queryInterface.dropTable(PROJECT_MEMBER_TABLE);
     await queryInterface.dropTable(TEAM_TABLE);
     await queryInterface.dropTable(TEAM_MEMBER_TABLE);
+    await queryInterface.dropTable(CARD_MEMBER_TABLE);
   }
 };

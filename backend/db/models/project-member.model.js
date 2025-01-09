@@ -62,6 +62,11 @@ const ProjectMemberSchema = {
 
 class ProjectMember extends Model {
   static associate(models) {
+    this.belongsToMany(models.Card, {
+      through: models.CardMember,
+      foreignKey: 'projectMemberId',
+      as: 'cards',
+    });
   }
 
   static config(sequelize) {
