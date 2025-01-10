@@ -1,11 +1,10 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
-const { LIST_TABLE } = require('./list.model');
-const { allow } = require('joi');
+const { CHECKLIST_TABLE } = require('./checklist.model');
 
 
-const CARD_TABLE = 'cards';
+const ITEM_TABLE = 'items';
 
-const CardSchema = {
+const ItemSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -16,20 +15,31 @@ const CardSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  description: {
-    allowNull: true,
-    type: DataTypes.STRING
-  },
-  listId: {
-    field: 'list_id',
+  checklistId: {
+    field: 'checklist_id',
     allowNull: false,
     type: DataTypes.INTEGER,
     references: {
-      model: LIST_TABLE,
+      model: CHECKLIST_TABLE,
       key: 'id',
     },
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
+  },
+  status: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  startDate: {
+    allowNull: true,
+    type: DataTypes.DATE,
+    field: 'start_date',
+  },
+  endDate: {
+    allowNull: true,
+    type: DataTypes.DATE,
+    field: 'end_date',
   },
   createdAt: {
     allowNull: false,
@@ -39,36 +49,26 @@ const CardSchema = {
   }
 }
 
-class Card extends Model {
+class Item extends Model {
   static associate(models) {
-    this.belongsTo(models.List, { as: 'list' });
+    this.belongsTo(models.Checklist, { as: 'checklist' });
 
     this.belongsToMany(models.ProjectMember, {
-      through: models.CardMember,
-      foreignKey: 'cardId',
+      through: models.ItemMember,
+      foreignKey: 'itemId',
       as: 'members',
-    });
-
-    this.hasMany(models.CardAttachment, {
-      foreignKey: 'cardId',
-      as: 'attachments'
-    });
-
-    this.hasMany(models.Checklist, {
-      foreignKey: 'cardId',
-      as: 'checklists',
     });
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: CARD_TABLE,
-      modelName: 'Card',
+      tableName: ITEM_TABLE,
+      modelName: 'Item',
       timestamps: false
     }
   }
 }
 
 
-module.exports = { CARD_TABLE, CardSchema, Card }
+module.exports = { ITEM_TABLE, ItemSchema, Item }

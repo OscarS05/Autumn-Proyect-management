@@ -67,6 +67,12 @@ class ProjectMember extends Model {
       foreignKey: 'projectMemberId',
       as: 'cards',
     });
+
+    this.belongsToMany(models.Item, {
+      through: models.ItemMember,
+      foreignKey: 'projectMemberId',
+      as: 'items',
+    });
   }
 
   static config(sequelize) {
