@@ -24,16 +24,18 @@ class AuthService {
     return user;
   }
 
-  signToken(user){
+  async signToken(user){
     if(!user){
       throw boom.unauthorized();
     }
+
     const payload = {
-      sub: user.id,
-      role: user.role
+      sub: user.dataValues.id,
+      role: user.dataValues.role,
     };
-    const accessToken = jwt.sign(payload, config.jwtSecret);
-    return({ accessToken });
+    const accessToken = jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' });
+    const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '7d' });
+    return({ accessToken, refreshToken });
   }
 
   async sendEmailConfirmation(email){

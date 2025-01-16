@@ -14,10 +14,12 @@ const app = express();
 app.use(express.json());
 
 const whiteList = [config.frontUrl];
-app.options('*', cors());
+// app.options('*', cors());
+console.log('whiteList', whiteList);
 
 app.use(cors({
-  origin: '*',
+  origin: whiteList,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -42,6 +44,13 @@ app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
+
+app.use((err, req, res, next) => {
+  if (err instanceof Error && err.message === 'Not authorized by CORS') {
+    return res.status(403).json({ message: 'Domain not allowed by CORS' });
+  }
+  next(err);
+});
 
 app.listen(port, () => {
   console.log(`Server run in PORT: ${port}`);

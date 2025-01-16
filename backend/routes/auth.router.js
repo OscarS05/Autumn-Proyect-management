@@ -15,9 +15,14 @@ router.post('/sign-in',
   passport.authenticate('local', { session: false }),
   async (req, res, next) => {
     try {
-      const user = req.body;
-      const rememberMe = req.body.rememberMe
-      const { accessToken } = service.signToken(user);
+      const user = req.user;
+      const { accessToken, refreshToken } = await service.signToken(user);
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: config.env === 'production' ? true : false,
+        sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
       res.status(200).json({accessToken});
     } catch (error) {
       next(error);
@@ -30,7 +35,13 @@ router.post('/verify-email',
     try {
       const token = req.headers.authorization?.split(' ')[1];
       const user = await service.verifyEmailToActivateAccount(token);
-      const { accessToken } = service.signToken(user);
+      const { accessToken, refreshToken } = service.signToken(user);
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: config.env === 'production' ? true : false,
+        sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
       res.status(200).json({accessToken});
     } catch (error) {
       next(error);
@@ -63,6 +74,11 @@ router.patch('/change-password',
       }
       const credentials = req.body;
       const rta = await service.changePassword(token, credentials);
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: config.env === 'production',
+        sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+      });
       return res.json(rta);
     } catch (error) {
       next(error);

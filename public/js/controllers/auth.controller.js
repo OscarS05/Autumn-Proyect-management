@@ -124,6 +124,7 @@ export async function changePasswordHandler() {
       if (response) {
         alert('¡Password changed successfully! Please, sign in.');
         localStorage.removeItem('state');
+        localStorage.removeItem('accessToken');
         navigateTo('/sign-in');
       } else {
         alert('Error changing password');

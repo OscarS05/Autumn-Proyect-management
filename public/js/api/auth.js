@@ -1,11 +1,9 @@
 import { navigateTo, renderRoute } from '../router.js';
 
-// export const API_BASE = 'http://localhost:3000';
 export const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000'
   : 'https://autumn-z778.onrender.com';
 
-console.log('THIS IS API_BASE: ', API_BASE);
 const API_SIGN_UP = `${API_BASE}/api/v1/user`;
 export const API_AUTH = `${API_BASE}/api/v1/auth`;
 
@@ -27,6 +25,7 @@ export async function signIn(userData) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(userData),
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -63,6 +62,7 @@ export async function verifyEmailToActivateAccount() {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include'
     });
     if (!response.ok) {
       const data = await response.json();
@@ -126,6 +126,7 @@ export async function changePassword(credentials){
       'Authorization': `Bearer ${window.token || ''}`
     },
     body: JSON.stringify(credentials),
+    credentials: 'include',
   });
   if (!response.ok) {
     const error = await response.json();
