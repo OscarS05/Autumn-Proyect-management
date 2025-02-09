@@ -1,5 +1,6 @@
 console.log('JS Script Loaded');
 
+//  Views
 import { renderSignIn } from "./views/auth/sign-in.view.js";
 import { renderSignUp } from "./views/auth/sign-up.view.js";
 import { renderRecoveryPassword } from "./views/auth/recovery-password.view.js";
@@ -7,6 +8,9 @@ import { renderVerifyEmail } from "./views/auth/verify-email.view.js";
 import { renderEmailConfirmed } from "./views/auth/email-confirmed.view.js";
 import { renderChangePassword } from "./views/auth/render-change-password.view.js";
 import { renderProjectScreen } from "./views/project-screen/project-screen.view.js";
+
+// APIs
+import { validateTokens } from './api/auth.js';
 
 const routes = {
   // Auth
@@ -24,8 +28,15 @@ const routes = {
 
 export async function renderRoute(route) {
   const root = document.getElementById('root');
-
   const renderFunction = routes[route];
+
+  if (route === '/project-screen'){
+    const isValid = await validateTokens();
+    if(!isValid){
+      return navigateTo('/sign-in');
+    }
+  }
+
   if (renderFunction) {
     renderFunction(root);
   } else {
@@ -40,12 +51,18 @@ export async function renderRoute(route) {
 
 window.addEventListener('popstate', () => renderRoute(location.pathname));
 
-if (location.pathname === '/') {
-  window.history.pushState(null, '', '/sign-in');
-  renderRoute('/sign-in');
-}else {
-  renderRoute(location.pathname);
-}
+(async () => {
+  const pathname = location.pathname;
+
+  if (pathname === '/') {
+    window.history.pushState(null, '', '/sign-in');
+    await renderRoute('/sign-in');
+  } else if (pathname === '/project-screen') {
+    return renderRoute(pathname);
+  } else {
+    await renderRoute(pathname);
+  }
+})();
 
 export async function navigateTo(route) {
   window.history.pushState(null, '', route);

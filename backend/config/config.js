@@ -14,7 +14,10 @@ const config = {
   jwtSecret: process.env.JWT_ACCESS_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   smtpEmail: process.env.SMTP_EMAIL,
-  smtpPass: process.env.SMTP_PASS
+  smtpPass: process.env.SMTP_PASS,
+  redisHost: process.env.REDIS_HOST,
+  redisPort: process.env.REDIS_PORT,
+  redisPassword: process.env.REDIS_PASSWORD,
 }
 
 module.exports = { config };

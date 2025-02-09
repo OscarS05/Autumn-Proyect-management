@@ -21,7 +21,7 @@ router.post('/sign-in',
         httpOnly: true,
         secure: config.env === 'production' ? true : false,
         sameSite: config.env === 'production' ? 'Strict' : 'Lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 15 * 24 * 60 * 60 * 1000,
       });
       res.status(200).json({accessToken});
     } catch (error) {
@@ -29,6 +29,25 @@ router.post('/sign-in',
     }
   }
 );
+
+router.post('/logout', async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    const accessToken = req.headers.authorization?.split(' ')[1];
+
+    if (!accessToken || !refreshToken) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const decodedAccessToken = service.validateAccessToken(accessToken);
+    await service.logout(decodedAccessToken.sub, refreshToken);
+
+    res.clearCookie('refreshToken');
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.post('/verify-email',
   async (req, res, next) => {
@@ -40,7 +59,7 @@ router.post('/verify-email',
         httpOnly: true,
         secure: config.env === 'production' ? true : false,
         sameSite: config.env === 'production' ? 'Strict' : 'Lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 15 * 24 * 60 * 60 * 1000,
       });
       res.status(200).json({accessToken});
     } catch (error) {
@@ -102,10 +121,34 @@ router.post('/resend-verification-email',
   }
 );
 
-router.post('/validate-token',
-  passport.authenticate('jwt', {session: false}),
+router.post('/validate-tokens',
   async (req, res, next) => {
-    res.status(200).json({ message: 'Valid token' });
+    try {
+      const accessToken = req.headers.authorization?.split(' ')[1];
+      const refreshToken = req.cookies.refreshToken;
+
+      if(!accessToken || !refreshToken){
+        return res.status(401).json({ message: "Not authorized" });
+      }
+
+      const tokensResponse = await service.validateTokens(accessToken, refreshToken);
+
+      if(tokensResponse.data?.refreshToken){
+        res.cookie('refreshToken', tokensResponse.data.refreshToken, {
+          httpOnly: true,
+          secure: config.env === 'production' ? true : false,
+          sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+          maxAge: 15 * 24 * 60 * 60 * 1000,
+        });
+      }
+
+      res.status(tokensResponse.status).json({
+        message: tokensResponse.message,
+        accessToken: tokensResponse.data?.accessToken || tokensResponse.data || ''
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 )
 

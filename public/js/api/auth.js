@@ -134,3 +134,34 @@ export async function changePassword(credentials){
   }
   return await response.json();
 }
+
+export async function validateTokens(){
+  const accessToken = localStorage.getItem('accessToken');
+
+  try {
+    const response = await fetch(`${API_AUTH}/validate-tokens`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken || ''}`
+      },
+      credentials: 'include',
+    });
+    const data = await response.json();
+
+    if(response.status === 200){
+      if(data.accessToken){
+        localStorage.removeItem('accessToken');
+        localStorage.setItem('accessToken', data.accessToken);
+      }
+      return true;
+    } else {
+      alert('Sorry, you need to log in first');
+      localStorage.removeItem('accessToken');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error validating tokens:', error);
+    return false;
+  }
+}

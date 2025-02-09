@@ -5,7 +5,12 @@ const nodemailer = require('nodemailer');
 
 const UserService = require('./user.service');
 const service = new UserService();
+
+const RedisService = require('./redis.service');
+const redisService = new RedisService();
+
 const { config } = require('./../config/config');
+const { use } = require('passport');
 
 
 class AuthService {
@@ -30,12 +35,59 @@ class AuthService {
     }
 
     const payload = {
-      sub: user.dataValues.id,
-      role: user.dataValues.role,
+      sub: user.dataValues?.id || user.id,
+      role: user.dataValues?.role || user.role,
     };
-    const accessToken = jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' });
-    const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '7d' });
+    const accessToken = jwt.sign(payload, config.jwtSecret, { expiresIn: '15m' });
+    const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '15d' });
+
+    const saveInRedis = await redisService.saveRefreshToken(payload.sub, refreshToken);
+
     return({ accessToken, refreshToken });
+  }
+
+  async validateTokens(accessToken, refreshToken){
+    try {
+      const decodedAccessToken = await this.validateAccessToken(accessToken);
+      if(decodedAccessToken){
+        return { status: 200, message: 'Token is valid', data: accessToken };
+      }
+    } catch (accessError) {
+      if(accessError.name === 'TokenExpiredError'){
+        try {
+          const decodedRefreshToken = await this.validateRefreshToken(refreshToken);
+          const isValidRefreshTokenInRedis = await redisService.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
+
+          if(!isValidRefreshTokenInRedis){
+            throw boom.unauthorized();
+          }
+
+          await redisService.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
+
+          const user = {
+            id: decodedRefreshToken.sub,
+            role: decodedRefreshToken.role
+          }
+
+          const newTokens = await this.signToken(user);
+
+          return { status: 200, data: newTokens, message: 'Token is valid' };
+        } catch (refreshError) {
+          return { status: 401, message: 'Invalid refresh token' };
+        }
+      } else {
+        return { status: 401, message: 'Invalid access token' };
+      }
+    }
+  }
+
+  async logout(userId, refreshToken) {
+    try {
+      await this.removeRefreshToken(userId, refreshToken);
+      return { status: 200, message: 'Logout successful' };
+    } catch (error) {
+      throw boom.internal('Error during logout');
+    }
   }
 
   async sendEmailConfirmation(email){
@@ -111,6 +163,16 @@ class AuthService {
 
     await transporter.sendMail(infoMail);
     return { message: 'mail sent' };
+  }
+
+  async validateAccessToken(accessToken){
+    const decodedAccessToken = jwt.verify(accessToken, config.jwtSecret);
+    return decodedAccessToken;
+  }
+
+  async validateRefreshToken(refreshToken){
+    const decodedRefreshToken = jwt.verify(refreshToken, config.jwtRefreshSecret);
+    return decodedRefreshToken;
   }
 }
 

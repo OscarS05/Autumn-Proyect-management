@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const { logErrors, errorHandler, boomErrorHandler, ormErrorHandler } = require('./middlewares/error.handler');
 
@@ -12,10 +13,10 @@ const port = config.port || 3000;
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 const whiteList = [config.frontUrl];
 // app.options('*', cors());
-console.log('whiteList', whiteList);
 
 app.use(cors({
   origin: whiteList,
@@ -51,6 +52,17 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
+
+const redis = require('./cache/index');
+(async () => {
+  try {
+    await redis.set("prueba", "123", "EX", 10);
+    const valor = await redis.get("prueba");
+    console.log("Valor almacenado en Redis:", valor);
+  } catch (err) {
+    console.error("Error en Redis:", err);
+  }
+})();
 
 app.listen(port, () => {
   console.log(`Server run in PORT: ${port}`);
