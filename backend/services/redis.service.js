@@ -26,6 +26,21 @@ class RedisService {
     const key = `refresh_token:${userId}:${refreshToken.slice(-10)}`;
     await redis.del(key);
   }
+
+  async saveTokenInRedis(userId, token){
+    const key = `token:${userId}:${token.slice(-10)}`;
+    await redis.set(key, token, 'EX', 5 * 60);
+  }
+
+  async verifyTokenInRedis(userId, token){
+    const key = `token:${userId}:${token.slice(-10)}`;
+    return await redis.get(key);
+  }
+
+  async removeToken(userId, token){
+    const key = `token:${userId}:${token.slice(-10)}`;
+    await redis.del(key);
+  }
 }
 
 module.exports = RedisService;

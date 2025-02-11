@@ -38,7 +38,7 @@ class AuthService {
       sub: user.dataValues?.id || user.id,
       role: user.dataValues?.role || user.role,
     };
-    const accessToken = jwt.sign(payload, config.jwtSecret, { expiresIn: '15m' });
+    const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '15m' });
     const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '15d' });
 
     const saveInRedis = await redisService.saveRefreshToken(payload.sub, refreshToken);
@@ -95,10 +95,11 @@ class AuthService {
     if(!user){
       throw boom.notFound('User not found');
     }
-    const payload = { sub: user.id, rol: user.rol};
-    const token = jwt.sign(payload, config.jwtSecret, { expiresIn: '15min' });
+    const payload = { sub: user.id, rol: user.role};
+    const token = jwt.sign(payload, config.jwtSecretVerifyEmail, { expiresIn: '15min' });
     const link = `${config.frontUrl}/auth/verify-email/email-confirmed?token=${token}`
     await service.update(user.id, {recoveryToken: token});
+    await redisService.saveTokenInRedis(user.id, token);
     const mail = {
       from: config.smtpEmail,
       to: `${user.email}`,
@@ -107,7 +108,7 @@ class AuthService {
     }
 
     const send = await this.sendMail(mail);
-    return { send };
+    return { send, token };
   }
 
   async verifyEmailToActivateAccount(token){
@@ -123,7 +124,7 @@ class AuthService {
   }
 
   async verifyEmail(token){
-    const payload = jwt.verify(token, config.jwtSecret);
+    const payload = jwt.verify(token, config.jwtSecretVerifyEmail);
     const user = await service.findOne(payload.sub);
     if(!user){
       throw boom.notFound('Not found');
@@ -133,7 +134,7 @@ class AuthService {
 
   async changePassword(token, credentials){
     try {
-      const payload = jwt.verify(token, config.jwtSecret);
+      const payload = jwt.verify(token, config.jwtAccessSecret);
       if(!payload){
         throw boom.unauthorized('The token is invalid or it has expired. Please try again!');
       }
@@ -165,8 +166,23 @@ class AuthService {
     return { message: 'mail sent' };
   }
 
+  async verifyTokensToVerifyEmail(token){
+    try {
+      const decodedToken = jwt.verify(token, config.jwtSecretVerifyEmail);
+      const tokenInRedis = await redisService.verifyTokenInRedis(decodedToken.sub, token);
+
+      if(!tokenInRedis || tokenInRedis !== token){
+        throw boom.unauthorized();
+      }
+
+      return true;
+    } catch (error) {
+      return res.status(500).json({ message: 'Invalid token' });
+    }
+  }
+
   async validateAccessToken(accessToken){
-    const decodedAccessToken = jwt.verify(accessToken, config.jwtSecret);
+    const decodedAccessToken = jwt.verify(accessToken, config.jwtAccessSecret);
     return decodedAccessToken;
   }
 

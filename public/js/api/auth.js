@@ -41,6 +41,7 @@ export async function resendVerificationEmail(email){
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
+    credentials: 'include',
   });
   if (!response.ok) {
     const error = await response.json();
@@ -135,7 +136,7 @@ export async function changePassword(credentials){
   return await response.json();
 }
 
-export async function validateTokens(){
+export async function validateSession(){
   const accessToken = localStorage.getItem('accessToken');
 
   try {
@@ -161,7 +162,30 @@ export async function validateTokens(){
       return false;
     }
   } catch (error) {
-    console.error('Error validating tokens:', error);
+    console.error('Error validating:', error);
     return false;
   }
 }
+
+export async function validateTokensToVerifyEmail(){
+  try {
+    const response = await fetch(`${API_AUTH}/validate-tokens-to-verify-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if(response.status === 200){
+      return true;
+    } else {
+      alert('Sorry, something went wrong. Please try again');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error validating:', error);
+    return false;
+  }
+}
+

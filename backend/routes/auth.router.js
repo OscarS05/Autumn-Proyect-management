@@ -110,8 +110,17 @@ router.post('/resend-verification-email',
   async (req, res, next) => {
     try {
       const { email } = req.body;
-      const sendEmail = await service.sendEmailConfirmation(email);
-      res.status(200).json(sendEmail);
+      const { send, token } = await service.sendEmailConfirmation(email);
+
+      if(token){
+        res.cookie('verifyEmail', token, {
+          httpOnly: true,
+          secure: config.env === 'production' ? true : false,
+          sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+          maxAge: 5 * 60 * 1000,
+        });
+      }
+      res.status(200).json({ message: 'The verification email was sent successfully!' });
     } catch (error) {
       if (error?.message === 'Too many email requests, please try again after an 15 minutes') {
         return res.status(429).json({ message: error.message });
@@ -146,6 +155,28 @@ router.post('/validate-tokens',
         message: tokensResponse.message,
         accessToken: tokensResponse.data?.accessToken || tokensResponse.data || ''
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+)
+
+router.post('/validate-tokens-to-verify-email',
+  async (req, res, next) => {
+    try {
+      const token = req.cookies.verifyEmail;
+
+      if(!token){
+        return res.status(401).json({ message: "Not authorized" });
+      }
+
+      const isTheTokenValid = await service.verifyTokensToVerifyEmail(token);
+
+      if(!isTheTokenValid){
+        return res.status(401).json({ message: "Invalid token" });
+      }
+
+      res.status(200).json({ message: 'Valid token' });
     } catch (error) {
       next(error);
     }

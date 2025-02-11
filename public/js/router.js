@@ -10,7 +10,8 @@ import { renderChangePassword } from "./views/auth/render-change-password.view.j
 import { renderProjectScreen } from "./views/project-screen/project-screen.view.js";
 
 // APIs
-import { validateTokens } from './api/auth.js';
+import { validateSession } from './api/auth.js';
+import { validateTokensToVerifyEmail } from './api/auth.js';
 
 const routes = {
   // Auth
@@ -28,14 +29,11 @@ const routes = {
 
 export async function renderRoute(route) {
   const root = document.getElementById('root');
-  const renderFunction = routes[route];
 
-  if (route === '/project-screen'){
-    const isValid = await validateTokens();
-    if(!isValid){
-      return navigateTo('/sign-in');
-    }
-  }
+  const isValid = await protectPrivateRoutes(route);
+  if(!isValid) return;
+
+  const renderFunction = routes[route];
 
   if (renderFunction) {
     renderFunction(root);
@@ -49,20 +47,39 @@ export async function renderRoute(route) {
   }
 }
 
+async function protectPrivateRoutes(route){
+  try {
+    if (route === '/project-screen'){
+      if(!(await validateSession())){
+        navigateTo('/sign-in');
+        return false;
+      }
+    } else if (route === '/sign-in/recovery-password/verify-email'){
+      if(!(await validateTokensToVerifyEmail())){
+        navigateTo('/sign-in/recovery-password');
+        return false;
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error('Error to validate the route:', error);
+    navigateTo('/sign-in');
+    return false;
+  }
+}
+
 window.addEventListener('popstate', () => renderRoute(location.pathname));
 
-(async () => {
+async function validateRoutes(){
   const pathname = location.pathname;
 
   if (pathname === '/') {
-    window.history.pushState(null, '', '/sign-in');
-    await renderRoute('/sign-in');
-  } else if (pathname === '/project-screen') {
-    return renderRoute(pathname);
-  } else {
-    await renderRoute(pathname);
+    return await navigateTo('/sign-in');
   }
-})();
+  return await renderRoute(pathname);
+}
+
+validateRoutes();
 
 export async function navigateTo(route) {
   window.history.pushState(null, '', route);
