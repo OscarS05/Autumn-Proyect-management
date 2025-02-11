@@ -105,11 +105,12 @@ router.patch('/change-password',
   }
 );
 
-router.post('/resend-verification-email',
+router.post('/send-verification-email',
   limiter(3, 15 * 60 * 100),
   async (req, res, next) => {
     try {
       const { email } = req.body;
+
       const { send, token } = await service.sendEmailConfirmation(email);
 
       if(token){
@@ -117,7 +118,40 @@ router.post('/resend-verification-email',
           httpOnly: true,
           secure: config.env === 'production' ? true : false,
           sameSite: config.env === 'production' ? 'Strict' : 'Lax',
-          maxAge: 5 * 60 * 1000,
+          maxAge: 15 * 60 * 1000,
+        });
+      }
+      res.status(200).json({ message: 'The verification email was sent successfully!' });
+    } catch (error) {
+      if (error?.message === 'Too many email requests, please try again after an 15 minutes') {
+        return res.status(429).json({ message: error.message });
+      }
+      next(error);
+    }
+  }
+);
+
+router.post('/resend-verification-email',
+  limiter(3, 15 * 60 * 100),
+  async (req, res, next) => {
+    try {
+      const tokenToVerifyEmail = req.cookies.verifyEmail;
+
+      if(!tokenToVerifyEmail){
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const user = await service.verifyEmail(tokenToVerifyEmail);
+      const userEmail = user.dataValues?.email || user.email;
+
+      const { send, token } = await service.sendEmailConfirmation(userEmail);
+
+      if(token){
+        res.cookie('verifyEmail', token, {
+          httpOnly: true,
+          secure: config.env === 'production' ? true : false,
+          sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+          maxAge: 15 * 60 * 1000,
         });
       }
       res.status(200).json({ message: 'The verification email was sent successfully!' });

@@ -36,11 +36,24 @@ export async function signIn(userData) {
   return await response.json();
 }
 
-export async function resendVerificationEmail(email){
-  const response = await fetch(`${API_AUTH}/resend-verification-email`, {
+export async function sendVerificationEmail(email){
+  const response = await fetch(`${API_AUTH}/send-verification-email`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Error sending the email. Please try again.');
+  }
+  return await response.json();
+}
+
+export async function resendVerificationEmail(){
+  const response = await fetch(`${API_AUTH}/resend-verification-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
   });
   if (!response.ok) {

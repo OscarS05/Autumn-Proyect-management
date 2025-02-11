@@ -29,7 +29,7 @@ class RedisService {
 
   async saveTokenInRedis(userId, token){
     const key = `token:${userId}:${token.slice(-10)}`;
-    await redis.set(key, token, 'EX', 5 * 60);
+    await redis.set(key, token, 'EX', 15 * 60);
   }
 
   async verifyTokenInRedis(userId, token){

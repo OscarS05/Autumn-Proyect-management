@@ -1,5 +1,5 @@
 import { changePassword, signIn, signUp } from '../api/auth.js';
-import { resendVerificationEmail } from '../api/auth.js';
+import { resendVerificationEmail, sendVerificationEmail } from '../api/auth.js';
 import { navigateTo, renderRoute } from "../router.js";
 
 export async function signInHandler() {
@@ -48,7 +48,6 @@ export async function handleSignUp() {
     const result = await signUp(userData);
     console.log('Backend response:', result);
     navigateTo('/sign-up/verify-email');
-    localStorage.setItem('email', userData.email);
     localStorage.removeItem('state');
   } catch (error) {
     console.error('Sign up error:', error);
@@ -67,13 +66,9 @@ function validatePassword(password) {
   return { valid: true, message: "Valide password." };
 }
 
-export async function handleResendVerificationEmail(email) {
-  if (!email) {
-    alert('Email not found. Please try again.');
-    return;
-  }
+export async function handleResendVerificationEmail() {
   try {
-    const result = await resendVerificationEmail(email);
+    const result = await resendVerificationEmail();
     alert(result.message || 'Verification email resent successfully!');
     return result;
   } catch (error) {
@@ -92,9 +87,9 @@ export async function sendEmailToChangePassword() {
     alert('You need to write an email.');
   }
   try {
-    const response = await handleResendVerificationEmail(userEmail);
+    const response = await sendVerificationEmail(userEmail);
     if (response) {
-      localStorage.setItem('email', userEmail);
+      alert('Verification email resent successfully!');
       localStorage.setItem('state', 'change-password');
       navigateTo('/sign-in/recovery-password/verify-email');
     } else {
