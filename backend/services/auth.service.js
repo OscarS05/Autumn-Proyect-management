@@ -33,7 +33,6 @@ class AuthService {
     if(!user){
       throw boom.unauthorized();
     }
-
     const payload = {
       sub: user.dataValues?.id || user.id,
       role: user.dataValues?.role || user.role,
@@ -41,7 +40,7 @@ class AuthService {
     const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '15m' });
     const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '15d' });
 
-    const saveInRedis = await redisService.saveRefreshToken(payload.sub, refreshToken);
+    await redisService.saveRefreshToken(payload.sub, refreshToken);
 
     return({ accessToken, refreshToken });
   }
@@ -113,7 +112,9 @@ class AuthService {
 
   async verifyEmailToActivateAccount(token){
     const user = await this.verifyEmail(token);
-    if(user.recoveryToken !== token){
+    const tokenInRedis = await redisService.verifyTokenInRedis(user.id, token);
+
+    if(tokenInRedis !== token){
       throw boom.unauthorized();
     }
     if(user.isVerified){
@@ -134,17 +135,18 @@ class AuthService {
 
   async changePassword(token, credentials){
     try {
-      const payload = jwt.verify(token, config.jwtAccessSecret);
+      const payload = jwt.verify(token, config.jwtSecretVerifyEmail);
       if(!payload){
-        throw boom.unauthorized('The token is invalid or it has expired. Please try again!');
+        throw boom.unauthorized();
       }
-      const user = await service.findOne(payload.sub);
-      if(user.recoveryToken !== token){
-        throw boom.unauthorized('You dont unauthorized. Please try again!');
-      }
+
+      const tokenInRedis = await redisService.verifyTokenInRedis(payload.sub, token);
+
+      if(tokenInRedis !== token) throw boom.unauthorized();
 
       const hash = await bcrypt.hash(credentials.newPassword, 10);
       await service.update(payload.sub, {recoveryToken: null, password: hash, isVerified: true});
+
       return { message: 'Password changed! Please, sign up.' };
     } catch (error) {
       throw boom.unauthorized('Sorry, something went wrong. Please try again!');

@@ -12,6 +12,7 @@ export async function signUp(userData) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(userData),
+    credentials: 'include'
   });
   if (!response.ok) {
     const error = await response.json();
@@ -88,7 +89,6 @@ export async function verifyEmailToActivateAccount() {
       localStorage.removeItem('accessToken');
       localStorage.setItem('accessToken', accessToken);
       alert('¡Email verified successfully!');
-      localStorage.removeItem('email');
       navigateTo('/project-screen');
     }else {
       alert('Error: No access token received');
@@ -111,17 +111,16 @@ export async function verifyEmailToRecoverPassword(){
         'Authorization': `Bearer ${urlToken}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include'
     });
     if (!response.ok) {
       const data = await response.json();
       alert('Something went wrong. Please try again!');
       return;
     }
-    const { message, token } = await response.json();
+    const { message } = await response.json();
     if(message === 'Email verified successfully'){
       alert('¡Email verified successfully!');
-      localStorage.removeItem('email');
-      window.token = token;
       navigateTo('/sign-in/change-password');
       return message;
     }else {
@@ -137,14 +136,13 @@ export async function changePassword(credentials){
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${window.token || ''}`
     },
     body: JSON.stringify(credentials),
     credentials: 'include',
   });
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to sign in');
+    throw new Error(error.message || 'Failed to change password');
   }
   return await response.json();
 }

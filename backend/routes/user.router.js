@@ -6,6 +6,7 @@ const serviceAuth = new AuthService();
 const UserService = require('./../services/user.service');
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createUserSchema } = require('./../schemas/user.schema');
+const { config } = require('../config/config');
 
 const router = express.Router();
 const service = new UserService();
@@ -38,8 +39,16 @@ router.post('/sign-up',
         return res.status(400).json({ message: 'Passwords do not match' });
       }
       const newUser = await service.create(body);
-      const sendEmail = await serviceAuth.sendEmailConfirmation(body.email);
-      res.status(201).json({newUser, sendEmail});
+      const { send, token } = await serviceAuth.sendEmailConfirmation(body.email);
+      if(token){
+        res.cookie('verifyEmail', token, {
+          httpOnly: true,
+          secure: config.env === 'production' ? true : false,
+          sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+          maxAge: 15 * 60 * 1000,
+        });
+      }
+      res.status(201).json({user: newUser, send: send});
     } catch (error) {
       next(error);
     }

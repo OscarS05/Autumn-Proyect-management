@@ -46,7 +46,6 @@ export async function handleSignUp() {
       return;
     }
     const result = await signUp(userData);
-    console.log('Backend response:', result);
     navigateTo('/sign-up/verify-email');
     localStorage.removeItem('state');
   } catch (error) {

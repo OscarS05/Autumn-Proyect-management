@@ -34,7 +34,9 @@ class RedisService {
 
   async verifyTokenInRedis(userId, token){
     const key = `token:${userId}:${token.slice(-10)}`;
-    return await redis.get(key);
+    const storedToken = await redis.get(key);
+    if(storedToken !== token) throw boom.unauthorized();
+    return storedToken;
   }
 
   async removeToken(userId, token){

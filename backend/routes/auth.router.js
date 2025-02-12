@@ -8,6 +8,8 @@ const AuthService = require('./../services/auth.service');
 const { config } = require('../config/config');
 const { ValidationError } = require('sequelize');
 const service = new AuthService();
+const RedisService = require('../services/redis.service');
+const redisService = new RedisService();
 
 const router = express.Router();
 
@@ -53,15 +55,29 @@ router.post('/verify-email',
   async (req, res, next) => {
     try {
       const token = req.headers.authorization?.split(' ')[1];
+      const tokenInCookies = req.cookies.verifyEmail;
+
+      if(!token || !tokenInCookies) return res.status(401).json({ message: 'Unauthorized' });
+      if(tokenInCookies !== token){
+        throw boom.unauthorized();
+      }
+
       const user = await service.verifyEmailToActivateAccount(token);
-      const { accessToken, refreshToken } = service.signToken(user);
-      res.cookie('refreshToken', refreshToken, {
+      const tokens = await service.signToken(user);
+
+      res.cookie('refreshToken', tokens.refreshToken, {
         httpOnly: true,
         secure: config.env === 'production' ? true : false,
         sameSite: config.env === 'production' ? 'Strict' : 'Lax',
         maxAge: 15 * 24 * 60 * 60 * 1000,
       });
-      res.status(200).json({accessToken});
+      res.clearCookie('verifyEmail', {
+        httpOnly: true,
+        secure: config.env === 'production',
+        sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+      });
+
+      res.status(200).json({ accessToken: tokens.accessToken });
     } catch (error) {
       next(error);
     }
@@ -71,12 +87,18 @@ router.post('/verify-email',
 router.post('/verify-email-to-recover-password',
   async (req, res, next) => {
     try {
-      const token = req.headers.authorization?.split(' ')[1];
-      const user = await service.verifyEmail(token);
-      if(user.recoveryToken !== token){
-        res.status(401).json({ message: 'Invalid or expired token.' });
+      const tokenInParams = req.headers.authorization?.split(' ')[1];
+      const token = req.cookies.verifyEmail;
+      if (!token || !tokenInParams) {
+        return res.status(401).json({ message: 'Unuthorized' });
       }
-      res.status(200).json({message: 'Email verified successfully', token});
+      const user = await service.verifyEmail(tokenInParams);
+      const tokenInRedis = await redisService.verifyTokenInRedis(user.id, token);
+
+      if(tokenInRedis !== tokenInParams){
+        return res.status(401).json({ message: 'Invalid or expired token.' });
+      }
+      res.status(200).json({ message: 'Email verified successfully' });
     } catch (error) {
       next(error);
     }
@@ -87,17 +109,24 @@ router.patch('/change-password',
   validatorHandler(changePassword, 'body'),
   async (req, res, next) => {
     try {
-      const token = req.headers.authorization?.split(' ')[1];
+      const token = req.cookies.verifyEmail;
       if (!token) {
-        return res.status(401).json({ message: 'No token was found or it has expired. Please try again!' });
+        return res.status(401).json({ message: 'Unauthorized' });
       }
       const credentials = req.body;
       const rta = await service.changePassword(token, credentials);
+
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: config.env === 'production',
         sameSite: config.env === 'production' ? 'Strict' : 'Lax',
       });
+      res.clearCookie('verifyEmail', {
+        httpOnly: true,
+        secure: config.env === 'production',
+        sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+      });
+
       return res.json(rta);
     } catch (error) {
       next(error);
