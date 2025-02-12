@@ -81,7 +81,8 @@ export async function verifyEmailToActivateAccount() {
     });
     if (!response.ok) {
       const data = await response.json();
-      alert(data.message || 'Something went wrong. Please try again!');
+      alert('Something went wrong. Please try again!');
+      navigateTo('/sign-in');
       return;
     }
     const { accessToken } = await response.json();

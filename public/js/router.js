@@ -64,6 +64,11 @@ async function protectPrivateRoutes(route){
         navigateTo('/sign-up');
         return false;
       }
+    } else if (route === '/auth/verify-email/email-confirmed'){
+      if(!(await validateTokensToVerifyEmail())){
+        navigateTo('/sign-in');
+        return false;
+      }
     }
     return true;
   } catch (error) {
