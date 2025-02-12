@@ -54,7 +54,7 @@ async function protectPrivateRoutes(route){
         navigateTo('/sign-in');
         return false;
       }
-    } else if (route === '/sign-in/recovery-password/verify-email'){
+    } else if (route === '/sign-in/recovery-password/verify-email' || route === '/sign-in/change-password'){
       if(!(await validateTokensToVerifyEmail())){
         navigateTo('/sign-in/recovery-password');
         return false;
