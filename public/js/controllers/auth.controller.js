@@ -47,7 +47,7 @@ export async function handleSignUp() {
     }
     const result = await signUp(userData);
     navigateTo('/sign-up/verify-email');
-    localStorage.removeItem('state');
+    sessionStorage.removeItem('state');
   } catch (error) {
     console.error('Sign up error:', error);
     alert(`Error: ${error.message}`);
@@ -89,7 +89,7 @@ export async function sendEmailToChangePassword() {
     const response = await sendVerificationEmail(userEmail);
     if (response) {
       alert('Verification email resent successfully!');
-      localStorage.setItem('state', 'change-password');
+      sessionStorage.setItem('state', 'change-password');
       navigateTo('/sign-in/recovery-password/verify-email');
     } else {
       alert('Error send email. Try again');
@@ -97,6 +97,7 @@ export async function sendEmailToChangePassword() {
   } catch (error) {
     console.error('Internal server error');
     alert(error.message || 'Error logging');
+    sessionStorage.removeItem('state');
   }
 }
 
@@ -117,8 +118,8 @@ export async function changePasswordHandler() {
       const response = await changePassword(userData);
       if (response) {
         alert('¡Password changed successfully! Please, sign in.');
-        localStorage.removeItem('state');
-        localStorage.removeItem('accessToken');
+        sessionStorage.removeItem('state');
+        sessionStorage.removeItem('accessToken');
         navigateTo('/sign-in');
       } else {
         alert('Error changing password');

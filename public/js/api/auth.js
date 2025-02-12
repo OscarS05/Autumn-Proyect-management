@@ -116,6 +116,7 @@ export async function verifyEmailToRecoverPassword(){
     if (!response.ok) {
       const data = await response.json();
       alert('Something went wrong. Please try again!');
+      sessionStorage.removeItem('state');
       return;
     }
     const { message } = await response.json();
@@ -142,6 +143,7 @@ export async function changePassword(credentials){
   });
   if (!response.ok) {
     const error = await response.json();
+    sessionStorage.removeItem('state');
     throw new Error(error.message || 'Failed to change password');
   }
   return await response.json();
@@ -192,6 +194,7 @@ export async function validateTokensToVerifyEmail(){
       return true;
     } else {
       alert('Sorry, something went wrong. Please try again');
+      sessionStorage.removeItem('state');
       return false;
     }
   } catch (error) {

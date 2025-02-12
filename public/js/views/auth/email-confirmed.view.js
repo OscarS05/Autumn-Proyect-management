@@ -5,7 +5,7 @@ export function renderEmailConfirmed(root) {
   root.innerHtml = `
     <div class=""></div>
   `;
-  if(localStorage.getItem('state')){
+  if(sessionStorage.getItem('state')){
     verifyEmailToRecoverPassword();
   }else {
     verifyEmailToActivateAccount();
