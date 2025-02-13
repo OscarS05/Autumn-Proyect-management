@@ -1,13 +1,13 @@
 console.log('JS Script Loaded');
 
 //  Views
-import { renderSignIn } from "./views/auth/sign-in.view.js";
-import { renderSignUp } from "./views/auth/sign-up.view.js";
-import { renderRecoveryPassword } from "./views/auth/recovery-password.view.js";
-import { renderVerifyEmail } from "./views/auth/verify-email.view.js";
-import { renderEmailConfirmed } from "./views/auth/email-confirmed.view.js";
-import { renderChangePassword } from "./views/auth/render-change-password.view.js";
-import { renderProjectScreen } from "./views/project-screen/project-screen.view.js";
+import { renderSignIn } from "./src/views/auth/sign-in.view.js";
+import { renderSignUp } from "./src/views/auth/sign-up.view.js";
+import { renderRecoveryPassword } from "./src/views/auth/recovery-password.view.js";
+import { renderVerifyEmail } from "./src/views/auth/verify-email.view.js";
+import { renderEmailConfirmed } from "./src/views/auth/email-confirmed.view.js";
+import { renderChangePassword } from "./src/views/auth/render-change-password.view.js";
+import { renderProjectScreen } from "./src/views/project-screen/project-screen.view.js";
 
 // APIs
 import { validateSession } from './api/auth.js';

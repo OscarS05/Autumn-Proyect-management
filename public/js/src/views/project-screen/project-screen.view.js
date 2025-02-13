@@ -1,9 +1,9 @@
-import { Navbar } from './navbar.component.js';
-import { Aside } from './aside.component.js';
+import { Navbar } from '../../components/layout/navbar.component.js';
+import { Aside } from '../../components/layout/aside.component.js';
 import { Main } from './main.component.js';
-import { navigateTo } from '../../router.js';
-import { createCardHandler, createListHandler } from '../../controllers/project-screen.controller.js';
-import { deleteCard, deleteList, getAllLists, updateCard, updateList } from '../../api/project-screen.api.js';
+import { navigateTo } from '../../../router.js';
+import { createCardHandler, createListHandler } from '../../../controllers/project-screen.controller.js';
+import { deleteCard, deleteList, getAllLists, updateCard, updateList } from '../../../api/project-screen.api.js';
 import { renderLists } from './renderList.component.js';
 import { AddCard } from './add-card.component.js';
 
