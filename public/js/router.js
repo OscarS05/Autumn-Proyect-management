@@ -27,6 +27,16 @@ const routes = {
   '/project-screen': renderProjectScreen,
 };
 
+async function autoAuth(pathname){
+  if((await validateSession())){
+    navigateTo('/project-screen');
+    return;
+  } else {
+    navigateTo(pathname);
+    return;
+  }
+}
+
 export async function renderRoute(route) {
   const root = document.getElementById('root');
 
@@ -82,11 +92,12 @@ window.addEventListener('popstate', () => renderRoute(location.pathname));
 
 async function validateRoutes(){
   const pathname = location.pathname;
-
   if (pathname === '/') {
-    return await navigateTo('/sign-in');
+    return navigateTo('/sign-in');
+  } else if (pathname === '/sign-in' || pathname === '/sign-up' || pathname === '/sign-in/recovery-password'){
+    return await autoAuth(pathname);
   }
-  return await renderRoute(pathname);
+  navigateTo(pathname);
 }
 
 validateRoutes();

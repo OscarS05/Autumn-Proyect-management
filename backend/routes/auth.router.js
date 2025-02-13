@@ -193,7 +193,7 @@ router.post('/resend-verification-email',
   }
 );
 
-router.post('/validate-tokens',
+router.post('/validate-session',
   async (req, res, next) => {
     try {
       const accessToken = req.headers.authorization?.split(' ')[1];

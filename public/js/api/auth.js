@@ -152,9 +152,13 @@ export async function changePassword(credentials){
 
 export async function validateSession(){
   const accessToken = localStorage.getItem('accessToken');
+  if(!accessToken){
+    navigateTo('/sign-in');
+    return false;
+  }
 
   try {
-    const response = await fetch(`${API_AUTH}/validate-tokens`, {
+    const response = await fetch(`${API_AUTH}/validate-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -171,7 +175,7 @@ export async function validateSession(){
       }
       return true;
     } else {
-      alert('Sorry, you need to log in first');
+      // alert('Sorry, you need to log in first');
       localStorage.removeItem('accessToken');
       return false;
     }
@@ -194,7 +198,7 @@ export async function validateTokensToVerifyEmail(){
     if(response.status === 200){
       return true;
     } else {
-      alert('Sorry, something went wrong. Please try again');
+      // alert('Sorry, something went wrong. Please try again');
       sessionStorage.removeItem('state');
       return false;
     }
