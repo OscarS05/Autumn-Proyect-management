@@ -1,5 +1,5 @@
 export function ProjectsDropdownList(){
-  return root.innerHTML = `
+  return `
     <div class="project-list-dropdown-container inactive">
       <div id="content-family-project" class="dropdown-workspace dropdown-workspaces-styles">
         <div class="img-semester-4 project-name-img"></div>

@@ -1,5 +1,5 @@
 import { WorkspaceDropdownList } from "../dropdowns/workspaces-dropdown-list.component.js";
-import { ProjectsDropdownList } from "../dropdowns/projects-dropdown-list.component.js";
+import { DropdownMenuToCreate } from "../dropdowns/dropdown-menu-to-create.component.js";
 
 export function Navbar() {
   return `
@@ -48,5 +48,6 @@ export function Navbar() {
     </nav>
 
     ${WorkspaceDropdownList()}
+    ${DropdownMenuToCreate()}
   `;
 }
