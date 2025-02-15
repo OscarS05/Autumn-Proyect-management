@@ -1,260 +1,158 @@
 <header>
-    <div id="dropdown-workspace-list" class="inactive">
 
-        <div id="content-dropdown-list">
+  <div id="dropdown-create" class="inactive">
 
-            <h4 class="title-h4">Your workspaces</h4>
+      <div id="create-project" class="content-dropdown-create">
 
-            <ul class="container-your-workspaces">
+          <div class="content-create">
 
-                <!-- Colocar id relacionado con el workspace de la pantalla de workspaces -->
-                <li class="container-workspace" id="personal-workspace">
+              <div class="title-create">
 
-                    <div id="content-personal-workspace" class="workspace-li dropdown-workspaces-styles">
+                  <i class="fa-brands fa-trello img-title-create-project" style="color: #545c5f;"></i>
+                  <p>Create a project</p>
 
-                        <div class="workspace-letter-style">
-                            <span>P</span>
-                        </div>
+              </div>
 
-                        <div class="name-workspace">
-                            <p>Personal workspace</p>
-                        </div>
+              <p class="description-create">A project is a set of cards arranged in lists. Useful for organizing projects, information or organizing any activity</p>
 
-                    </div>
+          </div>
 
-                    <div class="project-list-dropdown-container inactive">
-                        <div id="content-family-project" class="dropdown-workspace dropdown-workspaces-styles">
-                            <div class="img-semester-4 project-name-img"></div>
+      </div>
 
-                            <div class="name-workspace name-workspace-sidebar-styles">
-                                <p>Family project</p>
-                            </div>
-                        </div>
-                    </div>
-                </li>
+      <div id="create-workspace" class="content-dropdown-create">
 
-                <!-- Debajo estarán los demas li si el usuario crea más workspaces -->
+          <div class="content-create">
 
-                <li class="container-workspace" id="university-workspace">
-                        <!-- Cambiar clase del div de los content-workspace -->
-                    <div id="content-university-workspace" class="workspace-li dropdown-workspaces-styles">
+              <div class="title-create">
 
-                        <div class="workspace-letter-style">
-                            <span>U</span>
-                        </div>
+                  <i class="fa-solid fa-users img-title-create-workspace" style="color: #545c5f;"></i>
 
-                        <div class="name-workspace">
-                            <p>University workspace</p>
-                        </div>
+                  <p>Create a workspace</p>
 
-                    </div>
+              </div>
 
-                    <div class="project-list-dropdown-container inactive">
-                        <div id="content-final-thesis" class="dropdown-workspace dropdown-workspaces-styles">
+              <p class="description-create">A workspace is a set of projects and people. Use it to organize your business, your side project, and your plans with family or friends.</p>
 
-                            <div class="img-final-thesis project-name-img"></div>
+          </div>
 
-                            <div class="name-workspace name-workspace-sidebar-styles">
-                                <p>Final thesis</p>
-                            </div>
+      </div>
 
-                        </div>
-                    </div>
-                </li>
+  </div>
 
-            </ul>
+  <div id="create-a-project" class="inactive">
 
-            <h4 class="title-h4">Workspaces where you are a guest</h4>
+      <div class="title-create-project">
 
-            <ul id="workspaces-where-youare-aguest" class="container-your-workspaces">
+          <i class="fa-solid fa-chevron-left chevron-left-create-project chevron-down" style="color: #3f4547;"></i>
 
-                <!-- Colocar id relacionado con el workspace al que el usuario fue invitado de la pantalla de workspaces -->
-                <li class="container-workspace" id="teacher-workspace">
+          <h1 class="h4-create-project">Create a project</h1>
 
-                    <div id="content-teacher-workspace" class="workspace-li dropdown-workspaces-styles">
+          <i class="fa-solid fa-x x-solid x-create-project" style="color: #3f4547;"></i>
 
-                        <div class="workspace-letter-style">
-                            <span>T</span>
-                        </div>
+      </div>
 
-                        <div class="name-workspace">
-                            <p>Teacher workspace</p>
-                        </div>
+      <form id="form-create-projects">
 
-                    </div>
+          <div id=input-name-project>
 
-                    <div class="project-list-dropdown-container inactive">
-                        <div id="content-final-thesis" class="dropdown-workspace dropdown-workspaces-styles">
+              <label class="labels-create-project" for="name-project">Name of your project:</label>
+              <input type="text" id="name-project" name="name-project" class="inputs-create-project" required>
 
-                            <div class="img-ayllabus project-name-img"></div>
+          </div>
 
-                            <div class="name-workspace name-workspace-sidebar-styles">
-                                <p>Syllabus</p>
-                            </div>
+          <div id="select-workspace">
 
-                        </div>
-                    </div>
-                </li>
+              <label class="labels-create-project" for="workspace-input">Workspace:</label>
+              <div id="select-workspace-content">
 
-            </ul>
+                  <div class="inputs-create-project select-input">
 
-        </div>
+                      <span>Personal workspace</span>
+                      <i class="fa-solid fa-chevron-down chevron-down chevron-down-select" style="#363c42"></i>
 
-    </div>
+                  </div>
 
-    <div id="dropdown-create" class="inactive">
+                  <ul id="options-workspace" class="options inactive">
 
-        <div id="create-project" class="content-dropdown-create">
+                      <li class="workspace-options-styles options-style">Personal workspace</li>
+                      <li class="workspace-options-styles options-style">University workspace</li>
 
-            <div class="content-create">
+                  </ul>
 
-                <div class="title-create">
+              </div>
 
-                    <i class="fa-brands fa-trello img-title-create-project" style="color: #545c5f;"></i>
-                    <p>Create a project</p>
+          </div>
 
-                </div>
+          <div id="select-visibility">
 
-                <p class="description-create">A project is a set of cards arranged in lists. Useful for organizing projects, information or organizing any activity</p>
+              <label class="labels-create-project" for="workspace-input">Visibility:</label>
+              <div id="select-visibility-content">
 
-            </div>
+                  <div class="inputs-create-project select-input">
 
-        </div>
+                      <span>Private</span>
+                      <i class="fa-solid fa-chevron-down chevron-down chevron-down-select" style="#363c42"></i>
 
-        <div id="create-workspace" class="content-dropdown-create">
+                  </div>
 
-            <div class="content-create">
+                  <ul id="options-visibility" class="options inactive">
 
-                <div class="title-create">
+                      <li class="visibility-options-styles options-style">
+                          <i class="fa-solid fa-lock lock-icon" style="color: #3f4547;"></i>
 
-                    <i class="fa-solid fa-users img-title-create-workspace" style="color: #545c5f;"></i>
+                          <div>
+                              <p>Private</p>
+                              <p>Only members of the project will be able to see the content of this project.</p>
+                          </div>
+                      </li>
+                      <li class="visibility-options-styles options-style">
+                          <i class="fa-solid fa-users users-icon" style="color: #3f4547;"></i>
 
-                    <p>Create a workspace</p>
+                          <div>
+                              <p>Workspace</p>
+                              <p>All members of the "x-workspace" workspace can view and edit this project.</p>
+                          </div>
+                      </li>
 
-                </div>
+                  </ul>
 
-                <p class="description-create">A workspace is a set of projects and people. Use it to organize your business, your side project, and your plans with family or friends.</p>
+              </div>
 
-            </div>
+          </div>
 
-        </div>
+          <div id="select-background">
 
-    </div>
+              <span class="labels-create-project">Background:</span>
 
-    <div id="create-a-project" class="inactive">
+              <div class="container-images">
 
-        <div class="title-create-project">
+                  <img data-bg="bosque-1.png" src="assets/images/bosque-1.png" class="img-background-style" alt="bosque-1">
 
-            <i class="fa-solid fa-chevron-left chevron-left-create-project chevron-down" style="color: #3f4547;"></i>
+                  <img data-bg="bosque-2.jpeg" src="assets/images/bosque-2.jpeg" class="img-background-style" alt="bosque-2">
 
-            <h1 class="h4-create-project">Create a project</h1>
+                  <img data-bg="bosque-3.jpeg" src="assets/images/bosque-3.jpeg" class="img-background-style" alt="bosque-3">
 
-            <i class="fa-solid fa-x x-solid x-create-project" style="color: #3f4547;"></i>
+                  <img  data-bg="bosque-4.jpeg" src="assets/images/bosque-4.jpeg" class="img-background-style" alt="bosque-4">
 
-        </div>
+                  <img data-bg="bosque-5.jpg" src="assets/images/bosque-5.jpg" class="img-background-style" alt="bosque-5">
 
-        <form id="form-create-projects">
+              </div>
 
-            <div id=input-name-project>
+              <div class="container-preview">
 
-                <label class="labels-create-project" for="name-project">Name of your project:</label>
-                <input type="text" id="name-project" name="name-project" class="inputs-create-project" required>
+                  <div class="preview-background">
 
-            </div>
+                      <img src="assets/images/preview-background.png" class="preview-background-img" alt="preview-background">
 
-            <div id="select-workspace">
+                  </div>
 
-                <label class="labels-create-project" for="workspace-input">Workspace:</label>
-                <div id="select-workspace-content">
+              </div>
+          </div>
 
-                    <div class="inputs-create-project select-input">
+      </form>
 
-                        <span>Personal workspace</span>
-                        <i class="fa-solid fa-chevron-down chevron-down chevron-down-select" style="#363c42"></i>
+      <button id="button-create-project" class="buttons-style">Create</button>
 
-                    </div>
-
-                    <ul id="options-workspace" class="options inactive">
-
-                        <li class="workspace-options-styles options-style">Personal workspace</li>
-                        <li class="workspace-options-styles options-style">University workspace</li>
-
-                    </ul>
-
-                </div>
-
-            </div>
-
-            <div id="select-visibility">
-
-                <label class="labels-create-project" for="workspace-input">Visibility:</label>
-                <div id="select-visibility-content">
-
-                    <div class="inputs-create-project select-input">
-
-                        <span>Private</span>
-                        <i class="fa-solid fa-chevron-down chevron-down chevron-down-select" style="#363c42"></i>
-
-                    </div>
-
-                    <ul id="options-visibility" class="options inactive">
-
-                        <li class="visibility-options-styles options-style">
-                            <i class="fa-solid fa-lock lock-icon" style="color: #3f4547;"></i>
-
-                            <div>
-                                <p>Private</p>
-                                <p>Only members of the project will be able to see the content of this project.</p>
-                            </div>
-                        </li>
-                        <li class="visibility-options-styles options-style">
-                            <i class="fa-solid fa-users users-icon" style="color: #3f4547;"></i>
-
-                            <div>
-                                <p>Workspace</p>
-                                <p>All members of the "x-workspace" workspace can view and edit this project.</p>
-                            </div>
-                        </li>
-
-                    </ul>
-
-                </div>
-
-            </div>
-
-            <div id="select-background">
-
-                <span class="labels-create-project">Background:</span>
-
-                <div class="container-images">
-
-                    <img data-bg="bosque-1.png" src="assets/images/bosque-1.png" class="img-background-style" alt="bosque-1">
-
-                    <img data-bg="bosque-2.jpeg" src="assets/images/bosque-2.jpeg" class="img-background-style" alt="bosque-2">
-
-                    <img data-bg="bosque-3.jpeg" src="assets/images/bosque-3.jpeg" class="img-background-style" alt="bosque-3">
-
-                    <img  data-bg="bosque-4.jpeg" src="assets/images/bosque-4.jpeg" class="img-background-style" alt="bosque-4">
-
-                    <img data-bg="bosque-5.jpg" src="assets/images/bosque-5.jpg" class="img-background-style" alt="bosque-5">
-
-                </div>
-
-                <div class="container-preview">
-
-                    <div class="preview-background">
-
-                        <img src="assets/images/preview-background.png" class="preview-background-img" alt="preview-background">
-
-                    </div>
-
-                </div>
-            </div>
-
-        </form>
-
-        <button id="button-create-project" class="buttons-style">Create</button>
-
-    </div>
+  </div>
 
 </header>

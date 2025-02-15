@@ -223,3 +223,102 @@
   font-weight: 600;
   color: white;
 }
+
+
+
+/* Dropdown Workspaces List */
+
+#dropdown-workspace-list {
+  width: 290px;
+  border-radius: 8px;
+  padding: 12px;
+  box-sizing: border-box;
+  position: fixed;
+  left: 170px;
+  box-shadow: 0px 3px 10px -1px rgb(0, 0, 0, 30%);
+  /* z-index: 3; */
+  background-color: #FFFFFF;
+}
+
+.title-h4 {
+    margin: 5px 0px 8px 8px;
+    font-size: 13px;
+    font-weight: 650;
+    color: #545C5F;
+}
+
+#content-dropdown-list h4:nth-child(3){
+    margin-top: 22px;
+}
+
+.container-your-workspaces {
+    display: flex;
+    flex-direction: column;
+}
+
+.container-workspace {
+    width: 266px;
+    height: 50px;
+    border-radius: 6px;
+    /* display: flex; */
+    padding: 0px 8px;
+    cursor: pointer;
+}
+
+.container-workspace:hover {
+    background-color: #E4ECF1;
+}
+
+.dropdown-workspaces-styles, .team-project {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px 7px;
+    border-radius: 6px;
+}
+
+.dropdown-workspace:hover {
+    background-color: #ff1a1aa6;
+    color: #FFFFFF;
+}
+
+.img-ayllabus {
+    background-image: url(../assets/images/bosque-5.jpg);
+}
+
+.workspace-letter-style {
+    width: 40px;
+    height: 40px;
+    border-radius: 3.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.name-workspace {
+    margin: 0px 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #363C42;
+}
+
+.name-workspace p {
+    max-height: 54px;
+    word-wrap: break-word;
+    max-width: 190px;
+}
+
+#content-personal-workspace div:nth-child(1) {
+    background-color: #FFA7A7;
+}
+
+#content-university-workspace div:nth-child(1) {
+    background-color: #97FF8E;
+}
+
+#content-teacher-workspace div:nth-child(1) {
+    background-color: #D479FF;
+}
