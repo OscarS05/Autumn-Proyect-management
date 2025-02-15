@@ -8,6 +8,7 @@ import { renderVerifyEmail } from "./src/views/auth/verify-email.view.js";
 import { renderEmailConfirmed } from "./src/views/auth/email-confirmed.view.js";
 import { renderChangePassword } from "./src/views/auth/render-change-password.view.js";
 import { renderProjectScreen } from "./src/views/project-screen/project-screen.view.js";
+import { renderDashboard } from "./src/views/dashboard/dashboard.view.js";
 
 // APIs
 import { validateSession } from './api/auth.js';
@@ -22,6 +23,9 @@ const routes = {
   '/sign-up': renderSignUp,
   '/sign-up/verify-email': renderVerifyEmail,
   '/auth/verify-email/email-confirmed': renderEmailConfirmed,
+
+  // Dashboard
+  '/dashboard': renderDashboard,
 
   // ProjectScreen
   '/project-screen': renderProjectScreen,

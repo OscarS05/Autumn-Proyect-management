@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 
 /* Project screen (Main) */
-#project-screen-container {
+#project-screen-container, .dashboard-container {
   display: grid;
   grid-template-rows: auto 1fr;
   grid-template-columns: auto;
