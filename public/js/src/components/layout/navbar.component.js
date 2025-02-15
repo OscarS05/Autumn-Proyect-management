@@ -1,4 +1,5 @@
-import { DropdownWorkspacesList } from "./dropdown-workspaces-list.component.js";
+import { WorkspaceDropdownList } from "../dropdowns/workspaces-dropdown-list.component.js";
+import { ProjectsDropdownList } from "../dropdowns/projects-dropdown-list.component.js";
 
 export function Navbar() {
   return `
@@ -46,6 +47,6 @@ export function Navbar() {
       </div>
     </nav>
 
-    ${DropdownWorkspacesList()}
+    ${WorkspaceDropdownList()}
   `;
 }
