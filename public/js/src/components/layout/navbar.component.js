@@ -1,6 +1,6 @@
-import { WorkspaceDropdownList } from "../dropdowns/workspaces-dropdown-list.component.js";
-import { DropdownMenuToCreate } from "../dropdowns/dropdown-menu-to-create.component.js";
-import { CreateProjectsDropdownMenu } from "../dropdowns/create-projects-dropdown-menu.component.js";
+import { WorkspaceDropdownList } from "../dropdowns/workspaces-list.dropdown.js";
+import { DropdownMenuToCreate } from "../dropdowns/options-to-create.dropdown.js";
+import { CreateProjectsDropdownMenu } from "../dropdowns/create-projects.dropdown.js";
 
 export function Navbar() {
   return `

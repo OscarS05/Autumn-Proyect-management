@@ -1,5 +1,6 @@
 import { Navbar } from '../../components/layout/navbar.component.js';
 import { Sidebar } from '../../views/dashboard/sidebar.component.js';
+import { CreateWorkspaceModal } from '../../components/ui/create-workspace.modal.js';
 
 
 export async function renderDashboard(root){
@@ -13,4 +14,6 @@ export async function renderDashboard(root){
       </div>
     </div>
   `;
+
+  document.body.insertAdjacentHTML('beforeend', CreateWorkspaceModal());
 }

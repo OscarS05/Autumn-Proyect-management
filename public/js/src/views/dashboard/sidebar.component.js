@@ -1,4 +1,4 @@
-import { ProjectsDropdownList } from '../../components/dropdowns/projects-dropdown-list.component.js';
+import { ProjectsDropdownList } from '../../components/dropdowns/projects-list.dropdown.js';
 
 export function Sidebar(){
   return `

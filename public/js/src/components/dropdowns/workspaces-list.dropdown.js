@@ -1,4 +1,4 @@
-import { ProjectsDropdownList } from './projects-dropdown-list.component.js';
+import { ProjectsDropdownList } from './projects-list.dropdown.js';
 
 export function WorkspaceDropdownList() {
   return `
