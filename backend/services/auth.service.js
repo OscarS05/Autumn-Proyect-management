@@ -45,40 +45,43 @@ class AuthService {
     return({ accessToken, refreshToken });
   }
 
-  async validateTokens(accessToken, refreshToken){
-    try {
-      const decodedAccessToken = await this.validateAccessToken(accessToken);
-      if(decodedAccessToken){
-        return { status: 200, message: 'Token is valid', data: accessToken };
-      }
-    } catch (accessError) {
-      if(accessError.name === 'TokenExpiredError'){
-        try {
-          const decodedRefreshToken = await this.validateRefreshToken(refreshToken);
-          const isValidRefreshTokenInRedis = await redisService.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
+  // async validateSession(accessToken, refreshToken){
+  //   if(!accessToken || !refreshToken){
+  //     return res.status(401).json({ message: "Not authorized" });
+  //   }
+  //   try {
+  //     const decodedAccessToken = await this.validateAccessToken(accessToken);
+  //     if(decodedAccessToken){
+  //       return { status: 200, message: 'Token is valid', data: accessToken };
+  //     }
+  //   } catch (accessError) {
+  //     if(accessError.name === 'TokenExpiredError'){
+  //       try {
+  //         const decodedRefreshToken = await this.validateRefreshToken(refreshToken);
+  //         const isValidRefreshTokenInRedis = await redisService.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
 
-          if(!isValidRefreshTokenInRedis){
-            throw boom.unauthorized();
-          }
+  //         if(!isValidRefreshTokenInRedis){
+  //           throw boom.unauthorized();
+  //         }
 
-          await redisService.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
+  //         await redisService.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
 
-          const user = {
-            id: decodedRefreshToken.sub,
-            role: decodedRefreshToken.role
-          }
+  //         const user = {
+  //           id: decodedRefreshToken.sub,
+  //           role: decodedRefreshToken.role
+  //         }
 
-          const newTokens = await this.signToken(user);
+  //         const newTokens = await this.signToken(user);
 
-          return { status: 200, data: newTokens, message: 'Token is valid' };
-        } catch (refreshError) {
-          return { status: 401, message: 'Invalid refresh token' };
-        }
-      } else {
-        return { status: 401, message: 'Invalid access token' };
-      }
-    }
-  }
+  //         return { status: 200, data: newTokens, message: 'Token is valid' };
+  //       } catch (refreshError) {
+  //         return { status: 401, message: 'Invalid refresh token' };
+  //       }
+  //     } else {
+  //       return { status: 401, message: 'Invalid access token' };
+  //     }
+  //   }
+  // }
 
   async logout(userId, refreshToken) {
     try {

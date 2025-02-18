@@ -1,12 +1,16 @@
 const express = require('express');
 const passport = require('passport');
+const boom = require('@hapi/boom');
 
 const { changePassword } = require('./../schemas/user.schema');
+
 const { validatorHandler } = require('./../middlewares/validator.handler')
-const { limiter } = require('./../middlewares/auth.handler');
-const AuthService = require('./../services/auth.service');
-const { config } = require('../config/config');
+const { limiter, validateSession } = require('./../middlewares/auth.handler');
+
 const { ValidationError } = require('sequelize');
+const { config } = require('../config/config');
+
+const AuthService = require('./../services/auth.service');
 const service = new AuthService();
 const RedisService = require('../services/redis.service');
 const redisService = new RedisService();
@@ -193,20 +197,45 @@ router.post('/resend-verification-email',
   }
 );
 
+// router.post('/validate-session',
+//   async (req, res, next) => {
+//     try {
+//       const accessToken = req.headers.authorization?.split(' ')[1];
+//       const refreshToken = req.cookies.refreshToken;
+
+//       if(!accessToken || !refreshToken){
+//         return res.status(401).json({ message: "Not authorized" });
+//       }
+
+//       const tokensResponse = await service.validateSession(accessToken, refreshToken);
+
+//       if(tokensResponse.data?.refreshToken){
+//         res.cookie('refreshToken', tokensResponse.data.refreshToken, {
+//           httpOnly: true,
+//           secure: config.env === 'production' ? true : false,
+//           sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+//           maxAge: 15 * 24 * 60 * 60 * 1000,
+//         });
+//       }
+
+//       res.status(tokensResponse.status).json({
+//         message: tokensResponse.message,
+//         accessToken: tokensResponse.data?.accessToken || tokensResponse.data || ''
+//       });
+//     } catch (error) {
+//       next(error);
+//     }
+//   }
+// )
+
 router.post('/validate-session',
+  validateSession,
   async (req, res, next) => {
     try {
-      const accessToken = req.headers.authorization?.split(' ')[1];
-      const refreshToken = req.cookies.refreshToken;
+      const { accessToken, refreshToken } = req.tokens || {};
 
-      if(!accessToken || !refreshToken){
-        return res.status(401).json({ message: "Not authorized" });
-      }
-
-      const tokensResponse = await service.validateTokens(accessToken, refreshToken);
-
-      if(tokensResponse.data?.refreshToken){
-        res.cookie('refreshToken', tokensResponse.data.refreshToken, {
+      if(refreshToken){
+        res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
           secure: config.env === 'production' ? true : false,
           sameSite: config.env === 'production' ? 'Strict' : 'Lax',
@@ -214,9 +243,9 @@ router.post('/validate-session',
         });
       }
 
-      res.status(tokensResponse.status).json({
-        message: tokensResponse.message,
-        accessToken: tokensResponse.data?.accessToken || tokensResponse.data || ''
+      res.status(200).json({
+        message: 'Session is valid',
+        accessToken: accessToken || ''
       });
     } catch (error) {
       next(error);
