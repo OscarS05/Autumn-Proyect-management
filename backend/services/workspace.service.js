@@ -12,17 +12,17 @@ const redisService = new Redis();
 class WorkspaceService {
   constructor() {}
 
-  // async create({ name, description, userId }) {
-  //   if (!name || !description || !userId) {
-  //     return boom.badRequest('Please, try again');
-  //   }
-  //   const workspace = await models.Workspace.create({ name: name, description: description, userId: userId });
-  //   if(!workspace){
-  //     return boom.badRequest('Failed to create card');
-  //   }
-  //   await redisService.saveWorkspaces(userId, [ workspace.dataValues ]);
-  //   return workspace;
-  // }
+  async create({ name, description, userId }) {
+    if (!name || !description || !userId) {
+      return boom.badRequest('Please, try again');
+    }
+    const workspace = await models.Workspace.create({ name: name, description: description, userId: userId });
+    if(!workspace){
+      return boom.badRequest('Failed to create card');
+    }
+    await redisService.saveWorkspaces(userId, [ workspace.dataValues ]);
+    return workspace;
+  }
 
   // async update({cardName, newName}) {
   //   if(!cardName && !newName){

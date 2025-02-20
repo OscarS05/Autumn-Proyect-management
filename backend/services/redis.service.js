@@ -47,22 +47,22 @@ class RedisService {
 
 
   // WORKSPACES
-  // async saveWorkspaces(userId, workspaces){
-  //   const pipeline = redis.pipeline();
-  //   const workspaceUserKey = `workspaces:${userId}`;
+  async saveWorkspaces(userId, workspaces){
+    const pipeline = redis.pipeline();
+    const workspaceUserKey = `workspaces:${userId}`;
 
-  //   workspaces.forEach(workspace => {
-  //     const workspaceKey = `workspace:${workspace.id}`;
+    workspaces.forEach(workspace => {
+      const workspaceKey = `workspace:${workspace.id}`;
 
-  //     pipeline.hset(workspaceKey, Object.entries(workspace).flat());
-  //     pipeline.expire(workspaceKey, 7 * 24 * 60 * 60);
+      pipeline.hset(workspaceKey, Object.entries(workspace).flat());
+      pipeline.expire(workspaceKey, 7 * 24 * 60 * 60);
 
-  //     pipeline.sadd(workspaceUserKey, workspace.id);
-  //   });
-  //   pipeline.expire(workspaceUserKey, 7 * 24 * 60 * 60);
+      pipeline.sadd(workspaceUserKey, workspace.id);
+    });
+    pipeline.expire(workspaceUserKey, 7 * 24 * 60 * 60);
 
-  //   const result = await pipeline.exec();
-  // }
+    const result = await pipeline.exec();
+  }
 
   // async getAllWorkspaces(userId){
   //   const userWorkspacesKey = `workspaces:${userId}`;

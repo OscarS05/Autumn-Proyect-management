@@ -34,23 +34,23 @@ const redisService = new Redis();
 //   }
 // )
 
-// router.post('/create-workspace',
-//   validateSession,
-//   validatorHandler(createWorkspace, 'body'),
-//   async (req, res, next) => {
-//     try {
-//       const { name, description } = req.body;
-//       const userId = req.user.sub;
+router.post('/create-workspace',
+  validateSession,
+  validatorHandler(createWorkspace, 'body'),
+  async (req, res, next) => {
+    try {
+      const { name, description } = req.body;
+      const userId = req.user.sub;
 
-//       const workspace = await service.create({ name, description, userId });
-//       if(!workspace){
-//         return next(Boom.badRequest('Failed to create workspace'));
-//       }
-//       res.status(201).json({ workspace: workspace });
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// )
+      const workspace = await service.create({ name, description, userId });
+      if(!workspace){
+        return next(Boom.badRequest('Failed to create workspace'));
+      }
+      res.status(201).json({ workspace: workspace });
+    } catch (error) {
+      next(error);
+    }
+  }
+)
 
 module.exports = router;
