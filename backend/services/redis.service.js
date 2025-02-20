@@ -64,20 +64,20 @@ class RedisService {
     const result = await pipeline.exec();
   }
 
-  // async getAllWorkspaces(userId){
-  //   const userWorkspacesKey = `workspaces:${userId}`;
+  async getAllWorkspaces(userId){
+    const userWorkspacesKey = `workspaces:${userId}`;
 
-  //   const workspaceIds = await redis.smembers(userWorkspacesKey);
-  //   if(workspaceIds.length === 0) return [];
+    const workspaceIds = await redis.smembers(userWorkspacesKey);
+    if(workspaceIds.length === 0) return [];
 
-  //   const pipeline = redis.pipeline();
-  //   workspaceIds.forEach(id => {
-  //     pipeline.hgetall(`workspace:${id}`);
-  //   });
+    const pipeline = redis.pipeline();
+    workspaceIds.forEach(id => {
+      pipeline.hgetall(`workspace:${id}`);
+    });
 
-  //   const workspaces = await pipeline.exec();
-  //   return workspaces.map(result => result[1]);
-  // }
+    const workspaces = await pipeline.exec();
+    return workspaces.map(result => result[1]);
+  }
 }
 
 module.exports = RedisService;

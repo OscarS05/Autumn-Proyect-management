@@ -70,15 +70,15 @@ class WorkspaceService {
   //   return card;
   // }
 
-  // async findAll(conditional){
-  //   const Workspaces = await models.Workspace.findAll(conditional || {});
-  //   if (!Workspaces || Workspaces.length === 0) {
-  //     return [];
-  //   }
-  //   const listOfWorkspaces = Workspaces.map(Workspace => Workspace.dataValues);
-  //   await redisService.saveWorkspaces(listOfWorkspaces.userId, listOfWorkspaces);
-  //   return Workspaces.map(Workspace => Workspace);
-  // }
+  async findAll(conditional){
+    const Workspaces = await models.Workspace.findAll(conditional || {});
+    if (!Workspaces || Workspaces.length === 0) {
+      return [];
+    }
+    const listOfWorkspaces = Workspaces.map(Workspace => Workspace.dataValues);
+    await redisService.saveWorkspaces(listOfWorkspaces.userId, listOfWorkspaces);
+    return Workspaces.map(Workspace => Workspace);
+  }
 }
 
 module.exports = WorkspaceService;
