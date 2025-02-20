@@ -197,51 +197,11 @@ router.post('/resend-verification-email',
   }
 );
 
-// router.post('/validate-session',
-//   async (req, res, next) => {
-//     try {
-//       const accessToken = req.headers.authorization?.split(' ')[1];
-//       const refreshToken = req.cookies.refreshToken;
-
-//       if(!accessToken || !refreshToken){
-//         return res.status(401).json({ message: "Not authorized" });
-//       }
-
-//       const tokensResponse = await service.validateSession(accessToken, refreshToken);
-
-//       if(tokensResponse.data?.refreshToken){
-//         res.cookie('refreshToken', tokensResponse.data.refreshToken, {
-//           httpOnly: true,
-//           secure: config.env === 'production' ? true : false,
-//           sameSite: config.env === 'production' ? 'Strict' : 'Lax',
-//           maxAge: 15 * 24 * 60 * 60 * 1000,
-//         });
-//       }
-
-//       res.status(tokensResponse.status).json({
-//         message: tokensResponse.message,
-//         accessToken: tokensResponse.data?.accessToken || tokensResponse.data || ''
-//       });
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// )
-
 router.post('/validate-session',
   validateSession,
   async (req, res, next) => {
     try {
-      const { accessToken, refreshToken } = req.tokens || {};
-
-      if(refreshToken){
-        res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: config.env === 'production' ? true : false,
-          sameSite: config.env === 'production' ? 'Strict' : 'Lax',
-          maxAge: 15 * 24 * 60 * 60 * 1000,
-        });
-      }
+      const { accessToken, refreshToken } = req.tokens || null;
 
       res.status(200).json({
         message: 'Session is valid',

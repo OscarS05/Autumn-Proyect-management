@@ -1,43 +1,55 @@
 const express = require('express');
-
-// // const CardService = require('./../services/card.service');
-// const { validatorHandler } = require('./../middlewares/validator.handler');
-// // const { createCardSchema, updateCardSchema, deleteCardSchema } = require('./../schemas/card.schema');
-
-// const validateSession = require('./../middlewares/auth.handler');
-
-// const Auth = require('./../services/auth.service');
-// const authService = new Auth();
-
 const router = express.Router();
-// // const service = new CardService();
+const { Boom } = require('@hapi/boom');
 
-// router.get('/:listId', async (req, res, next) => {
-//   try {
-//     const { listId } = req.params;
-//     const cards = await service.findByListId(listId);
-//     res.json(cards);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+const { validatorHandler } = require('./../middlewares/validator.handler');
+const { createWorkspace, updateWorkspace, deleteWorkspace } = require('./../schemas/workspace.schema');
 
-// router.get('/', async (req, res, next) => {
-//   try {
-//     const cards = await service.findAll();
-//     res.json(cards);
-//   } catch (error) {
-//     next(error);
+const { validateSession } = require('./../middlewares/auth.handler');
+
+const WorkspaceService = require('./../services/workspace.service');
+const service = new WorkspaceService();
+const Redis = require('../services/redis.service');
+const redisService = new Redis();
+
+// router.get('/',
+//   validateSession,
+//   async (req, res, next) => {
+//     try {
+//       const userId = req.user.sub;
+
+//       const workspacesInRedis = await redisService.getAllWorkspaces(userId);
+//       if(workspacesInRedis && workspacesInRedis.length > 0){
+//         return res.status(200).json({ workspaces: workspacesInRedis});
+//       }
+//       const workspacesInDb = await service.findAll({ userId });
+//       if(workspacesInDb && workspacesInDb.length > 0){
+//         return res.status(200).json({ workspaces: workspacesInDb});
+//       }
+
+//       res.status(200).json({ workspaces: [] });
+//     } catch (error) {
+//       next(error);
+//     }
 //   }
-// });
+// )
 
 // router.post('/create-workspace',
-//   validatorHandler(schemaForCreatingWorkspace, 'body'),
+//   validateSession,
+//   validatorHandler(createWorkspace, 'body'),
 //   async (req, res, next) => {
-//     const accessToken = req.headers.authorization?.split(' ')[1];
-//     const refreshToken = req.cookies.refreshToken;
-//     const isValidateSession = await authService.validateSession(accessToken, refreshToken);
+//     try {
+//       const { name, description } = req.body;
+//       const userId = req.user.sub;
 
+//       const workspace = await service.create({ name, description, userId });
+//       if(!workspace){
+//         return next(Boom.badRequest('Failed to create workspace'));
+//       }
+//       res.status(201).json({ workspace: workspace });
+//     } catch (error) {
+//       next(error);
+//     }
 //   }
 // )
 

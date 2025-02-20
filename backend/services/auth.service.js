@@ -34,7 +34,7 @@ class AuthService {
       throw boom.unauthorized();
     }
     const payload = {
-      sub: user.dataValues?.id || user.id,
+      sub: user.dataValues?.id || user.id || user.sub,
       role: user.dataValues?.role || user.role,
     };
     const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '15m' });
@@ -44,44 +44,6 @@ class AuthService {
 
     return({ accessToken, refreshToken });
   }
-
-  // async validateSession(accessToken, refreshToken){
-  //   if(!accessToken || !refreshToken){
-  //     return res.status(401).json({ message: "Not authorized" });
-  //   }
-  //   try {
-  //     const decodedAccessToken = await this.validateAccessToken(accessToken);
-  //     if(decodedAccessToken){
-  //       return { status: 200, message: 'Token is valid', data: accessToken };
-  //     }
-  //   } catch (accessError) {
-  //     if(accessError.name === 'TokenExpiredError'){
-  //       try {
-  //         const decodedRefreshToken = await this.validateRefreshToken(refreshToken);
-  //         const isValidRefreshTokenInRedis = await redisService.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
-
-  //         if(!isValidRefreshTokenInRedis){
-  //           throw boom.unauthorized();
-  //         }
-
-  //         await redisService.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
-
-  //         const user = {
-  //           id: decodedRefreshToken.sub,
-  //           role: decodedRefreshToken.role
-  //         }
-
-  //         const newTokens = await this.signToken(user);
-
-  //         return { status: 200, data: newTokens, message: 'Token is valid' };
-  //       } catch (refreshError) {
-  //         return { status: 401, message: 'Invalid refresh token' };
-  //       }
-  //     } else {
-  //       return { status: 401, message: 'Invalid access token' };
-  //     }
-  //   }
-  // }
 
   async logout(userId, refreshToken) {
     try {

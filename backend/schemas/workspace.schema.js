@@ -2,24 +2,21 @@ const Joi = require('joi');
 
 const id = Joi.number().integer();
 const name = Joi.string().min(3).max(50);
-const newName = Joi.string().min(3).max(50);
-const listId = Joi.number().integer();
+const description = Joi.string().max(255);
 
-const createCardSchema = Joi.object({
-  cardName: name.required(),
-  listId: listId.required(),
+const createWorkspace = Joi.object({
+  name: name.required(),
+  description: description.allow(null, ''),
 });
 
-const updateCardSchema = Joi.object({
-  cardName: name.required(),
-  newName: newName.required(),
-  listId: listId.required(),
+const updateWorkspace = Joi.object({
+  name: name,
+  description: description.allow(null, ''),
 });
 
-const deleteCardSchema = Joi.object({
-  cardName: name.required(),
-  listId: listId.required(),
+const deleteWorkspace = Joi.object({
+  userId: id.required(),
 });
 
 
-module.exports = { createCardSchema, updateCardSchema, deleteCardSchema }
+module.exports = { createWorkspace, updateWorkspace, deleteWorkspace }

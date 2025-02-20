@@ -7,6 +7,7 @@ const { config } = require('./../config/config');
 const RedisService = require('./../services/redis.service');
 const redisService = new RedisService();
 const AuthService = require('./../services/auth.service');
+const { es } = require('@faker-js/faker');
 const authService = new AuthService();
 
 const limiter = (limit, windowMs) => rateLimit( {
@@ -38,15 +39,17 @@ async function validateSession(req, res, next) {
       try {
         const decodedRefreshToken = jwt.verify(refreshToken, config.jwtRefreshSecret);
         const isValidRefreshTokenInRedis = await redisService.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
-
         if(!isValidRefreshTokenInRedis){
+          return next(boom.unauthorized());
+        }
+        if(isValidRefreshTokenInRedis !== refreshToken){
           return next(boom.unauthorized());
         }
 
         await redisService.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
 
         const user = {
-          id: decodedRefreshToken.sub,
+          sub: decodedRefreshToken.sub,
           role: decodedRefreshToken.role
         }
 
@@ -54,6 +57,12 @@ async function validateSession(req, res, next) {
 
         req.user = user;
         req.tokens = newTokens;
+        res.cookie('refreshToken', newTokens.refreshToken, {
+          httpOnly: true,
+          secure: config.env === 'production' ? true : false,
+          sameSite: config.env === 'production' ? 'Strict' : 'Lax',
+          maxAge: 15 * 24 * 60 * 60 * 1000,
+        });
         return next();
       } catch (refreshError) {
         return next(boom.unauthorized());
