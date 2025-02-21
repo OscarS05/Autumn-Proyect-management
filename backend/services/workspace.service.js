@@ -85,7 +85,7 @@ class WorkspaceService {
       return [];
     }
     const listOfWorkspaces = Workspaces.map(Workspace => Workspace.dataValues);
-    await redisService.saveWorkspaces(listOfWorkspaces.userId, listOfWorkspaces);
+    await redisService.saveWorkspaces(listOfWorkspaces[0].userId, listOfWorkspaces);
     return Workspaces.map(Workspace => Workspace);
   }
 }
