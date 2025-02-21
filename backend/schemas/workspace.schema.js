@@ -10,12 +10,13 @@ const createWorkspace = Joi.object({
 });
 
 const updateWorkspace = Joi.object({
+  id: id.required(),
   name: name,
   description: description.allow(null, ''),
 });
 
 const deleteWorkspace = Joi.object({
-  userId: id.required(),
+  id: id.required(),
 });
 
 

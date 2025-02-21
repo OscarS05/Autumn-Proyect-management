@@ -53,4 +53,22 @@ router.post('/create-workspace',
   }
 )
 
+router.patch('/update-workspace',
+  validateSession,
+  validatorHandler(updateWorkspace, 'body'),
+  async (req, res, next) => {
+    try {
+      const data = req.body;
+      const userId = req.user.sub;
+
+      const workspaceUpdated = await service.update(data.id, data);
+      if(!workspaceUpdated) return next(Boom.badRequest('Failed to create workspace'));
+
+      res.status(200).json({ message: 'Workspace updated successfully', workspace: workspaceUpdated });
+    } catch (error) {
+      next(error)
+    }
+  }
+);
+
 module.exports = router;

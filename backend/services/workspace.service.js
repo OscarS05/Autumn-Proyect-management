@@ -24,21 +24,30 @@ class WorkspaceService {
     return workspace;
   }
 
-  // async update({cardName, newName}) {
-  //   if(!cardName && !newName){
-  //     throw boom.badRequest('Please, enter the new name')
-  //   }
-  //   const card = await this.findByName(cardName);
-  //   if (!card) {
-  //     throw boom.notFound('Card not found');
-  //   }
-  //   try {
-  //     const rta = await card.update({ name: newName });
-  //     return rta;
-  //   } catch (error) {
-  //     throw boom.badRequest('Failed to update card');
-  //   }
-  // }
+  async update(id, data) {
+    const allowedFields = ["name", "description"];
+
+    const changes = Object.keys(data)
+    .filter(key => allowedFields.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = data[key];
+      return obj;
+    }, {});
+
+    if(Object.keys(changes).length === 0){
+      throw boom.badRequest('Please, try again');
+    }
+
+    const [updatedRows, [updatedWorkspace]] = await models.Workspace.update(changes, {
+      where: { id },
+      returning: true,
+    });
+
+    await redisService.updateWorkspace(updatedWorkspace.dataValues);
+
+    if(!updatedRows) return boom.notFound('Workspace not found');
+    return updatedWorkspace;
+  }
 
   // async delete({ cardName, listId }){
   //   if(!cardName && !listId){
@@ -56,19 +65,19 @@ class WorkspaceService {
   //   }
   // }
 
-  // async findByName(cardName){
-  //   const card = await models.Card.findOne({
-  //     where: { name: cardName },
-  //   });
-  //   return card;
-  // }
-
   // async findByListId(listId){
   //   const card = await models.Card.findAll({
   //     where: { listId: listId },
   //   });
   //   return card;
   // }
+
+  async findById(id){
+    const workspace = await models.Workspace.findByPk(id);
+    if(!workspace) throw boom.notFound('Workspace not found');
+
+    return workspace;
+  }
 
   async findAll(conditional){
     const Workspaces = await models.Workspace.findAll(conditional || {});

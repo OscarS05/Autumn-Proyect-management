@@ -64,6 +64,17 @@ class RedisService {
     const result = await pipeline.exec();
   }
 
+  async updateWorkspace(workspace){
+    const workspaceKey = `workspace:${workspace.id}`;
+    const pipeline = redis.pipeline();
+    console.log('workspace', workspace);
+
+    pipeline.hset(workspaceKey, Object.entries(workspace).flat());
+    pipeline.expire(workspaceKey, 7 * 24 * 60 * 60);
+
+    const result = await pipeline.exec();
+  }
+
   async getAllWorkspaces(userId){
     const userWorkspacesKey = `workspaces:${userId}`;
 
