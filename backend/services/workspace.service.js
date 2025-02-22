@@ -49,28 +49,17 @@ class WorkspaceService {
     return updatedWorkspace;
   }
 
-  // async delete({ cardName, listId }){
-  //   if(!cardName && !listId){
-  //     throw boom.badRequest('Please, try again');
-  //   }
-  //   try {
-  //     const card = await this.findByName(cardName);
-  //     if(!card){
-  //       throw boom.notFound('Card not found to delete');
-  //     }
-  //     const rta = await card.destroy();
-  //     return rta;
-  //   } catch (error) {
-  //     throw boom.internal('Internal error');
-  //   }
-  // }
+  async delete(userId, workspaceId){
+    if(!workspaceId){
+      return boom.badRequest('Please, try again');
+    }
 
-  // async findByListId(listId){
-  //   const card = await models.Card.findAll({
-  //     where: { listId: listId },
-  //   });
-  //   return card;
-  // }
+    const response = await models.Workspace.destroy({
+      where: { id: workspaceId }
+    });
+    await redisService.deleteWorkspace(userId, workspaceId);
+    return response;
+  }
 
   async findById(id){
     const workspace = await models.Workspace.findByPk(id);

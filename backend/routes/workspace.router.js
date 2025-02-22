@@ -62,7 +62,7 @@ router.patch('/update-workspace',
       const userId = req.user.sub;
 
       const workspaceUpdated = await service.update(data.id, data);
-      if(!workspaceUpdated) return next(Boom.badRequest('Failed to create workspace'));
+      if(!workspaceUpdated) return next(Boom.badRequest('Failed to update workspace'));
 
       res.status(200).json({ message: 'Workspace updated successfully', workspace: workspaceUpdated });
     } catch (error) {
@@ -70,5 +70,23 @@ router.patch('/update-workspace',
     }
   }
 );
+
+router.delete('/delete-workspace',
+  validateSession,
+  validatorHandler(deleteWorkspace, 'body'),
+  async (req, res, next) => {
+    try {
+      const data = req.body;
+      const userId = req.user.sub;
+
+      const isWorkspaceDeleted = await service.delete(userId, data.id);
+      if(!isWorkspaceDeleted) return next(Boom.notFound('Workspace not found'));
+
+      res.status(200).json({ message: 'Workspace deleted successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+)
 
 module.exports = router;

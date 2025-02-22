@@ -75,6 +75,18 @@ class RedisService {
     const result = await pipeline.exec();
   }
 
+  async deleteWorkspace(userId, workspaceId){
+    const pipeline = redis.pipeline();
+
+    const workspaceUserKey = `workspaces:${userId}`;
+    const workspaceKey = `workspace:${workspaceId}`;
+
+    pipeline.srem(workspaceUserKey, workspaceId);
+    pipeline.del(workspaceKey);
+
+    const result = await pipeline.exec();
+  }
+
   async getAllWorkspaces(userId){
     const userWorkspacesKey = `workspaces:${userId}`;
 
