@@ -71,26 +71,33 @@ class RedisService {
   }
 
   async updateWorkspace(workspace){
-    // Revisar lógica y revisar el tema de la expiración
-    const workspaceKey = `workspace:${workspace.id}`;
     const pipeline = redis.pipeline();
+    const workspaceKey = `workspace:${workspace.id}`;
+    const workspaceData = { ...workspace, type: "workspace" };
 
-    pipeline.hset(workspaceKey, Object.entries(workspace).flat());
-    pipeline.expire(workspaceKey, 7 * 24 * 60 * 60);
+    pipeline.hset(workspaceKey, Object.entries(workspaceData).flat());
+
+    const ttl = await redis.ttl(workspaceKey);
+    if(ttl === -1 || ttl === -2){
+      pipeline.expire(workspaceKey, 7 * 24 * 60 * 60);
+    }
 
     const result = await pipeline.exec();
+
+    return result;
   }
 
   async deleteWorkspace(userId, workspaceId){
     const pipeline = redis.pipeline();
 
-    const workspaceUserKey = `workspaces:${userId}`;
+    const userWorkspacesKey = `user:${userId}:workspaces`;
     const workspaceKey = `workspace:${workspaceId}`;
 
-    pipeline.srem(workspaceUserKey, workspaceId);
+    pipeline.srem(userWorkspacesKey, workspaceId);
     pipeline.del(workspaceKey);
 
     const result = await pipeline.exec();
+    return result;
   }
 
   async getAllWorkspaces(userId){
