@@ -48,6 +48,8 @@ class RedisService {
 
   // WORKSPACES
   async saveWorkspaces(userId, workspaces){
+    // Verificar como se están guardando las claves y además añadir el campo type="project" y retornar result
+    // Verificar el ttl antes de actualizarlo
     const pipeline = redis.pipeline();
     const workspaceUserKey = `workspaces:${userId}`;
 
@@ -65,9 +67,9 @@ class RedisService {
   }
 
   async updateWorkspace(workspace){
+    // Revisar lógica y revisar el tema de la expiración
     const workspaceKey = `workspace:${workspace.id}`;
     const pipeline = redis.pipeline();
-    console.log('workspace', workspace);
 
     pipeline.hset(workspaceKey, Object.entries(workspace).flat());
     pipeline.expire(workspaceKey, 7 * 24 * 60 * 60);
@@ -101,6 +103,86 @@ class RedisService {
     const workspaces = await pipeline.exec();
     return workspaces.map(result => result[1]);
   }
+
+  // async getWorkspace(userId){
+  //   const userWorkspacesKey = `workspaces:${userId}`;
+
+  //   const workspaceIds = await redis.smembers(userWorkspacesKey);
+  //   if(workspaceIds.length === 0) return [];
+
+  //   const pipeline = redis.pipeline();
+  //   workspaceIds.forEach(id => {
+  //     pipeline.hgetall(`workspace:${id}`);
+  //   });
+
+  //   const workspaces = await pipeline.exec();
+  //   return workspaces.map(result => result[1]);
+  // }
+
+
+  // PROJECTS
+  async saveProjects(workspaceId, projects){
+    const pipeline = redis.pipeline();
+    const workspaceProjectsKey = `workspace:${workspaceId}:projects`;
+
+    projects.forEach(project => {
+      const projectKey = `project:${project.id}`;
+      const projectData = { ...project, type: "project" };
+
+      pipeline.hset(projectKey, ...Object.entries(projectData).flat());
+      pipeline.expire(projectKey, 7 * 24 * 60 * 60);
+
+      pipeline.sadd(workspaceProjectsKey, project.id);
+    });
+
+    const ttl = await redis.ttl(workspaceProjectsKey);
+    if(ttl === -1 || ttl === -2){
+      pipeline.expire(workspaceProjectsKey, 7 * 24 * 60 * 60);
+    }
+
+    const result = await pipeline.exec();
+    return result;
+  }
+
+  // async getWorkspacesAndProjects(userId){
+  //   const pipeline = redis.pipeline();
+
+  //   const userWorkspacesKey = `user:${userId}:workspaces`;
+  //   const workspacesKey = (workspaceId) => `workspace:${workspaceId}`;
+  //   const workspaceProjectsKey = (workspaceId) => `workspace:${workspaceId}:projects`;
+  //   const projectKey = (projectId) => `project:${projectId}`;
+
+  //   const workspaceIds = await redis.smembers(userWorkspacesKey);
+  //   if(workspaceIds.length === 0) return { workspaces: [], projects: [] };
+
+
+  //   workspaceIds.forEach(workspaceId => {
+  //     pipeline.hgetall(workspacesKey(workspaceId));
+  //     pipeline.smembers(workspaceProjectsKey(workspaceId));
+  //   });
+
+  //   const results = await pipeline.exec();
+
+  //   let workspaces = [];
+  //   let projectsIds = [];
+
+  //   results.forEach(([_, data]) => {
+  //     if(data.type === "workspace"){
+  //       workspaces.push(data);
+  //     } else if (data.type === "project"){
+  //       projectsIds.push(...data);
+  //     }
+  //   });
+
+  //   if(projectsIds.length === 0) return { workspaces, projects: [] };
+
+  //   projectsIds.forEach(projectId => {
+  //     pipeline.hgetall(projectKey(projectId));
+  //   });
+  //   const projects = (await pipeline.exec()).map(result => result[1]);
+
+  //   return { workspaces, projects };
+  // }
 }
 
 module.exports = RedisService;

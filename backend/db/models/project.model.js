@@ -17,11 +17,7 @@ const ProjectSchema = {
   },
   visibility: {
     allowNull: false,
-    defaultValue: 'public',
     type: Sequelize.DataTypes.STRING,
-    validate: {
-      isIn: [['public', 'workspace']],
-    },
   },
   workspaceId:{
     field: 'workspace_id',
