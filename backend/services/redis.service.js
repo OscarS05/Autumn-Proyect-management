@@ -48,22 +48,26 @@ class RedisService {
 
   // WORKSPACES
   async saveWorkspaces(userId, workspaces){
-    // Verificar como se están guardando las claves y además añadir el campo type="project" y retornar result
-    // Verificar el ttl antes de actualizarlo
     const pipeline = redis.pipeline();
-    const workspaceUserKey = `workspaces:${userId}`;
+    const userWorkspacesKey = `user:${userId}:workspaces`;
 
     workspaces.forEach(workspace => {
       const workspaceKey = `workspace:${workspace.id}`;
+      const workspaceData = { ...workspace, type: "workspace" }
 
-      pipeline.hset(workspaceKey, Object.entries(workspace).flat());
+      pipeline.hset(workspaceKey, ...Object.entries(workspaceData).flat());
       pipeline.expire(workspaceKey, 7 * 24 * 60 * 60);
 
-      pipeline.sadd(workspaceUserKey, workspace.id);
+      pipeline.sadd(userWorkspacesKey, workspace.id);
     });
-    pipeline.expire(workspaceUserKey, 7 * 24 * 60 * 60);
+
+    const ttl = await redis.ttl(userWorkspacesKey);
+    if(ttl === -1 || ttl === -2){
+      pipeline.expire(userWorkspacesKey, 7 * 24 * 60 * 60);
+    }
 
     const result = await pipeline.exec();
+    return result;
   }
 
   async updateWorkspace(workspace){
