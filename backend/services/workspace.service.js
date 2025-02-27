@@ -77,6 +77,20 @@ class WorkspaceService {
     await redisService.saveWorkspaces(listOfWorkspaces[0].userId, listOfWorkspaces);
     return Workspaces.map(Workspace => Workspace);
   }
+
+  async findWorkspacesAndProjects(userId){
+    try {
+      const Workspaces = await models.Workspace.findAll({
+        where: { userId },
+        include: [{ model: models.Project, as: 'project' }]
+      });
+      const listOfWorkspaces = Workspaces.map(Workspace => Workspace.dataValues);
+      await redisService.saveWorkspaces(userId, listOfWorkspaces);
+      return listOfWorkspaces;
+    } catch (error) {
+      return boom.internal('Error:', error);
+    }
+  }
 }
 
 module.exports = WorkspaceService;
