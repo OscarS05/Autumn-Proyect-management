@@ -10,24 +10,26 @@ const { validateSession } = require('./../middlewares/auth.handler');
 const WorkspaceService = require('./../services/workspace.service');
 const service = new WorkspaceService();
 const Redis = require('../services/redis.service');
+const setupModels = require('../db/models');
 const redisService = new Redis();
 
 router.get('/:workspaceId/projects',
   validateSession,
   async (req, res, next) => {
     try {
-      // const userId = req.user.sub;
+      const userId = req.user.sub;
+      const { workspaceId } = req.params;
 
-      // const workspacesInRedis = await redisService.getAllWorkspaces(userId);
-      // if(workspacesInRedis && workspacesInRedis.length > 0){
-      //   return res.status(200).json({ workspaces: workspacesInRedis});
-      // }
-      // const workspacesInDb = await service.findAll({ userId });
-      // if(workspacesInDb && workspacesInDb.length > 0){
-      //   return res.status(200).json({ workspaces: workspacesInDb});
-      // }
+      const data = await redisService.getWorkspaceWithProjects(workspaceId);
+      if(data.workspace && data.workspace.length > 0){
+        return res.status(200).json({ workspace: data.workspace, projects: data.projects});
+      }
+      const dataInDb = await service.findAllProjects(workspaceId);
+      if(dataInDb && dataInDb.length > 0){
+        return res.status(200).json({ workspace: dataInDb});
+      }
 
-      res.status(200).json({ workspaces: [] });
+      res.status(200).json({ workspaces: [], projects: []});
     } catch (error) {
       next(error);
     }
@@ -49,7 +51,7 @@ router.get('/',
         return res.status(200).json({ workspaces: workspacesInDb});
       }
 
-      res.status(200).json({ workspaces: [] });
+      res.status(200).json({ workspaces: [], projects: []});
     } catch (error) {
       next(error);
     }

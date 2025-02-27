@@ -68,14 +68,21 @@ class WorkspaceService {
     return workspace;
   }
 
-  async findAll(conditional){
-    const Workspaces = await models.Workspace.findAll(conditional || {});
-    if (!Workspaces || Workspaces.length === 0) {
-      return [];
+  async findAllProjects(workspaceId){
+    try {
+      const Workspaces = await models.Workspace.findAll({
+        where: { id: workspaceId },
+        include: [{ model: models.Project, as: 'project' }]
+      });
+      if (!Workspaces || Workspaces.length === 0) {
+        return [];
+      }
+      const workspaceWithProjects = Workspaces.map(Workspace => Workspace.dataValues);
+      // await redisService.saveProjects(workspaceId, workspaceWithProjects);
+      return workspaceWithProjects;
+    } catch (error) {
+      return boom.internal('Error:', error);
     }
-    const listOfWorkspaces = Workspaces.map(Workspace => Workspace.dataValues);
-    await redisService.saveWorkspaces(listOfWorkspaces[0].userId, listOfWorkspaces);
-    return Workspaces.map(Workspace => Workspace);
   }
 
   async findWorkspacesAndProjects(userId){

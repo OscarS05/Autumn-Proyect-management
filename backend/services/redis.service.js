@@ -111,19 +111,40 @@ class RedisService {
     return result;
   }
 
-  async getAllWorkspaces(userId){
-    const userWorkspacesKey = `workspaces:${userId}`;
-
-    const workspaceIds = await redis.smembers(userWorkspacesKey);
-    if(workspaceIds.length === 0) return [];
-
+  async getWorkspaceWithProjects(workspaceId){
     const pipeline = redis.pipeline();
-    workspaceIds.forEach(id => {
-      pipeline.hgetall(`workspace:${id}`);
+    const pipelineProjects = redis.pipeline();
+
+    const workspaceKey = `workspace:${workspaceId}`;
+    const workspaceProjectsKey = `workspace:${workspaceId}:projects`;
+    const projectKey = (projectId) => `project:${projectId}`;
+
+    pipeline.hgetall(workspaceKey);
+    pipeline.smembers(workspaceProjectsKey);
+
+    const result = await pipeline.exec();
+
+    const { workspace, projectsIds } = result.reduce((acc, [_, data]) => {
+      if(data){
+        if(data.type === 'workspace'){
+          acc.workspace.push(data);
+        } else if(Array.isArray(data) && data.length > 0){
+          acc.projectsIds.push(...data);
+        }
+      }
+      return acc;
+    }, { workspace: [], projectsIds: [] });
+    if(!workspace) return { workspace: [], projects: []};
+    if(projectsIds.length === 0) return { workspace, projects: []};
+
+    projectsIds.forEach(id => {
+      pipelineProjects.hgetall(projectKey(id));
     });
 
-    const workspaces = await pipeline.exec();
-    return workspaces.map(result => result[1]);
+    const projects = (await pipelineProjects.exec()).map(([_, data]) => data);
+    if(!projects) return { workspace, projects: []};
+
+    return { workspace, projects};
   }
 
   async getWorkspacesAndProjects(userId){
@@ -166,21 +187,6 @@ class RedisService {
     return { workspaces, projects };
   }
 
-  // async getWorkspace(userId){
-  //   const userWorkspacesKey = `workspaces:${userId}`;
-
-  //   const workspaceIds = await redis.smembers(userWorkspacesKey);
-  //   if(workspaceIds.length === 0) return [];
-
-  //   const pipeline = redis.pipeline();
-  //   workspaceIds.forEach(id => {
-  //     pipeline.hgetall(`workspace:${id}`);
-  //   });
-
-  //   const workspaces = await pipeline.exec();
-  //   return workspaces.map(result => result[1]);
-  // }
-
 
   // PROJECTS
   async saveProjects(projects){
@@ -208,3 +214,51 @@ class RedisService {
 }
 
 module.exports = RedisService;
+
+
+// class RedisService {
+//   constructor(redisClient) {
+//     this.redis = redisClient; // Inyectamos la dependencia
+//   }
+
+//   async getWorkspaces(userId) {
+//     const userWorkspacesKey = `user:${userId}:workspaces`;
+//     const workspaceIds = await this.redis.smembers(userWorkspacesKey);
+//     if (workspaceIds.length === 0) return [];
+
+//     const pipeline = this.redis.pipeline();
+//     workspaceIds.forEach(workspaceId => {
+//       pipeline.hgetall(`workspace:${workspaceId}`);
+//     });
+
+//     const result = await pipeline.exec();
+//     return result.map(([_, data]) => data);
+//   }
+
+//   async getProjects(workspaceIds) {
+//     const pipeline = this.redis.pipeline();
+//     workspaceIds.forEach(workspaceId => {
+//       pipeline.smembers(`workspace:${workspaceId}:projects`);
+//     });
+
+//     const result = await pipeline.exec();
+//     const projectsIds = result.flatMap(([_, data]) => data);
+//     if (projectsIds.length === 0) return [];
+
+//     const projectPipeline = this.redis.pipeline();
+//     projectsIds.forEach(projectId => {
+//       projectPipeline.hgetall(`project:${projectId}`);
+//     });
+
+//     const projects = (await projectPipeline.exec()).map(result => result[1]);
+//     return projects;
+//   }
+
+//   async getWorkspacesAndProjects(userId) {
+//     const workspaces = await this.getWorkspaces(userId);
+//     if (!workspaces.length) return { workspaces: [], projects: [] };
+
+//     const projects = await this.getProjects(workspaces.map(ws => ws.id));
+//     return { workspaces, projects };
+//   }
+// }
