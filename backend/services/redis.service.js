@@ -60,6 +60,7 @@ class RedisService {
         name: workspace.name,
         description: workspace.description,
         userId: workspace.userId,
+        type: 'workspace'
       };
 
       pipeline.hset(workspaceKey, ...Object.entries(workspaceData).flat());
@@ -126,8 +127,7 @@ class RedisService {
   }
 
   async getWorkspacesAndProjects(userId){
-    const pipelineWorkspaces = redis.pipeline();
-    const pipelineProjectsIds = redis.pipeline();
+    const pipeline = redis.pipeline();
     const pipelineProjects = redis.pipeline();
 
     const userWorkspacesKey = `user:${userId}:workspaces`;
@@ -138,18 +138,25 @@ class RedisService {
     const workspaceIds = await redis.smembers(userWorkspacesKey);
     if(workspaceIds.length === 0) return { workspaces: [], projects: [] };
 
-
     workspaceIds.forEach(workspaceId => {
-      pipelineWorkspaces.hgetall(workspacesKey(workspaceId));
-      pipelineProjectsIds.smembers(workspaceProjectsKey(workspaceId));
+      pipeline.hgetall(workspacesKey(workspaceId));
+      pipeline.smembers(workspaceProjectsKey(workspaceId));
     });
-    const resultWorkspaces = await pipelineWorkspaces.exec();
-    const resultProjectIds = await pipelineProjectsIds.exec();
 
-    // Cambiar por .map()
-    const  workspaces = resultWorkspaces.map(([_, data]) => data || {});
-    const projectsIds = resultProjectIds.flatMap(([_, [data]]) => data || []);
-    if(projectsIds.length === 0) return { workspaces, projectsIds: [] };
+    const result = await pipeline.exec();
+    const { workspaces, projectsIds } = result.reduce((acc, [_, data]) => {
+      if(data){
+        if(data.type === 'workspace'){
+          acc.workspaces.push(data);
+        } else if (Array.isArray(data) && data.length > 0){
+          acc.projectsIds.push(...data);
+        }
+      }
+      return acc;
+    }, { workspaces: [], projectsIds: [] });
+
+    if(!workspaces) return { workspaces: [], projects: [] };
+    if(projectsIds.length === 0) return { workspaces, projects: [] };
 
     projectsIds.forEach(projectId => {
       pipelineProjects.hgetall(projectKey(projectId));

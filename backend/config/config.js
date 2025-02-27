@@ -16,6 +16,7 @@ const config = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   smtpEmail: process.env.SMTP_EMAIL,
   smtpPass: process.env.SMTP_PASS,
+  redisUrl: process.env.REDIS_URL,
   redisHost: process.env.REDIS_HOST,
   redisPort: process.env.REDIS_PORT,
   redisPassword: process.env.REDIS_PASSWORD,
