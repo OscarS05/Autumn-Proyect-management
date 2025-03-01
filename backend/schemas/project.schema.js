@@ -22,6 +22,7 @@ const updateProject = Joi.object({
 
 const deleteProject = Joi.object({
   id: id.required(),
+  workspaceId: id.required(),
 });
 
 

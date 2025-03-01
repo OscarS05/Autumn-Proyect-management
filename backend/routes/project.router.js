@@ -40,7 +40,24 @@ router.patch('/update-project',
       const updatedProject = await service.update(data.id, data);
       if(!updatedProject) return Boom.badRequest('Failed to create workspace');
 
-      res.status(201).json({ message: 'Project updated successfully', project: updatedProject });
+      res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete('/delete-project',
+  validateSession,
+  validatorHandler(deleteProject, 'body'),
+  async (req, res, next) => {
+    try {
+      const { id, workspaceId } = req.body;
+
+      const response = await service.delete(id, workspaceId);
+      if(!response) return Boom.badRequest('Failed to create workspace');
+
+      res.status(200).json({ message: 'Project deleted successfully' });
     } catch (error) {
       next(error);
     }

@@ -35,24 +35,13 @@ class ProjectService {
     return updatedProject.dataValues;
   }
 
-  // async delete(userId, workspaceId){
-  //   if(!workspaceId){
-  //     return boom.badRequest('Please, try again');
-  //   }
-
-  //   const response = await models.Workspace.destroy({
-  //     where: { id: workspaceId }
-  //   });
-  //   await redisService.deleteWorkspace(userId, workspaceId);
-  //   return response;
-  // }
-
-  // async findById(id){
-  //   const workspace = await models.Workspace.findByPk(id);
-  //   if(!workspace) throw boom.notFound('Workspace not found');
-
-  //   return workspace;
-  // }
+  async delete(projectId, workspaceId){
+    const response = await models.Project.destroy({
+      where: { id: projectId }
+    });
+    await ProjectRedis.deleteWorkspace(projectId, workspaceId);
+    return response;
+  }
 
   async findAll(conditional){
     const Projects = await models.Project.findAll(conditional || {});

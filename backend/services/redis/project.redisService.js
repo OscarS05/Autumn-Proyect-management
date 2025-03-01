@@ -55,6 +55,16 @@ class ProjectRedisService extends BaseRedisService{
     const pipelineResult = await pipeline.exec();
     return pipelineResult;
   }
+
+  async deleteWorkspace(projectId, workspaceId){
+    const pipeline = this.redis.pipeline();
+
+    pipeline.srem(this.workspaceProjectsKey(workspaceId), projectId);
+    pipeline.del(this.projectKey(projectId));
+
+    const pipelineResult = await pipeline.exec();
+    return pipelineResult;
+  }
 }
 
 module.exports = ProjectRedisService;
