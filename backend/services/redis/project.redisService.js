@@ -65,6 +65,14 @@ class ProjectRedisService extends BaseRedisService{
     const pipelineResult = await pipeline.exec();
     return pipelineResult;
   }
+
+  async findAllProjects(workspaceId){
+    const projectsIds = await this.redis.smembers(this.workspaceProjectsKey(workspaceId));
+    if(projectsIds === 0) return [];
+
+    const getProjects = await this.getProjects(projectsIds);
+    return getProjects;
+  }
 }
 
 module.exports = ProjectRedisService;

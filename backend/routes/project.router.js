@@ -12,6 +12,29 @@ const service = new ProjectService();
 const { ProjectRedis } = require('../services/redis/index');
 
 
+router.get('/:workspaceId',
+  validateSession,
+  async (req, res, next) => {
+    try {
+      const { workspaceId } = req.params;
+
+      const projectsInRedis = await ProjectRedis.findAllProjects(workspaceId);
+      console.log('projectsInRedis:', projectsInRedis);
+      if(projectsInRedis && projectsInRedis.length > 0){
+        res.status(200).json({ projects: projectsInRedis });
+      }
+      const projectsInDb = await service.findAll(workspaceId);
+      if(projectsInDb && projectsInDb.length > 0){
+        res.status(200).json({ projects: projectsInDb });
+      }
+
+      res.status(200).json({ projects: [] });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 router.post('/create-project',
   validateSession,
   validatorHandler(createProject, 'body'),

@@ -43,14 +43,16 @@ class ProjectService {
     return response;
   }
 
-  async findAll(conditional){
-    const Projects = await models.Project.findAll(conditional || {});
+  async findAll(workspaceId){
+    const Projects = await models.Project.findAll({
+      where: { workspaceId }
+    });
     if (!Projects || Projects.length === 0) {
       return [];
     }
     const listOfProjects = Projects.map(Project => Project.dataValues);
-    // await ProjectRedis.saveProjects(listOfProjects[0].userId, listOfWorkspaces);
-    return Projects.map(Project => Project);
+    await ProjectRedis.saveProjects(listOfProjects);
+    return listOfProjects;
   }
 }
 
