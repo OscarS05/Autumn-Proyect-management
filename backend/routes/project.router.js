@@ -9,8 +9,8 @@ const { validateSession } = require('./../middlewares/auth.handler');
 
 const ProjectService = require('./../services/project.service');
 const service = new ProjectService();
-const Redis = require('../services/redis.service');
-const redisService = new Redis();
+const { ProjectRedis } = require('../services/redis/index');
+
 
 router.post('/create-project',
   validateSession,

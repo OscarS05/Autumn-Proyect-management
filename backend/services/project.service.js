@@ -1,12 +1,7 @@
 const boom = require('@hapi/boom');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
 const { models } = require('../libs/sequelize');
-const { config } = require('../config/config');
 
-const Redis = require('./redis.service');
-const redisService = new Redis();
+const { ProjectRedis } = require('../services/redis/index');
 
 
 class ProjectService {
@@ -21,7 +16,7 @@ class ProjectService {
     if(!project){
       return boom.badRequest('Failed to create card');
     }
-    await redisService.saveProjects(workspaceId, [ project.dataValues ]);
+    await ProjectRedis.saveProjects([ project.dataValues ]);
     return project;
   }
 
@@ -75,7 +70,7 @@ class ProjectService {
       return [];
     }
     const listOfProjects = Projects.map(Project => Project.dataValues);
-    // await redisService.saveProjects(listOfProjects[0].userId, listOfWorkspaces);
+    // await ProjectRedis.saveProjects(listOfProjects[0].userId, listOfWorkspaces);
     return Projects.map(Project => Project);
   }
 }

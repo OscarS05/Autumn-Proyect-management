@@ -4,10 +4,8 @@ const jwt = require('jsonwebtoken');
 
 const { config } = require('./../config/config');
 
-const RedisService = require('./../services/redis.service');
-const redisService = new RedisService();
+const { AuthRedis } = require('../services/redis/index');
 const AuthService = require('./../services/auth.service');
-const { es } = require('@faker-js/faker');
 const authService = new AuthService();
 
 const limiter = (limit, windowMs) => rateLimit( {
@@ -28,7 +26,6 @@ async function validateSession(req, res, next) {
 
   try {
     const decodedAccessToken = jwt.verify(accessToken, config.jwtAccessSecret);
-
     if(decodedAccessToken){
       req.user = decodedAccessToken;
       req.tokens = { accessToken };
@@ -38,7 +35,7 @@ async function validateSession(req, res, next) {
     if(accessError.name === 'TokenExpiredError'){
       try {
         const decodedRefreshToken = jwt.verify(refreshToken, config.jwtRefreshSecret);
-        const isValidRefreshTokenInRedis = await redisService.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
+        const isValidRefreshTokenInRedis = await AuthRedis.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
         if(!isValidRefreshTokenInRedis){
           return next(boom.unauthorized());
         }
@@ -46,7 +43,7 @@ async function validateSession(req, res, next) {
           return next(boom.unauthorized());
         }
 
-        await redisService.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
+        await AuthRedis.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
 
         const user = {
           sub: decodedRefreshToken.sub,

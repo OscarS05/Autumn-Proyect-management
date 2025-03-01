@@ -6,11 +6,9 @@ const nodemailer = require('nodemailer');
 const UserService = require('./user.service');
 const service = new UserService();
 
-const RedisService = require('./redis.service');
-const redisService = new RedisService();
+const { AuthRedis } = require('./redis/index');
 
 const { config } = require('./../config/config');
-const { use } = require('passport');
 
 
 class AuthService {
@@ -40,7 +38,7 @@ class AuthService {
     const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '15m' });
     const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '15d' });
 
-    await redisService.saveRefreshToken(payload.sub, refreshToken);
+    await AuthRedis.saveRefreshToken(payload.sub, refreshToken);
 
     return({ accessToken, refreshToken });
   }
@@ -63,7 +61,7 @@ class AuthService {
     const token = jwt.sign(payload, config.jwtSecretVerifyEmail, { expiresIn: '15min' });
     const link = `${config.frontUrl}/auth/verify-email/email-confirmed?token=${token}`
     await service.update(user.id, {recoveryToken: token});
-    await redisService.saveTokenInRedis(user.id, token);
+    await AuthRedis.saveTokenInRedis(user.id, token);
     const mail = {
       from: config.smtpEmail,
       to: `${user.email}`,
@@ -77,7 +75,7 @@ class AuthService {
 
   async verifyEmailToActivateAccount(token){
     const user = await this.verifyEmail(token);
-    const tokenInRedis = await redisService.verifyTokenInRedis(user.id, token);
+    const tokenInRedis = await AuthRedis.verifyTokenInRedis(user.id, token);
 
     if(tokenInRedis !== token){
       throw boom.unauthorized();
@@ -105,7 +103,7 @@ class AuthService {
         throw boom.unauthorized();
       }
 
-      const tokenInRedis = await redisService.verifyTokenInRedis(payload.sub, token);
+      const tokenInRedis = await AuthRedis.verifyTokenInRedis(payload.sub, token);
 
       if(tokenInRedis !== token) throw boom.unauthorized();
 
@@ -136,7 +134,7 @@ class AuthService {
   async verifyTokensToVerifyEmail(token){
     try {
       const decodedToken = jwt.verify(token, config.jwtSecretVerifyEmail);
-      const tokenInRedis = await redisService.verifyTokenInRedis(decodedToken.sub, token);
+      const tokenInRedis = await AuthRedis.verifyTokenInRedis(decodedToken.sub, token);
 
       if(!tokenInRedis || tokenInRedis !== token){
         throw boom.unauthorized();
