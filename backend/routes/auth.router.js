@@ -12,8 +12,8 @@ const { config } = require('../config/config');
 
 const AuthService = require('./../services/auth.service');
 const service = new AuthService();
-const RedisService = require('../services/redis.service');
-const redisService = new RedisService();
+const { AuthRedis } = require('../services/redis/index');
+
 
 const router = express.Router();
 
@@ -97,7 +97,7 @@ router.post('/verify-email-to-recover-password',
         return res.status(401).json({ message: 'Unuthorized' });
       }
       const user = await service.verifyEmail(tokenInParams);
-      const tokenInRedis = await redisService.verifyTokenInRedis(user.id, token);
+      const tokenInRedis = await AuthRedis.verifyTokenInRedis(user.id, token);
 
       if(tokenInRedis !== tokenInParams){
         return res.status(401).json({ message: 'Invalid or expired token.' });

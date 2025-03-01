@@ -1,12 +1,7 @@
 const boom = require('@hapi/boom');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
 const { models } = require('../libs/sequelize');
-const { config } = require('../config/config');
 
-const Redis = require('./redis.service');
-const redisService = new Redis();
+const { WorkspaceRedis } = require('./redis/index');
 
 
 class WorkspaceService {
@@ -20,7 +15,7 @@ class WorkspaceService {
     if(!workspace){
       return boom.badRequest('Failed to create card');
     }
-    await redisService.saveWorkspaces(userId, [ workspace.dataValues ]);
+    await WorkspaceRedis.saveWorkspaces(userId, [ workspace.dataValues ]);
     return workspace;
   }
 
@@ -43,7 +38,7 @@ class WorkspaceService {
       returning: true,
     });
 
-    await redisService.updateWorkspace(updatedWorkspace.dataValues);
+    await WorkspaceRedis.updateWorkspace(updatedWorkspace.dataValues);
 
     if(!updatedRows) return boom.notFound('Workspace not found');
     return updatedWorkspace;
@@ -57,7 +52,7 @@ class WorkspaceService {
     const response = await models.Workspace.destroy({
       where: { id: workspaceId }
     });
-    await redisService.deleteWorkspace(userId, workspaceId);
+    await WorkspaceRedis.deleteWorkspace(userId, workspaceId);
     return response;
   }
 
@@ -68,18 +63,15 @@ class WorkspaceService {
     return workspace;
   }
 
-  async findAllProjects(workspaceId){
+  async findAll(workspaceId){
     try {
       const Workspaces = await models.Workspace.findAll({
         where: { id: workspaceId },
         include: [{ model: models.Project, as: 'project' }]
       });
-      if (!Workspaces || Workspaces.length === 0) {
-        return [];
-      }
-      const workspaceWithProjects = Workspaces.map(Workspace => Workspace.dataValues);
-      // await redisService.saveProjects(workspaceId, workspaceWithProjects);
-      return workspaceWithProjects;
+      const workspace = Workspaces.map(Workspace => Workspace.dataValues);
+      await WorkspaceRedis.saveWorkspaces(workspaceId, workspace);
+      return workspace;
     } catch (error) {
       return boom.internal('Error:', error);
     }
@@ -92,7 +84,7 @@ class WorkspaceService {
         include: [{ model: models.Project, as: 'project' }]
       });
       const listOfWorkspaces = Workspaces.map(Workspace => Workspace.dataValues);
-      await redisService.saveWorkspaces(userId, listOfWorkspaces);
+      await WorkspaceRedis.saveWorkspaces(userId, listOfWorkspaces);
       return listOfWorkspaces;
     } catch (error) {
       return boom.internal('Error:', error);
