@@ -47,7 +47,7 @@ class WorkspaceRedisService extends BaseRedisService {
 
     const ttl = await this.redis.ttl(this.workspaceKey(workspace.id));
     if(ttl <= 0){
-      pipeline.expire(this.workspaceKey(workspace.id), 7 * 24 * 60 * 60);
+      pipeline.expire(this.workspaceKey(workspace.id), 3 * 24 * 60 * 60);
     }
 
     const result = await pipeline.exec();

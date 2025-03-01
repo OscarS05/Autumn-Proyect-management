@@ -45,6 +45,16 @@ class ProjectRedisService extends BaseRedisService{
 
     return projects;
   }
+
+  async updateProject(project){
+    const pipeline = this.redis.pipeline();
+
+    pipeline.hset(this.projectKey(project.id), ...Object.entries(project).flat())
+    pipeline.expire(this.projectKey(project.id), 3 * 24 * 60 * 60);
+
+    const pipelineResult = await pipeline.exec();
+    return pipelineResult;
+  }
 }
 
 module.exports = ProjectRedisService;

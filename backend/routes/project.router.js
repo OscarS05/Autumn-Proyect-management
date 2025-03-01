@@ -18,13 +18,29 @@ router.post('/create-project',
   async (req, res, next) => {
     try {
       const { name, visibility, workspaceId } = req.body;
-      console.log('req.body:', req.body)
       const userId = req.user.sub;
 
       const projectCreated = await service.create({ name, visibility, workspaceId });
       if(!projectCreated) return Boom.badRequest('Failed to create workspace');
 
       res.status(201).json({ message: 'Project created successfully', project: projectCreated });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.patch('/update-project',
+  validateSession,
+  validatorHandler(updateProject, 'body'),
+  async (req, res, next) => {
+    try {
+      const data = req.body;
+
+      const updatedProject = await service.update(data.id, data);
+      if(!updatedProject) return Boom.badRequest('Failed to create workspace');
+
+      res.status(201).json({ message: 'Project updated successfully', project: updatedProject });
     } catch (error) {
       next(error);
     }

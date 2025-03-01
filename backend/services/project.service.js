@@ -20,30 +20,20 @@ class ProjectService {
     return project;
   }
 
-  // async update(id, data) {
-  //   const allowedFields = ["name", "description"];
+  async update(id, data) {
+    if(Object.keys(data).length === 0){
+      throw boom.badRequest('Please, try again');
+    }
 
-  //   const changes = Object.keys(data)
-  //   .filter(key => allowedFields.includes(key))
-  //   .reduce((obj, key) => {
-  //     obj[key] = data[key];
-  //     return obj;
-  //   }, {});
+    const [updatedRows, [updatedProject]] = await models.Project.update(data, {
+      where: { id },
+      returning: true,
+    });
+    await ProjectRedis.updateProject(updatedProject.dataValues);
 
-  //   if(Object.keys(changes).length === 0){
-  //     throw boom.badRequest('Please, try again');
-  //   }
-
-  //   const [updatedRows, [updatedWorkspace]] = await models.Workspace.update(changes, {
-  //     where: { id },
-  //     returning: true,
-  //   });
-
-  //   await redisService.updateWorkspace(updatedWorkspace.dataValues);
-
-  //   if(!updatedRows) return boom.notFound('Workspace not found');
-  //   return updatedWorkspace;
-  // }
+    if(!updatedRows) return boom.notFound('Project not found');
+    return updatedProject.dataValues;
+  }
 
   // async delete(userId, workspaceId){
   //   if(!workspaceId){
