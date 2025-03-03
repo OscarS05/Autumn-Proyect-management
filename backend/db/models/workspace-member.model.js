@@ -26,9 +26,12 @@ const WorkspaceMemberSchema = {
     allowNull: false,
     type: Sequelize.DataTypes.STRING,
     defaultValue: 'member',
-    validate: {
-      isIn: [['admin', 'member']],
-    },
+  },
+  propertyStatus: {
+    field: 'property_status',
+    allowNull: false,
+    type: Sequelize.DataTypes.STRING,
+    defaultValue: 'Free',
   },
   workspaceId:{
     field: 'workspace_id',
@@ -66,6 +69,11 @@ class WorkspaceMember extends Model {
     this.hasMany(models.Team, {
       foreignKey: 'ownerId',
       as: 'ownedTeams',
+    });
+
+    this.belongsTo(models.Workspace, {
+      foreignKey: 'workspaceId',
+      as: 'workspace'
     });
   }
 

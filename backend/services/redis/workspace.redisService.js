@@ -41,14 +41,16 @@ class WorkspaceRedisService extends BaseRedisService {
 
   async updateWorkspace(workspace){
     const pipeline = this.redis.pipeline();
-    const workspaceData = { ...workspace, type: "workspace" };
+    const workspaceData = {
+      id: workspace.id,
+      name: workspace.name,
+      description: workspace.description,
+      userId: workspace.userId,
+      type: 'workspace'
+    };
 
     pipeline.hset(this.workspaceKey(workspace.id), ...Object.entries(workspaceData).flat());
-
-    const ttl = await this.redis.ttl(this.workspaceKey(workspace.id));
-    if(ttl <= 0){
-      pipeline.expire(this.workspaceKey(workspace.id), 3 * 24 * 60 * 60);
-    }
+    pipeline.expire(this.workspaceKey(workspace.id), 3 * 24 * 60 * 60);
 
     const result = await pipeline.exec();
     return result;
@@ -66,52 +68,40 @@ class WorkspaceRedisService extends BaseRedisService {
 
   async getWorkspaceAndItsProjects(workspaceId){
     const pipeline = this.redis.pipeline();
-
-    const projectsIds = await this.redis.smembers(this.workspaceProjectsKey(workspaceId));
-    if(projectsIds.length === 0) return [];
-
     pipeline.hgetall(this.workspaceKey(workspaceId));
-    projectsIds.forEach(id => {
-      pipeline.hgetall(this.projectKey(id));
-    });
+    pipeline.smembers(this.workspaceProjectsKey(workspaceId));
 
-    const results = await pipeline.exec();
-    const { workspace, projects } = results.reduce((acc, [_, data]) => {
+    const resultPipeline = await pipeline.exec();
+    const { workspace, projectsIds } = resultPipeline.reduce((acc, [_, data]) => {
       if(data){
         if(data.type === 'workspace'){
-          acc.workspace.push(data);
-        } else if(Object.keys(data).length > 0){
-          acc.projects.push(data);
+          acc.workspace = data;
+        } else if (Array.isArray(data) && data.length > 0){
+          acc.projectsIds.push(...data);
         }
       }
       return acc;
-    }, { workspace: [], projects: [] });
+    }, { workspace: null, projectsIds: [] });
 
+    if(!workspace) return { workspace: {}, projects: [] };
+    if(projectsIds.length === 0) return { workspace, projects: [] };
+
+    const projects = await this.projectRedisService.getProjects(projectsIds);
     return { workspace, projects };
   }
 
   async getWorkspacesAndProjects(userId){
-    const workspacesIds = await this.redis.smembers(this.userWorkspacesKey(userId));
+    const workspacesIds = await this.getWorkspacesIds(userId);
     if(workspacesIds.length === 0) return { workspaces: [], projects: [] };
 
-    const { workspaces, projectsIds } = await this.getWorkspacesAndProjectsIds(workspacesIds);
-    if(!workspaces) return { workspaces: [], projects: [] };
-    if(projectsIds.length === 0) return { workspaces, projects: [] };
-
-    const projects = await this.projectRedisService.getProjects(projectsIds);
-    return { workspaces, projects };
-  }
-
-  async getWorkspacesAndProjectsIds(workspacesIds){
     const pipeline = this.redis.pipeline();
-
     workspacesIds.forEach(workspaceId => {
       pipeline.hgetall(this.workspaceKey(workspaceId));
       pipeline.smembers(this.workspaceProjectsKey(workspaceId));
     });
 
-    const result = await pipeline.exec();
-    const { workspaces, projectsIds } = result.reduce((acc, [_, data]) => {
+    const resultPipeline = await pipeline.exec();
+    const { workspaces, projectsIds } = resultPipeline.reduce((acc, [_, data]) => {
       if(data){
         if(data.type === 'workspace'){
           acc.workspaces.push(data);
@@ -121,7 +111,45 @@ class WorkspaceRedisService extends BaseRedisService {
       }
       return acc;
     }, { workspaces: [], projectsIds: [] });
-    return { workspaces, projectsIds };
+
+    if(workspaces.length === 0) return { workspaces: [], projects: [] };
+    if(projectsIds.length === 0) return { workspaces, projects: [] };
+
+    const projects = await this.projectRedisService.getProjects(projectsIds);
+    return { workspaces, projects };
+  }
+
+  async getWorkspacesIds(userId){
+    const pipeline = await this.redis.pipeline();
+    pipeline.smembers(this.userWorkspacesKey(userId));
+    pipeline.smembers(this.userWorkspacesKeyAsAGuest(userId));
+
+    const resultPipeline = await pipeline.exec();
+    const workspacesIds = resultPipeline.reduce((acc, [_, data]) => {
+      if(data && Array.isArray(data) && data.length > 0){
+        acc.push(...data);
+      }
+      return acc;
+    }, []);
+
+    return workspacesIds;
+  }
+
+  async getWorkspaces(workspacesIds){
+    const pipeline = this.redis.pipeline();
+
+    workspacesIds.forEach(workspacesId => {
+      pipeline.hgetall(this.workspaceKey(workspacesId))
+    });
+
+    const resultPipeline = await pipeline.exec();
+    const workspaces = resultPipeline.reduce((acc, [_, [data]]) => {
+      if(data){
+        acc.push(data);
+      }
+      return acc;
+    }, []);
+    return workspaces;
   }
 }
 

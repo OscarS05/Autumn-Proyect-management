@@ -20,14 +20,15 @@ router.get('/:workspaceId/projects',
       const { workspaceId } = req.params;
 
       const { workspace, projects } = await WorkspaceRedis.getWorkspaceAndItsProjects(workspaceId);
-      if(workspace && projects.length > 0){
+      if(workspace.type === 'workspace' && projects){
         return res.status(200).json({ workspace, projects});
       }
-      const data = await service.findAll({ workspaceId });
+      const data = await service.findWorkspaceAndItsProjects(workspaceId, userId);
       if(data && data.length > 0){
         return res.status(200).json({ workspace: data});
       }
-      res.status(200).json({ workspaces: [] });
+
+      res.status(400).json({ message: 'Workspace not found' });
     } catch (error) {
       next(error);
     }
@@ -49,7 +50,7 @@ router.get('/',
         return res.status(200).json({ workspaces: workspacesInDb});
       }
 
-      res.status(200).json({ workspaces: [], projects: []});
+      res.status(400).json({ workspaces: [], projects: []});
     } catch (error) {
       next(error);
     }
@@ -65,7 +66,7 @@ router.post('/create-workspace',
       const userId = req.user.sub;
 
       const workspace = await service.create({ name, description, userId });
-      if(!workspace){
+      if(workspace.isBoom){
         return next(Boom.badRequest('Failed to create workspace'));
       }
       res.status(201).json({ workspace: workspace });
@@ -83,7 +84,7 @@ router.patch('/update-workspace',
       const data = req.body;
       const userId = req.user.sub;
 
-      const workspaceUpdated = await service.update(data.id, data);
+      const workspaceUpdated = await service.update(data.id, data, userId);
       if(!workspaceUpdated) return next(Boom.badRequest('Failed to update workspace'));
 
       res.status(200).json({ message: 'Workspace updated successfully', workspace: workspaceUpdated });

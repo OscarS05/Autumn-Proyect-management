@@ -26,30 +26,16 @@ class ProjectRedisService extends BaseRedisService{
     return result;
   }
 
-  async getProjects(projectsIds){
-    if (projectsIds.length === 0) return [];
-    const pipeline = this.redis.pipeline();
-
-    projectsIds.forEach(projectId => {
-      pipeline.hgetall(this.projectKey(projectId));
-    });
-
-    const result = await pipeline.exec();
-    const projects = result.reduce((acc, [_, data]) => {
-      if (data && Object.keys(data).length > 0) {
-        acc.push(data);
-      }
-      return acc;
-    }, []);
-    if(projects.length === 0) return [];
-
-    return projects;
-  }
-
   async updateProject(project){
     const pipeline = this.redis.pipeline();
+    const projectData = {
+      id: project.id,
+      name: project.name,
+      visibility: project.visibility,
+      workspaceId: project.workspaceId
+    }
 
-    pipeline.hset(this.projectKey(project.id), ...Object.entries(project).flat())
+    pipeline.hset(this.projectKey(project.id), ...Object.entries(projectData).flat())
     pipeline.expire(this.projectKey(project.id), 3 * 24 * 60 * 60);
 
     const pipelineResult = await pipeline.exec();
@@ -72,6 +58,43 @@ class ProjectRedisService extends BaseRedisService{
 
     const getProjects = await this.getProjects(projectsIds);
     return getProjects;
+  }
+
+  async getProjectsIds(workspacesIds){
+    const pipeline = this.redis.pipeline();
+
+    workspacesIds.forEach(workspaceId => {
+      pipeline.smembers(this.workspaceProjectsKey(workspaceId));
+    });
+
+    const resultPipeline = await pipeline.exec();
+    const projectsIds = resultPipeline.reduce((acc, [_, [data]]) => {
+      if(data){
+        acc.push(...data);
+      }
+      return acc;
+    }, []);
+    return projectsIds;
+  }
+
+  async getProjects(projectsIds){
+    if (projectsIds.length === 0) return [];
+    const pipeline = this.redis.pipeline();
+
+    projectsIds.forEach(projectId => {
+      pipeline.hgetall(this.projectKey(projectId));
+    });
+
+    const result = await pipeline.exec();
+    const projects = result.reduce((acc, [_, data]) => {
+      if (data && Object.keys(data).length > 0) {
+        acc.push(data);
+      }
+      return acc;
+    }, []);
+    if(projects.length === 0) return [];
+
+    return projects;
   }
 }
 
