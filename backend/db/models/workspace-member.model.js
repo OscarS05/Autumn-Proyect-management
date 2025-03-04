@@ -75,6 +75,11 @@ class WorkspaceMember extends Model {
       foreignKey: 'workspaceId',
       as: 'workspace'
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'userId',
+      as: 'user'
+    });
   }
 
   static config(sequelize) {

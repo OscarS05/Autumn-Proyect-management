@@ -14,7 +14,8 @@ class ProjectRedisService extends BaseRedisService{
         id: project.id,
         name: project.name,
         visibility: project.visibility,
-        workspaceId: project.workspaceId
+        workspaceId: project.workspaceId,
+        workspaceMemberId: project.workspaceMemberId
       }
 
       pipeline.hset(this.projectKey(project.id), ...Object.entries(projectData).flat());
@@ -32,7 +33,8 @@ class ProjectRedisService extends BaseRedisService{
       id: project.id,
       name: project.name,
       visibility: project.visibility,
-      workspaceId: project.workspaceId
+      workspaceId: project.workspaceId,
+      workspaceMemberId: project.workspaceMemberId
     }
 
     pipeline.hset(this.projectKey(project.id), ...Object.entries(projectData).flat())

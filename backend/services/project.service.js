@@ -7,12 +7,8 @@ const { ProjectRedis } = require('../services/redis/index');
 class ProjectService {
   constructor() {}
 
-  async create({ name, visibility, workspaceId }) {
-    if(!name || !visibility || !workspaceId){
-      return boom.badRequest('Please, try again');
-    }
-
-    const project = await models.Project.create({ name: name, visibility: visibility, workspaceId: workspaceId });
+  async create({ name, visibility, workspaceId, workspaceMemberId }) {
+    const project = await models.Project.create({ name, visibility, workspaceId, workspaceMemberId });
     if(!project){
       return boom.badRequest('Failed to create card');
     }
@@ -35,12 +31,19 @@ class ProjectService {
     return updatedProject.dataValues;
   }
 
-  async delete(projectId, workspaceId){
-    const response = await models.Project.destroy({
-      where: { id: projectId }
-    });
-    await ProjectRedis.deleteWorkspace(projectId, workspaceId);
-    return response;
+  async delete(projectId, workspaceId, workspaceMemberId){
+    try {
+      const response = await models.Project.destroy({
+        where: { id: projectId, workspaceMemberId }
+      });
+      if(response > 0){
+        await ProjectRedis.deleteWorkspace(projectId, workspaceId);
+      }
+      return response;
+    } catch (error) {
+      console.log('Error:', error);
+      throw boom.badRequest('Failed to delete project')
+    }
   }
 
   async findAll(workspaceId){

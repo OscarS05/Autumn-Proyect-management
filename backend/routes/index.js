@@ -3,6 +3,7 @@ const express = require('express');
 const userRouter = require('./user.router');
 const authRouter = require('./auth.router');
 const workspaceRouter = require('./workspace.router');
+const workspaceMemberRouter = require('./workspace-member.router');
 const projectRouter = require('./project.router');
 const listRouter = require('./list.router');
 const cardRouter = require('./card.router');
@@ -14,6 +15,7 @@ function routerApi(app) {
   router.use('/user', userRouter);
   router.use('/auth', authRouter);
   router.use('/workspace', workspaceRouter);
+  router.use('/workspace-member', workspaceMemberRouter);
   router.use('/project', projectRouter);
   router.use('/list', listRouter);
   router.use('/card', cardRouter);

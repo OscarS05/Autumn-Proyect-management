@@ -40,10 +40,10 @@ router.post('/create-project',
   validatorHandler(createProject, 'body'),
   async (req, res, next) => {
     try {
-      const { name, visibility, workspaceId } = req.body;
+      const { name, visibility, workspaceId, workspaceMemberId } = req.body;
       const userId = req.user.sub;
 
-      const projectCreated = await service.create({ name, visibility, workspaceId });
+      const projectCreated = await service.create({ name, visibility, workspaceId, workspaceMemberId });
       if(!projectCreated) return Boom.badRequest('Failed to create workspace');
 
       res.status(201).json({ message: 'Project created successfully', project: projectCreated });
@@ -75,9 +75,9 @@ router.delete('/delete-project',
   validatorHandler(deleteProject, 'body'),
   async (req, res, next) => {
     try {
-      const { id, workspaceId } = req.body;
+      const { id, workspaceId, workspaceMemberId } = req.body;
 
-      const response = await service.delete(id, workspaceId);
+      const response = await service.delete(id, workspaceId, workspaceMemberId);
       if(!response) return Boom.badRequest('Failed to create workspace');
 
       res.status(200).json({ message: 'Project deleted successfully' });

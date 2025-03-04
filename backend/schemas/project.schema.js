@@ -12,6 +12,7 @@ const createProject = Joi.object({
   name: name.required(),
   visibility: visibility.required(),
   workspaceId: id.required(),
+  workspaceMemberId: id.required()
 });
 
 const updateProject = Joi.object({
@@ -23,6 +24,7 @@ const updateProject = Joi.object({
 const deleteProject = Joi.object({
   id: id.required(),
   workspaceId: id.required(),
+  workspaceMemberId: id.required()
 });
 
 

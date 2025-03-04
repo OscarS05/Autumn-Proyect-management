@@ -1,5 +1,6 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
 const { WORKSPACE_TABLE } = require('./workspace.model');
+const { WORKSPACE_MEMBER_TABLE } = require('./workspace-member.model');
 
 
 const PROJECT_TABLE = 'projects';
@@ -29,6 +30,17 @@ const ProjectSchema = {
     },
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
+  },
+  workspaceMemberId:{
+    field: 'workspace_member_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: WORKSPACE_MEMBER_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL'
   },
   createdAt: {
     allowNull: false,
