@@ -3,7 +3,7 @@ const router = express.Router();
 const { Boom } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
-const { createWorkspace, updateWorkspace, deleteWorkspace } = require('./../schemas/workspace.schema');
+const { createWorkspace, updateWorkspace, deleteWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
 
 const { validateSession } = require('./../middlewares/auth.handler');
 
@@ -93,6 +93,26 @@ router.patch('/update-workspace',
     }
   }
 );
+
+router.patch('/:workspaceId/transfer-ownership',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  validatorHandler(transferOwnership, 'body'),
+  async (req, res, next) => {
+    try {
+      const { workspaceId } = req.params;
+      const userId = req.user.sub;
+      const { newOwnerId } = req.body;
+
+      const updatedWorkspace = await service.transferOwnership(workspaceId, userId, newOwnerId);
+      if(!updatedWorkspace) throw Boom.notFound('Workspace not found or transfer failed');
+
+      res.status(200).json({ updatedWorkspace });
+    } catch (error) {
+      next(error);
+    }
+  }
+)
 
 router.delete('/delete-workspace',
   validateSession,

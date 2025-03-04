@@ -53,23 +53,49 @@ class WorkspaceService {
     }
   }
 
-  // next feat:
-  // async transferOwnership({ workspaceId, ownerUserId, newOwnerId, tran }){
-    // const workspace = await models.Workspace.findOne({
-    //   where: { id: workspaceId, userId: currentUserId },
-    //   include: {
-    //     model: models.WorkspaceMember,
-    //     as: 'members',
-    //     where: { userId: newOwnerId },
-    //     required: false
-    //   }
-    // });
+  async transferOwnership(workspaceId, ownerUserId, newOwnerId){
+    const transaction = await sequelize.transaction();
+    try {
+      const workspace = await models.Workspace.findOne({
+        where: { id: workspaceId, userId: ownerUserId },
+        include: {
+          model: models.User,
+          as: 'members',
+          attributes: ['id', 'name'],
+          where: { id: newOwnerId },
+          required: false
+        }
+      });
+      if(!workspace || workspace.members.length === 0){
+        throw boom.badRequest('Workspace not found or new owner is incorrect');
+      }
 
-    // const isMember = workspace?.members?.length > 0;
+      const updatedWorkspace = await models.Workspace.update(
+        { userId: newOwnerId },
+        { where: { id: workspaceId }, returning: true, transaction },
+      );
+      if(updatedWorkspace[0] === 0){
+        await transaction.rollback();
+        throw boom.badRequest('Failed to update workspace owner');
+      }
 
-    // console.log('Workspace:', workspace);
-    // console.log('Es miembro:', isMember);
-  // }
+      await models.WorkspaceMember.update(
+        { propertyStatus: 'owner' },
+        { where: { workspaceId, userId: newOwnerId }, transaction }
+      );
+      await models.WorkspaceMember.update(
+        { propertyStatus: 'guest' },
+        { where: { workspaceId, userId: ownerUserId }, transaction }
+      );
+
+      await transaction.commit();
+      return updatedWorkspace[1][0];
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Error:', error);
+      throw boom.badRequest('Failed to transfer ownership');
+    }
+  }
 
   async delete(userId, workspaceId){
     const transaction = await sequelize.transaction();

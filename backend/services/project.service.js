@@ -31,6 +31,24 @@ class ProjectService {
     return updatedProject.dataValues;
   }
 
+  // next feat:
+  // async transferOwnership({ workspaceId, ownerUserId, newOwnerId, tran }){
+    // const workspace = await models.Workspace.findOne({
+    //   where: { id: workspaceId, userId: currentUserId },
+    //   include: {
+    //     model: models.WorkspaceMember,
+    //     as: 'members',
+    //     where: { userId: newOwnerId },
+    //     required: false
+    //   }
+    // });
+
+    // const isMember = workspace?.members?.length > 0;
+
+    // console.log('Workspace:', workspace);
+    // console.log('Es miembro:', isMember);
+  // }
+
   async delete(projectId, workspaceId, workspaceMemberId){
     try {
       const response = await models.Project.destroy({
