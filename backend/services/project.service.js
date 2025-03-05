@@ -31,18 +31,20 @@ class ProjectService {
   }
 
   async update(id, data) {
-    if(Object.keys(data).length === 0){
-      throw boom.badRequest('Please, try again');
+    try {
+      const [updatedRows, [updatedProject]] = await models.Project.update(data, {
+        where: { id },
+        returning: true,
+      });
+      if(updatedRows === 0) throw boom.notFound('Project not found');
+      if(!updatedProject) throw boom.notFound('Failed to update project');
+
+      await ProjectRedis.updateProject(updatedProject.dataValues);
+      return updatedProject.dataValues;
+    } catch (error) {
+      console.error('Error:', error);
+      throw boom.badRequest(error.message || 'Failed to update project');
     }
-
-    const [updatedRows, [updatedProject]] = await models.Project.update(data, {
-      where: { id },
-      returning: true,
-    });
-    await ProjectRedis.updateProject(updatedProject.dataValues);
-
-    if(!updatedRows) return boom.notFound('Project not found');
-    return updatedProject.dataValues;
   }
 
   // async transferOwnership(projectId, ownerUserId, newOwnerId){
@@ -118,15 +120,20 @@ class ProjectService {
   }
 
   async findAll(workspaceId){
-    const Projects = await models.Project.findAll({
-      where: { workspaceId }
-    });
-    if (!Projects || Projects.length === 0) {
-      return [];
+    try {
+      const Projects = await models.Project.findAll({
+        where: { workspaceId }
+      });
+      if (Projects.length === 0) {
+        throw boom.badRequest('Failed to get projects');;
+      }
+      const listOfProjects = Projects.map(Project => Project.dataValues);
+      await ProjectRedis.saveProjects(listOfProjects);
+      return listOfProjects;
+    } catch (error) {
+      console.error('Error:', error);
+      throw boom.badRequest(error.message || 'Error retrieving projects from the database');
     }
-    const listOfProjects = Projects.map(Project => Project.dataValues);
-    await ProjectRedis.saveProjects(listOfProjects);
-    return listOfProjects;
   }
 }
 
