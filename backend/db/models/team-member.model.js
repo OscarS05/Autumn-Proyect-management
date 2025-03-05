@@ -53,6 +53,12 @@ const TeamMemberSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   },
+  propertyStatus: {
+    field: 'property_status',
+    allowNull: false,
+    type: Sequelize.STRING,
+    defaultValue: 'guest',
+  },
   addedAt: {
     allowNull: false,
     type: DataTypes.DATE,

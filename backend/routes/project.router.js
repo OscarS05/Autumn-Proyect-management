@@ -4,7 +4,7 @@ const { Boom } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createProject, deleteProject, updateProject, projectIdSchema } = require('./../schemas/project.schema');
-const { workspaceIdSchema } = require('./../schemas/workspace.schema');
+const { workspaceIdSchema, transferOwnership } = require('./../schemas/workspace.schema');
 
 const { validateSession } = require('./../middlewares/auth.handler');
 
@@ -73,6 +73,26 @@ router.patch('/update-project/:projectId',
   }
 );
 
+// router.patch('/:projectId/transfer-ownership',
+//   validateSession,
+//   validatorHandler(projectIdSchema, 'params'),
+//   validatorHandler(transferOwnership, 'body'),
+//   async (req, res, next) => {
+//     try {
+//       const { projectId } = req.params;
+//       const { newOwnerId } = req.data;
+//       const userId = req.user.sub;
+
+//       const updatedProject = await service.transferOwnership(projectId, userId, newOwnerId);
+//       if(!updatedProject) throw Boom.notFound('Workspace or new owner not found');
+
+//       res.status(200).json({ updatedProject });
+//     } catch (error) {
+//       next(error);
+//     }
+//   }
+// );
+
 router.delete('/delete-project/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
@@ -80,10 +100,10 @@ router.delete('/delete-project/:projectId',
   async (req, res, next) => {
     try {
       const { projectId } = req.params;
-      const { workspaceId, workspaceMemberId } = req.body;
+      const { workspaceId, workspaceMemberId, projectMemberId } = req.body;
 
-      const response = await service.delete(projectId, workspaceId, workspaceMemberId);
-      if(!response) return Boom.badRequest('Failed to create workspace');
+      const response = await service.delete(projectId, workspaceId, workspaceMemberId, projectMemberId);
+      if(response === 0) return Boom.badRequest('Failed to delete project');
 
       res.status(200).json({ message: 'Project deleted successfully' });
     } catch (error) {

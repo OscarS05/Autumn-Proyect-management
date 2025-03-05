@@ -7,7 +7,7 @@ module.exports = {
     await queryInterface.addColumn(WORKSPACE_MEMBER_TABLE, 'property_status', {
       allowNull: false,
       type: Sequelize.STRING,
-      defaultValue: 'Free',
+      defaultValue: 'guest',
     });
   },
 
