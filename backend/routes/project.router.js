@@ -73,25 +73,24 @@ router.patch('/update-project/:projectId',
   }
 );
 
-// router.patch('/:projectId/transfer-ownership',
-//   validateSession,
-//   validatorHandler(projectIdSchema, 'params'),
-//   validatorHandler(transferOwnership, 'body'),
-//   async (req, res, next) => {
-//     try {
-//       const { projectId } = req.params;
-//       const { newOwnerId } = req.data;
-//       const userId = req.user.sub;
+router.patch('/:projectId/transfer-ownership',
+  validateSession,
+  validatorHandler(projectIdSchema, 'params'),
+  validatorHandler(transferOwnership, 'body'),
+  async (req, res, next) => {
+    try {
+      const { projectId } = req.params;
+      const { currentOwnerId, newOwnerId } = req.body;
 
-//       const updatedProject = await service.transferOwnership(projectId, userId, newOwnerId);
-//       if(!updatedProject) throw Boom.notFound('Workspace or new owner not found');
+      const updatedProject = await service.transferOwnership(projectId, currentOwnerId, newOwnerId);
+      if(!updatedProject) throw Boom.notFound('Workspace or new owner not found');
 
-//       res.status(200).json({ updatedProject });
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// );
+      res.status(200).json({ updatedProject });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 router.delete('/delete-project/:projectId',
   validateSession,

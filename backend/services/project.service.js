@@ -47,53 +47,52 @@ class ProjectService {
     }
   }
 
-  // async transferOwnership(projectId, ownerUserId, newOwnerId){
-  //   const transaction = await sequelize.transaction();
-  //   try {
-  //     const project = await models.Project.findOne({
-  //       where: { id: projectId, workspaceMemberId: ownerUserId },
-  //       include: {
-  //         model: models.WorkspaceMember,
-  //         as: 'members',
-  //         attributes: ['id', 'name'],
-  //         where: { id: newOwnerId },
-  //         required: false
-  //       }
-  //     });
-  //     if(!project){
-  //       throw boom.badRequest('Project not found');
-  //     }
-  //     if(project.members.length === 0){
-  //       throw boom.badRequest('New owner is incorrect');
-  //     }
+  async transferOwnership(projectId, currentOwnerId, newOwnerId){
+    const transaction = await sequelize.transaction();
+    try {
+      const project = await models.Project.findOne({
+        where: { id: projectId, workspaceMemberId: currentOwnerId },
+        include: {
+          model: models.WorkspaceMember,
+          as: 'members',
+          attributes: ['id', 'role', 'property_status'],
+          where: { id: newOwnerId },
+          required: false
+        }
+      });
+      if(!project){
+        throw boom.badRequest('Project not found');
+      }
+      if(project.members.length === 0){
+        throw boom.badRequest('New owner is incorrect');
+      }
 
-  //     const updatedProject = await models.Project.update(
-  //       { workspaceMemberId: newOwnerId },
-  //       { where: { id: projectId }, returning: true, transaction },
-  //     );
-  //     if(updatedProject[0] === 0){
-  //       await transaction.rollback();
-  //       throw boom.badRequest('Failed to update owner in project');
-  //     }
+      const [ updatedRows, [updatedProject] ] = await models.Project.update(
+        { workspaceMemberId: newOwnerId },
+        { where: { id: projectId }, returning: true, transaction },
+      );
+      if(updatedRows === 0){
+        throw boom.badRequest('Failed to update owner in project');
+      }
 
-  //     await models.ProjectMember.update(
-  //       { role: 'admin', propertyStatus: 'owner' },
-  //       { where: { projectId, workspaceMemberId: newOwnerId }, transaction }
-  //     );
-  //     await models.ProjectMember.update(
-  //       { role: 'member', propertyStatus: 'guest' },
-  //       { where: { projectId, workspaceMemberId: ownerUserId }, transaction }
-  //     );
+      await models.ProjectMember.update(
+        { role: 'admin', propertyStatus: 'owner' },
+        { where: { projectId, workspaceMemberId: newOwnerId }, transaction }
+      );
+      await models.ProjectMember.update(
+        { role: 'member', propertyStatus: 'guest' },
+        { where: { projectId, workspaceMemberId: currentOwnerId }, transaction }
+      );
 
-  //     await transaction.commit();
-  //     await ProjectRedis.updateProject(updatedProject[1][0]);
-  //     return updatedProject[1][0];
-  //   } catch (error) {
-  //     await transaction.rollback();
-  //     console.error('Error:', error);
-  //     throw boom.badRequest(error.message || 'Failed to transfer ownership');
-  //   }
-  // }
+      await transaction.commit();
+      await ProjectRedis.updateProject(updatedProject);
+      return updatedProject;
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Error:', error);
+      throw boom.badRequest(error.message || 'Failed to transfer ownership');
+    }
+  }
 
   async delete(projectId, workspaceId, workspaceMemberId, projectMemberId){
     const transaction = await sequelize.transaction();
