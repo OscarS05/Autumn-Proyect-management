@@ -3,7 +3,7 @@ const router = express.Router();
 const { Boom } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
-const { createWorkspace, updateWorkspace, deleteWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
+const { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
 
 const { validateSession } = require('./../middlewares/auth.handler');
 
@@ -14,6 +14,7 @@ const { WorkspaceRedis } = require('../services/redis/index');
 
 router.get('/:workspaceId/projects',
   validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
   async (req, res, next) => {
     try {
       const userId = req.user.sub;
@@ -76,20 +77,22 @@ router.post('/create-workspace',
   }
 )
 
-router.patch('/update-workspace',
+router.patch('/update-workspace/:workspaceId',
   validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
   validatorHandler(updateWorkspace, 'body'),
   async (req, res, next) => {
     try {
       const data = req.body;
+      const { workspaceId } = req.params;
       const userId = req.user.sub;
 
-      const workspaceUpdated = await service.update(data.id, data, userId);
+      const workspaceUpdated = await service.update(workspaceId, data, userId);
       if(!workspaceUpdated) return next(Boom.badRequest('Failed to update workspace'));
 
       res.status(200).json({ message: 'Workspace updated successfully', workspace: workspaceUpdated });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
 );
@@ -114,15 +117,15 @@ router.patch('/:workspaceId/transfer-ownership',
   }
 )
 
-router.delete('/delete-workspace',
+router.delete('/delete-workspace/:workspaceId',
   validateSession,
-  validatorHandler(deleteWorkspace, 'body'),
+  validatorHandler(workspaceIdSchema, 'params'),
   async (req, res, next) => {
     try {
-      const data = req.body;
+      const { workspaceId } = req.params;
       const userId = req.user.sub;
 
-      const isWorkspaceDeleted = await service.delete(userId, data.id);
+      const isWorkspaceDeleted = await service.delete(userId, workspaceId);
       if(!isWorkspaceDeleted) return next(Boom.notFound('Workspace not found'));
 
       res.status(200).json({ message: 'Workspace deleted successfully' });

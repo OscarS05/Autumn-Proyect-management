@@ -8,6 +8,10 @@ const name = Joi.string().min(3).max(50)
   });
 const visibility = Joi.string().valid('private', 'workspace');
 
+const projectIdSchema = Joi.object({
+  projectId: id.required()
+});
+
 const createProject = Joi.object({
   name: name.required(),
   visibility: visibility.required(),
@@ -16,16 +20,14 @@ const createProject = Joi.object({
 });
 
 const updateProject = Joi.object({
-  id: id.required(),
   name: name,
   visibility: visibility.allow(null, ''),
 });
 
 const deleteProject = Joi.object({
-  id: id.required(),
   workspaceId: id.required(),
   workspaceMemberId: id.required()
 });
 
 
-module.exports = { createProject, updateProject, deleteProject }
+module.exports = { createProject, updateProject, deleteProject, projectIdSchema }

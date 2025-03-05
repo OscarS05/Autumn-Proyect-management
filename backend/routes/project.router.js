@@ -3,7 +3,8 @@ const router = express.Router();
 const { Boom } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
-const { createProject, deleteProject, updateProject } = require('./../schemas/project.schema');
+const { createProject, deleteProject, updateProject, projectIdSchema } = require('./../schemas/project.schema');
+const { workspaceIdSchema } = require('./../schemas/workspace.schema');
 
 const { validateSession } = require('./../middlewares/auth.handler');
 
@@ -14,21 +15,21 @@ const { ProjectRedis } = require('../services/redis/index');
 
 router.get('/:workspaceId',
   validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
   async (req, res, next) => {
     try {
       const { workspaceId } = req.params;
 
       const projectsInRedis = await ProjectRedis.findAllProjects(workspaceId);
-      console.log('projectsInRedis:', projectsInRedis);
       if(projectsInRedis && projectsInRedis.length > 0){
-        res.status(200).json({ projects: projectsInRedis });
+        return res.status(200).json({ projects: projectsInRedis });
       }
       const projectsInDb = await service.findAll(workspaceId);
       if(projectsInDb && projectsInDb.length > 0){
-        res.status(200).json({ projects: projectsInDb });
+        return res.status(200).json({ projects: projectsInDb });
       }
 
-      res.status(200).json({ projects: [] });
+      res.status(400).json({ message: 'Workspace not found' });
     } catch (error) {
       next(error);
     }
@@ -53,14 +54,16 @@ router.post('/create-project',
   }
 );
 
-router.patch('/update-project',
+router.patch('/update-project/:projectId',
   validateSession,
+  validatorHandler(projectIdSchema, 'params'),
   validatorHandler(updateProject, 'body'),
   async (req, res, next) => {
     try {
+      const { projectId } = req.params;
       const data = req.body;
 
-      const updatedProject = await service.update(data.id, data);
+      const updatedProject = await service.update(projectId, data);
       if(!updatedProject) return Boom.badRequest('Failed to create workspace');
 
       res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
@@ -70,14 +73,16 @@ router.patch('/update-project',
   }
 );
 
-router.delete('/delete-project',
+router.delete('/delete-project/:projectId',
   validateSession,
+  validatorHandler(projectIdSchema, 'params'),
   validatorHandler(deleteProject, 'body'),
   async (req, res, next) => {
     try {
-      const { id, workspaceId, workspaceMemberId } = req.body;
+      const { projectId } = req.params;
+      const { workspaceId, workspaceMemberId } = req.body;
 
-      const response = await service.delete(id, workspaceId, workspaceMemberId);
+      const response = await service.delete(projectId, workspaceId, workspaceMemberId);
       if(!response) return Boom.badRequest('Failed to create workspace');
 
       res.status(200).json({ message: 'Project deleted successfully' });

@@ -36,7 +36,8 @@ router.post('/sign-in',
   }
 );
 
-router.post('/logout', async (req, res, next) => {
+router.post('/logout',
+  async (req, res, next) => {
   try {
     const refreshToken = req.cookies.refreshToken;
     const accessToken = req.headers.authorization?.split(' ')[1];

@@ -10,7 +10,6 @@ const createWorkspace = Joi.object({
 });
 
 const updateWorkspace = Joi.object({
-  id: id.required(),
   name: name,
   description: description.allow(null, ''),
 });
@@ -23,9 +22,5 @@ const transferOwnership = Joi.object({
   newOwnerId: id.required(),
 })
 
-const deleteWorkspace = Joi.object({
-  id: id.required(),
-});
 
-
-module.exports = { createWorkspace, updateWorkspace, deleteWorkspace, transferOwnership, workspaceIdSchema }
+module.exports = { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema }

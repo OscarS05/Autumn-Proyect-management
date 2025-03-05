@@ -106,7 +106,7 @@ class WorkspaceService {
 
       if (deleted === 0){
         await transaction.rollback();
-        return boom.notFound('Workspace not found or unauthorized');
+        throw boom.notFound('Workspace not found or unauthorized');
       }
 
       await models.WorkspaceMember.destroy({
@@ -121,7 +121,7 @@ class WorkspaceService {
     } catch (error) {
       await transaction.rollback();
       console.error('Error:', error);
-      return boom.badRequest('Failed to delete workspace');
+      throw boom.badRequest('Failed to delete workspace');
     }
   }
 
