@@ -3,12 +3,8 @@ class BaseRedisService {
     this.redis = redisClient;
   }
 
-  userWorkspacesKeyAsAGuest(userId) {
-    return `user:${userId}:workspaces:invited`;
-  }
-
   userWorkspacesKey(userId) {
-    return `user:${userId}:workspaces:owner`;
+    return `user:${userId}:workspaces`;
   }
 
   workspaceKey(workspaceId) {

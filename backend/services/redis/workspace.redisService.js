@@ -91,7 +91,7 @@ class WorkspaceRedisService extends BaseRedisService {
   }
 
   async getWorkspacesAndProjects(userId){
-    const workspacesIds = await this.getWorkspacesIds(userId);
+    const workspacesIds = await this.redis.smembers(this.userWorkspacesKey(userId));
     if(workspacesIds.length === 0) return { workspaces: [], projects: [] };
 
     const pipeline = this.redis.pipeline();
@@ -117,22 +117,6 @@ class WorkspaceRedisService extends BaseRedisService {
 
     const projects = await this.projectRedisService.getProjects(projectsIds);
     return { workspaces, projects };
-  }
-
-  async getWorkspacesIds(userId){
-    const pipeline = await this.redis.pipeline();
-    pipeline.smembers(this.userWorkspacesKey(userId));
-    pipeline.smembers(this.userWorkspacesKeyAsAGuest(userId));
-
-    const resultPipeline = await pipeline.exec();
-    const workspacesIds = resultPipeline.reduce((acc, [_, data]) => {
-      if(data && Array.isArray(data) && data.length > 0){
-        acc.push(...data);
-      }
-      return acc;
-    }, []);
-
-    return workspacesIds;
   }
 
   async getWorkspaces(workspacesIds){
