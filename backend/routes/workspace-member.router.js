@@ -5,7 +5,7 @@ const { Boom } = require('@hapi/boom');
 // const { validatorHandler } = require('./../middlewares/validator.handler');
 // const { createWorkspace, updateWorkspace, deleteWorkspace } = require('./../schemas/workspace.schema');
 
-const { validateSession } = require('./../middlewares/auth.handler');
+const { validateSession } = require('../middlewares/authentication.handler');
 
 const WorkspaceMemberService = require('./../services/workspace-member.service');
 const service = new WorkspaceMemberService();

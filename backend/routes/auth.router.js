@@ -5,7 +5,7 @@ const boom = require('@hapi/boom');
 const { changePassword } = require('./../schemas/user.schema');
 
 const { validatorHandler } = require('./../middlewares/validator.handler')
-const { limiter, validateSession } = require('./../middlewares/auth.handler');
+const { limiter, validateSession } = require('./../middlewares/authentication.handler');
 
 const { ValidationError } = require('sequelize');
 const { config } = require('../config/config');

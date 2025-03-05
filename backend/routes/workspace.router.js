@@ -5,7 +5,8 @@ const { Boom } = require('@hapi/boom');
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
 
-const { validateSession } = require('./../middlewares/auth.handler');
+const { validateSession } = require('../middlewares/authentication.handler');
+const { authorizationToCreateWorkspace } = require('../middlewares/authorization.handler');
 
 const WorkspaceService = require('./../services/workspace.service');
 const service = new WorkspaceService();
@@ -60,6 +61,7 @@ router.get('/',
 
 router.post('/create-workspace',
   validateSession,
+  authorizationToCreateWorkspace,
   validatorHandler(createWorkspace, 'body'),
   async (req, res, next) => {
     try {

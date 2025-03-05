@@ -170,6 +170,13 @@ class WorkspaceService {
       return boom.internal('Error:', error);
     }
   }
+
+  async countWorkspacesByUserId(userId){
+    const count = await models.Workspace.count(
+      { where: { userId } }
+    );
+    return count;
+  }
 }
 
 module.exports = WorkspaceService;

@@ -2,11 +2,17 @@ const boom = require('@hapi/boom');
 const { rateLimit } = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 
-const { config } = require('./../config/config');
+const { config } = require('../config/config');
 
 const { AuthRedis } = require('../services/redis/index');
-const AuthService = require('./../services/auth.service');
+const AuthService = require('../services/auth.service');
 const authService = new AuthService();
+
+const WorkspaceService = require('../services/workspace.service');
+const workspaceService = new WorkspaceService();
+
+const ProjectService = require('../services/project.service');
+const projectService = new ProjectService();
 
 const limiter = (limit, windowMs) => rateLimit( {
   windowMs: windowMs, // 15 minutes = 15 * 60 * 1000

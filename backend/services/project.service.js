@@ -134,6 +134,14 @@ class ProjectService {
       throw boom.badRequest(error.message || 'Error retrieving projects from the database');
     }
   }
+
+  async countProjectsByWorkspaceMember(workspaceId, workspaceMemberId){
+    const count = await models.Project.count(
+      { where: { workspaceId, workspaceMemberId } }
+    )
+
+    return count;
+  }
 }
 
 module.exports = ProjectService;

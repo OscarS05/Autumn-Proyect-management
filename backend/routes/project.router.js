@@ -6,7 +6,8 @@ const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createProject, deleteProject, updateProject, projectIdSchema, transferOwnership } = require('./../schemas/project.schema');
 const { workspaceIdSchema } = require('./../schemas/workspace.schema');
 
-const { validateSession } = require('./../middlewares/auth.handler');
+const { validateSession } = require('../middlewares/authentication.handler');
+const { authorizationToCreateProject } = require('../middlewares/authorization.handler');
 
 const ProjectService = require('./../services/project.service');
 const service = new ProjectService();
@@ -39,6 +40,7 @@ router.get('/:workspaceId',
 router.post('/create-project',
   validateSession,
   validatorHandler(createProject, 'body'),
+  authorizationToCreateProject,
   async (req, res, next) => {
     try {
       const { name, visibility, workspaceId, workspaceMemberId } = req.body;
