@@ -53,11 +53,11 @@ class WorkspaceService {
     }
   }
 
-  async transferOwnership(workspaceId, ownerUserId, newOwnerId){
+  async transferOwnership(workspaceId, currentOwnerId, newOwnerId){
     const transaction = await sequelize.transaction();
     try {
       const workspace = await models.Workspace.findOne({
-        where: { id: workspaceId, userId: ownerUserId },
+        where: { id: workspaceId, userId: currentOwnerId },
         include: {
           model: models.User,
           as: 'members',
@@ -66,30 +66,32 @@ class WorkspaceService {
           required: false
         }
       });
+      console.log('workspace:', workspace.dataValues);
       if(!workspace || workspace.members.length === 0){
         throw boom.badRequest('Workspace not found or new owner is incorrect');
       }
 
-      const updatedWorkspace = await models.Workspace.update(
+      const [updatedRows, [updatedWorkspace]] = await models.Workspace.update(
         { userId: newOwnerId },
         { where: { id: workspaceId }, returning: true, transaction },
       );
-      if(updatedWorkspace[0] === 0){
+      if(updatedRows === 0){
         await transaction.rollback();
         throw boom.badRequest('Failed to update workspace owner');
       }
 
       await models.WorkspaceMember.update(
-        { propertyStatus: 'owner' },
+        { propertyStatus: 'owner', role: 'admin' },
         { where: { workspaceId, userId: newOwnerId }, transaction }
       );
       await models.WorkspaceMember.update(
-        { propertyStatus: 'guest' },
-        { where: { workspaceId, userId: ownerUserId }, transaction }
+        { propertyStatus: 'guest', role: 'member' },
+        { where: { workspaceId, userId: currentOwnerId }, transaction }
       );
 
       await transaction.commit();
-      return updatedWorkspace[1][0];
+      await WorkspaceRedis.updateWorkspace(updatedWorkspace);
+      return updatedWorkspace;
     } catch (error) {
       await transaction.rollback();
       console.error('Error:', error);

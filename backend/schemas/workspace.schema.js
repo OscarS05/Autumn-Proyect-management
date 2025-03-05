@@ -19,7 +19,6 @@ const workspaceIdSchema =  Joi.object({
 });
 
 const transferOwnership = Joi.object({
-  currentOwnerId: id.required(),
   newOwnerId: id.required()
 });
 

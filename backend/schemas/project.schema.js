@@ -30,5 +30,10 @@ const deleteProject = Joi.object({
   projectMemberId: id.required()
 });
 
+const transferOwnership = Joi.object({
+  currentOwnerId: id.required(),
+  newOwnerId: id.required()
+});
 
-module.exports = { createProject, updateProject, deleteProject, projectIdSchema }
+
+module.exports = { createProject, updateProject, deleteProject, projectIdSchema, transferOwnership }

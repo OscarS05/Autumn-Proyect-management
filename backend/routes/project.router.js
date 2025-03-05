@@ -3,8 +3,8 @@ const router = express.Router();
 const { Boom } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
-const { createProject, deleteProject, updateProject, projectIdSchema } = require('./../schemas/project.schema');
-const { workspaceIdSchema, transferOwnership } = require('./../schemas/workspace.schema');
+const { createProject, deleteProject, updateProject, projectIdSchema, transferOwnership } = require('./../schemas/project.schema');
+const { workspaceIdSchema } = require('./../schemas/workspace.schema');
 
 const { validateSession } = require('./../middlewares/auth.handler');
 
