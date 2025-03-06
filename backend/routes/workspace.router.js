@@ -4,15 +4,20 @@ const { Boom } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
+const { createWorkspaceMember } = require('./../schemas/workspace-member.schema');
 
 const { validateSession } = require('../middlewares/authentication.handler');
 const { authorizationToCreateWorkspace } = require('../middlewares/authorization.handler');
 
 const WorkspaceService = require('./../services/workspace.service');
 const service = new WorkspaceService();
+
+const WorkspaceMemberService = require('./../services/workspace-member.service');
+const workspaceMemberService = new WorkspaceMemberService();
+
 const { WorkspaceRedis } = require('../services/redis/index');
 
-
+// Workspaces
 router.get('/:workspaceId/projects',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
@@ -136,5 +141,41 @@ router.delete('/delete-workspace/:workspaceId',
     }
   }
 )
+
+// Workspace members
+router.get('/:workspaceId/members',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { workspaceId } = req.params;
+
+      const workspaceMembers = await workspaceMemberService.findAll(workspaceId);
+
+      res.status(200).json({ workspaceMembers });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post('/:workspaceId/members',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  validatorHandler(createWorkspaceMember, 'body'),
+  async (req, res, next) => {
+    try {
+      const { workspaceId } = req.params;
+      const { userId } = req.body;
+
+      const addedMember = await workspaceMemberService.create(workspaceId, userId);
+      if(!addedMember) throw Boom.badRequest('Failed to add member');
+
+      res.status(201).json({ message: 'Member added successfully', workspaceMember: addedMember });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
