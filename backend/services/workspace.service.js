@@ -117,7 +117,7 @@ class WorkspaceService {
       });
 
       await transaction.commit();
-      await WorkspaceRedis.deleteWorkspace(userId, workspaceId);
+      await WorkspaceRedis.deleteWorkspace(workspaceId);
 
       return deleted;
     } catch (error) {

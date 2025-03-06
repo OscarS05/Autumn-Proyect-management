@@ -8,14 +8,23 @@ class WorkspaceMemberRedisService extends BaseRedisService {
 
   async saveWorkspaceIdByUserId(userId, workspaceId){
     try {
-      if(!workspaceId) throw Boom.badRequest('WorkspaceId not provided');
-      if(!userId) throw Boom.badRequest('userId not provided');
+      if (!userId || !workspaceId) {
+        throw Boom.badRequest('userId or workspaceId not provided');
+      }
 
-      const result = await this.redis.sadd(this.userWorkspacesKey(userId), workspaceId);
-      const members = await this.redis.smembers(this.userWorkspacesKey(userId));
-      console.log('members:', members);
-      return result;
+      const pipeline = this.redis.pipeline();
+
+      pipeline.sadd(this.userWorkspacesKey(userId), workspaceId);
+      pipeline.sadd(this.workspaceMembers(workspaceId), userId);
+
+      const result = await pipeline.exec();
+
+      const isSuccess = result.every(res => res[0] === null);
+      if(!isSuccess) throw Boom.badRequest('Failed to save workspaceId by userId in Redis');
+
+      return { isSuccess };
     } catch (error) {
+      console.error('Error:', error);
       throw Boom.badRequest(error.message || 'Failed to save workspaceId by userId in Redis');
     }
   }

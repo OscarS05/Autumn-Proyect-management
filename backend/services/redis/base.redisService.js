@@ -19,6 +19,10 @@ class BaseRedisService {
     return `project:${projectId}`;
   }
 
+  workspaceMembers(workspaceId){
+    return `workspace:${workspaceId}:members`;
+  }
+
   async set(key, value, expiration = null) {
     if (expiration) {
       return this.redis.set(key, JSON.stringify(value), "EX", expiration);

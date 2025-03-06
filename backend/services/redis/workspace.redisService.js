@@ -1,3 +1,4 @@
+const { Boom } = require('@hapi/boom');
 const BaseRedisService = require('./base.redisService');
 
 class WorkspaceRedisService extends BaseRedisService {
@@ -7,36 +8,42 @@ class WorkspaceRedisService extends BaseRedisService {
   }
 
   async saveWorkspaces(userId, workspaces){
-    const pipeline = this.redis.pipeline();
-    let projects = [];
+    try {
+      const pipeline = this.redis.pipeline();
+      let projects = [];
 
-    for(let workspace of workspaces) {
-      const workspaceData = {
-        id: workspace.id,
-        name: workspace.name,
-        description: workspace.description,
-        userId: workspace.userId,
-        type: 'workspace'
+      for(let workspace of workspaces) {
+        const workspaceData = {
+          id: workspace.id,
+          name: workspace.name,
+          description: workspace.description,
+          userId: workspace.userId,
+          type: 'workspace'
+        };
+
+        pipeline.hset(this.workspaceKey(workspace.id), ...Object.entries(workspaceData).flat());
+        pipeline.expire(this.workspaceKey(workspace.id), 3 * 24 * 60 * 60);
+
+        pipeline.sadd(this.userWorkspacesKey(userId), workspace.id);
+        pipeline.sadd(this.workspaceMembers(workspace.id), userId);
+
+        if(Array.isArray(workspace.project) && workspace.project.length > 0) {
+          const listOfProjects = [...workspace.project].map(project => project.dataValues);
+          projects.push(...listOfProjects);
+        }
       };
 
-      pipeline.hset(this.workspaceKey(workspace.id), ...Object.entries(workspaceData).flat());
-      pipeline.expire(this.workspaceKey(workspace.id), 3 * 24 * 60 * 60);
+      pipeline.expire(this.userWorkspacesKey(userId), 3 * 24 * 60 * 60);
 
-      pipeline.sadd(this.userWorkspacesKey(userId), workspace.id);
+      const result = await pipeline.exec();
 
-      if(Array.isArray(workspace.project) && workspace.project.length > 0) {
-        const listOfProjects = [...workspace.project].map(project => project.dataValues);
-        projects.push(...listOfProjects);
-      }
-    };
-
-    pipeline.expire(this.userWorkspacesKey(userId), 3 * 24 * 60 * 60);
-
-    const result = await pipeline.exec();
-
-    if(projects.length === 0) return { result, resultSaveProjects: [] };
-    const resultSaveProjects = await this.projectRedisService.saveProjects(projects);
-    return { result, resultSaveProjects };
+      if(projects.length === 0) return { result, resultSaveProjects: [] };
+      const resultSaveProjects = await this.projectRedisService.saveProjects(projects);
+      return { result, resultSaveProjects };
+    } catch (error) {
+      console.error('Error:', error);
+      throw Boom.badRequest(error.message || 'Failed to delete workspace');
+    }
   }
 
   async updateWorkspace(workspace){
@@ -56,14 +63,29 @@ class WorkspaceRedisService extends BaseRedisService {
     return result;
   }
 
-  async deleteWorkspace(userId, workspaceId){
-    const pipeline = this.redis.pipeline();
+  async deleteWorkspace(workspaceId){
+    try {
+      if(!workspaceId) throw Boom.badRequest('workspaceId not provided');
 
-    pipeline.srem(this.userWorkspacesKey(userId), workspaceId);
-    pipeline.del(this.workspaceKey(workspaceId));
+      const workspaceMembersIds = await this.redis.smembers(this.workspaceMembers(workspaceId));
+      const pipeline = this.redis.pipeline();
 
-    const result = await pipeline.exec();
-    return result;
+      workspaceMembersIds.forEach(memberId => {
+        pipeline.srem(this.userWorkspacesKey(memberId), workspaceId);
+      });
+      pipeline.del(this.workspaceMembers(workspaceId));
+      pipeline.del(this.workspaceKey(workspaceId));
+
+      const result = await pipeline.exec();
+
+      const isSuccess = result.every(res => res[0] === null);
+      if(!isSuccess) throw Boom.badRequest('Failed to delete all workspace data in Redis');
+
+      return { isSuccess };
+    } catch (error) {
+      console.error('Error:', error);
+      throw Boom.badRequest(error.message || 'Failed to delete workspace');
+    }
   }
 
   async getWorkspaceAndItsProjects(workspaceId){
