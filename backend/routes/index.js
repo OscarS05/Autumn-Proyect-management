@@ -11,12 +11,12 @@ function routerApi(app) {
   const router = express.Router();
   app.use('/api/v1', router);
 
-  router.use('/user', userRouter);
+  router.use('/users', userRouter);
   router.use('/auth', authRouter);
-  router.use('/workspace', workspaceRouter);
-  router.use('/project', projectRouter);
-  router.use('/list', listRouter);
-  router.use('/card', cardRouter);
+  router.use('/workspaces', workspaceRouter);
+  router.use('/projects', projectRouter);
+  router.use('/lists', listRouter);
+  router.use('/cards', cardRouter);
 }
 
 module.exports = routerApi;
