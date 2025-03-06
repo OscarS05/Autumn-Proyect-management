@@ -3,6 +3,9 @@ const boom = require('@hapi/boom');
 const WorkspaceService = require('../services/workspace.service');
 const workspaceService = new WorkspaceService();
 
+const WorkspaceMemberService = require('../services/workspace-member.service');
+const workspaceMemberService = new WorkspaceMemberService();
+
 const ProjectService = require('../services/project.service');
 const projectService = new ProjectService();
 
@@ -53,4 +56,19 @@ async function authorizationToCreateProject(req, res, next){
   }
 }
 
-module.exports = { authorizationToCreateWorkspace, authorizationToCreateProject };
+async function authorizationToUpdateRole(req, res, next){
+  const user = req.user;
+  const { workspaceId } = req.params;
+  try {
+    const memberStatus = await workspaceMemberService.findStatusById(workspaceId, user.sub);
+    if(memberStatus.role !== 'admin'){
+      return next(boom.forbidden('You do not have permission to perform this action'));
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { authorizationToCreateWorkspace, authorizationToCreateProject, authorizationToUpdateRole };

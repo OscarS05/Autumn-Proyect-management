@@ -1,16 +1,19 @@
 const Joi = require('joi');
 
 const id = Joi.number().integer();
-const name = Joi.string().min(3).max(50);
-const description = Joi.string().max(255);
+const role = Joi.string().valid('member', 'admin');
 
 const createWorkspaceMember = Joi.object({
   userId: id.required()
 });
 
-const updateWorkspace = Joi.object({
-  name: name,
-  description: description.allow(null, ''),
+const updateWorkspaceMember = Joi.object({
+  newRole: role.required(),
+});
+
+const updateWorkspaceMemberIdParams = Joi.object({
+  workspaceId: id.required(),
+  workspaceMemberId: id.required(),
 });
 
 const workspaceIdSchema =  Joi.object({
@@ -22,4 +25,4 @@ const transferOwnership = Joi.object({
 });
 
 
-module.exports = { createWorkspaceMember, updateWorkspace, transferOwnership, workspaceIdSchema }
+module.exports = { createWorkspaceMember, updateWorkspaceMember, transferOwnership, updateWorkspaceMemberIdParams }

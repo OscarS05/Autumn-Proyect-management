@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { Boom } = require('@hapi/boom');
+const { Boom, boomify } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
-const { createWorkspaceMember } = require('./../schemas/workspace-member.schema');
+const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams } = require('./../schemas/workspace-member.schema');
 
 const { validateSession } = require('../middlewares/authentication.handler');
-const { authorizationToCreateWorkspace } = require('../middlewares/authorization.handler');
+const { authorizationToCreateWorkspace, authorizationToUpdateRole } = require('../middlewares/authorization.handler');
 
 const WorkspaceService = require('./../services/workspace.service');
 const service = new WorkspaceService();
@@ -172,6 +172,26 @@ router.post('/:workspaceId/members',
       if(!addedMember) throw Boom.badRequest('Failed to add member');
 
       res.status(201).json({ message: 'Member added successfully', workspaceMember: addedMember });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.patch('/:workspaceId/members/:workspaceMemberId',
+  validateSession,
+  validatorHandler(updateWorkspaceMemberIdParams, 'params'),
+  validatorHandler(updateWorkspaceMember, 'body'),
+  authorizationToUpdateRole,
+  async (req, res, next) => {
+    try {
+      const { workspaceId, workspaceMemberId } = req.params;
+      const { newRole } = req.body;
+
+      const updatedMember = await workspaceMemberService.updateRole(workspaceId, workspaceMemberId, newRole);
+      if(!updatedMember) throw Boom.badRequest('Failed to update role');
+
+      res.status(200).json({ message: 'Updated successfully', updatedMember });
     } catch (error) {
       next(error);
     }
