@@ -56,19 +56,20 @@ async function authorizationToCreateProject(req, res, next){
   }
 }
 
-async function authorizationToUpdateRole(req, res, next){
+async function checkAdminRole(req, res, next){
   const user = req.user;
   const { workspaceId } = req.params;
   try {
-    const memberStatus = await workspaceMemberService.findStatusById(workspaceId, user.sub);
+    const memberStatus = await workspaceMemberService.findStatusByUserId(workspaceId, user.sub);
     if(memberStatus.role !== 'admin'){
-      return next(boom.forbidden('You do not have permission to perform this action'));
+      throw boom.forbidden('You do not have permission to perform this action');
     }
 
+    req.workspaceMemberStatus = memberStatus;
     next();
   } catch (error) {
     next(error);
   }
 }
 
-module.exports = { authorizationToCreateWorkspace, authorizationToCreateProject, authorizationToUpdateRole };
+module.exports = { authorizationToCreateWorkspace, authorizationToCreateProject, checkAdminRole };

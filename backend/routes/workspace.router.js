@@ -4,10 +4,10 @@ const { Boom, boomify } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
-const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams } = require('./../schemas/workspace-member.schema');
+const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember } = require('./../schemas/workspace-member.schema');
 
 const { validateSession } = require('../middlewares/authentication.handler');
-const { authorizationToCreateWorkspace, authorizationToUpdateRole } = require('../middlewares/authorization.handler');
+const { authorizationToCreateWorkspace, checkAdminRole } = require('../middlewares/authorization.handler');
 
 const WorkspaceService = require('./../services/workspace.service');
 const service = new WorkspaceService();
@@ -182,16 +182,35 @@ router.patch('/:workspaceId/members/:workspaceMemberId',
   validateSession,
   validatorHandler(updateWorkspaceMemberIdParams, 'params'),
   validatorHandler(updateWorkspaceMember, 'body'),
-  authorizationToUpdateRole,
+  checkAdminRole,
   async (req, res, next) => {
     try {
       const { workspaceId, workspaceMemberId } = req.params;
       const { newRole } = req.body;
 
       const updatedMember = await workspaceMemberService.updateRole(workspaceId, workspaceMemberId, newRole);
-      if(!updatedMember) throw Boom.badRequest('Failed to update role');
+      if(updatedMember === 0) throw Boom.badRequest('Failed to update role');
 
       res.status(200).json({ message: 'Updated successfully', updatedMember });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete('/:workspaceId/members/:workspaceMemberId',
+  validateSession,
+  validatorHandler(removeMember, 'params'),
+  checkAdminRole,
+  async (req, res, next) => {
+    try {
+      const { workspaceId, workspaceMemberId } = req.params;
+      const requesterStatus = req.workspaceMemberStatus;
+
+      const deletedMember = await workspaceMemberService.removeMember(workspaceId, workspaceMemberId, requesterStatus);
+      if(deletedMember === 0) return next(Boom.badRequest('Member not found or already removed'));
+
+      res.status(200).json({ message: 'Member was removed successfully' });
     } catch (error) {
       next(error);
     }

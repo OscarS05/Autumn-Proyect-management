@@ -1,10 +1,8 @@
-// Cuando un usuario entra a un workspace como invitado, es decir, se crea una fila en la tabla workspaceMember Entonces se hace una
-// consulta a redis para guardar los ids de los workspaces donde el usuario es un guest
-
 const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
 
 const { WorkspaceMemberRedis } = require('./redis/index');
+const sequelize = require('../libs/sequelize');
 
 class WorkspaceMemberService {
   constructor(){}
@@ -35,13 +33,13 @@ class WorkspaceMemberService {
 
   async updateRole(workspaceId, workspaceMemberId, newRole){
     try {
-      const memberStatus = await this.findStatusById(workspaceId, workspaceMemberId);
+      const memberStatus = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
       if(memberStatus.property_status === 'owner') throw boom.forbidden("You cannot change the owner's role");
       if(memberStatus.role === newRole) throw boom.conflict('The member already has this role');
 
       const [ updatedRows, [updatedWorkspaceMember] ] = await models.WorkspaceMember.update(
         { role: newRole },
-        { where: { workspaceId, userId: workspaceMemberId }, returning: true }
+        { where: { workspaceId, id: workspaceMemberId }, returning: true }
       );
       if(updatedRows === 0) throw boom.badRequest('Failed to update role');
 
@@ -49,6 +47,28 @@ class WorkspaceMemberService {
     } catch (error) {
       console.error('Error:', error);
       throw boom.badRequest(error.message || 'Failed to update role');
+    }
+  }
+
+  async removeMember(workspaceId, workspaceMemberId, requesterStatus){
+    const transaction = await sequelize.transaction();
+    try {
+      const memberStatus = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
+      if(memberStatus.property_status === 'owner') throw boom.forbidden("You cannot remove the owner");
+      if(memberStatus.role === 'admin' && requesterStatus.property_status === 'guest') throw boom.forbidden("You cannot remove an administrator");
+      if(memberStatus.userId === requesterStatus.userId) throw boom.forbidden("You cannot remove yourself");
+
+      const removedMember = await models.WorkspaceMember.destroy(
+        { where: { workspaceId, id: workspaceMemberId }, transaction }
+      );
+      if(removedMember === 0) throw boom.badRequest('Member not found or already removed');
+
+      await transaction.commit()
+      await WorkspaceMemberRedis.deleteMember(memberStatus.userId, workspaceId);
+      return removedMember;
+    } catch (error) {
+      await transaction.rollback();
+      throw boom.badRequest(error.message || 'Failed to remove member');
     }
   }
 
@@ -69,17 +89,31 @@ class WorkspaceMemberService {
     }
   }
 
-  async findStatusById(workspaceId, userId){
+  async findStatusByMemberId(workspaceId, workspaceMemberId){
     try {
       const status = await models.WorkspaceMember.findOne({
-        where: { workspaceId, userId },
-        attributes: ['role', 'property_status'],
+        where: { workspaceId, id: workspaceMemberId },
+        attributes: ['role', 'property_status', 'userId'],
       });
       if(!status) throw boom.notFound('Workspace member or workspace not found');
 
       return status.dataValues;
     } catch (error) {
       console.error('Error:', error);
+      throw boom.badRequest(error.message || 'Failed to find role');
+    }
+  }
+
+  async findStatusByUserId(workspaceId, userId){
+    try {
+      const status = await models.WorkspaceMember.findOne({
+        where: { workspaceId, userId },
+        attributes: ['role', 'property_status', 'userId'],
+      });
+      if(!status) throw boom.notFound('Workspace member or workspace not found');
+
+      return status.dataValues;
+    } catch (error) {
       throw boom.badRequest(error.message || 'Failed to find role');
     }
   }

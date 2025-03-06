@@ -24,8 +24,25 @@ class WorkspaceMemberRedisService extends BaseRedisService {
 
       return { isSuccess };
     } catch (error) {
-      console.error('Error:', error);
       throw Boom.badRequest(error.message || 'Failed to save workspaceId by userId in Redis');
+    }
+  }
+
+  async deleteMember(userId, workspaceId){
+    try {
+      const pipeline = this.redis.pipeline();
+
+      pipeline.srem(this.workspaceMembers(workspaceId), userId);
+      pipeline.srem(this.userWorkspacesKey(userId), workspaceId);
+
+      const resultPipeline = await pipeline.exec();
+      const isSuccessful = resultPipeline.every(res => res[0] == null);
+
+      if(!isSuccessful) throw Boom.badRequest('Failed to remove workspace in Redis');
+
+      return isSuccessful;
+    } catch (error) {
+      throw Boom.badRequest(error.message || 'Failed to remove workspace in Redis');
     }
   }
 }
