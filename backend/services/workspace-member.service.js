@@ -249,6 +249,19 @@ class WorkspaceMemberService {
       throw boom.badRequest('Unexpected error while finding members');
     }
   }
+
+  async checkWorkspaceMembership(workspaceId, userId){
+    try {
+      const isMember = await models.WorkspaceMember.findOne(
+        { where: { workspaceId, userId } }
+      );
+
+      return isMember;
+    } catch (error) {
+      if(error.isBoom) throw error;
+      throw boom.badRequest('Failed to check workspace memebrship');
+    }
+  }
 }
 
 module.exports = WorkspaceMemberService;

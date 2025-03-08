@@ -72,4 +72,52 @@ async function checkAdminRole(req, res, next){
   }
 }
 
-module.exports = { authorizationToCreateWorkspace, authorizationToCreateProject, checkAdminRole };
+async function checkOwnership(req, res, next){
+  try {
+    const user = req.user;
+    const { workspaceId } = req.params;
+    const memberStatus = await workspaceMemberService.findStatusByUserId(workspaceId, user.sub);
+    if(memberStatus.property_status !== 'owner'){
+      throw boom.forbidden('You do not have permission to perform this action');
+    }
+
+    req.ownerStatus = memberStatus;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function checkWorkspaceMembership(req, res, next){
+  try {
+    const user = req.user;
+    const { workspaceId } = req.params;
+
+    const isMember = await workspaceMemberService.checkWorkspaceMembership(workspaceId, user.sub);
+    if(!isMember){
+      throw boom.forbidden('You do not have permission to perform this action');
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+// async function checkProjectMembership(req, res, next){
+//   try {
+//     const user = req.user;
+//     const { workspaceId } = req.params;
+
+//     const isMember = await projectService.checkProjectMembership(workspaceId, user.sub);
+//     if(!isMember){
+//       throw boom.forbidden('You do not have permission to perform this action');
+//     }
+
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// }
+
+module.exports = { authorizationToCreateWorkspace, authorizationToCreateProject, checkAdminRole, checkOwnership, checkWorkspaceMembership };

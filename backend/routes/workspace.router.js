@@ -7,7 +7,7 @@ const { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema }
 const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember } = require('./../schemas/workspace-member.schema');
 
 const { validateSession } = require('../middlewares/authentication.handler');
-const { authorizationToCreateWorkspace, checkAdminRole } = require('../middlewares/authorization.handler');
+const { authorizationToCreateWorkspace, checkAdminRole, checkOwnership, checkWorkspaceMembership } = require('../middlewares/authorization.handler');
 
 const WorkspaceService = require('./../services/workspace.service');
 const service = new WorkspaceService();
@@ -88,6 +88,7 @@ router.patch('/:workspaceId',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
   validatorHandler(updateWorkspace, 'body'),
+  checkAdminRole,
   async (req, res, next) => {
     try {
       const data = req.body;
@@ -107,6 +108,7 @@ router.patch('/:workspaceId',
 router.delete('/:workspaceId',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
+  checkOwnership,
   async (req, res, next) => {
     try {
       const { workspaceId } = req.params;
@@ -126,6 +128,7 @@ router.delete('/:workspaceId',
 router.get('/:workspaceId/members',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
+  checkWorkspaceMembership,
   async (req, res, next) => {
     try {
       const { workspaceId } = req.params;
@@ -143,6 +146,7 @@ router.post('/:workspaceId/members',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
   validatorHandler(createWorkspaceMember, 'body'),
+  checkAdminRole,
   async (req, res, next) => {
     try {
       const { workspaceId } = req.params;
@@ -182,6 +186,7 @@ router.patch('/:workspaceId/ownership',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
   validatorHandler(transferOwnership, 'body'),
+  checkOwnership,
   async (req, res, next) => {
     try {
       const { workspaceId } = req.params;
@@ -220,7 +225,7 @@ router.delete('/:workspaceId/members/:workspaceMemberId',
 router.delete('/:workspaceId/members',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
-  checkAdminRole,
+  checkWorkspaceMembership,
   async (req, res, next) => {
     try {
       const { workspaceId } = req.params;
