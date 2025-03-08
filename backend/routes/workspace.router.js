@@ -26,9 +26,9 @@ router.get('/:workspaceId/projects',
       const userId = req.user.sub;
       const { workspaceId } = req.params;
 
-      const { workspace, projects } = await WorkspaceRedis.getWorkspaceAndItsProjects(workspaceId);
-      if(workspace.type === 'workspace' && projects){
-        return res.status(200).json({ workspace, projects});
+      const workspaceAndItsProjects = await WorkspaceRedis.getWorkspaceAndItsProjects(workspaceId);
+      if(workspaceAndItsProjects){
+        return res.status(200).json({ workspace: workspaceAndItsProjects});
       }
       const data = await service.findWorkspaceAndItsProjects(workspaceId, userId);
       if(data && data.length > 0){
@@ -48,12 +48,12 @@ router.get('/',
     try {
       const userId = req.user.sub;
 
-      const { workspaces, projects } = await WorkspaceRedis.getWorkspacesAndProjects(userId);
-      if(projects && workspaces.length > 0){
-        return res.status(200).json({ workspaces: workspaces, projects: projects});
+      const listOfWorkspaces = await WorkspaceRedis.getWorkspacesAndProjects(userId);
+      if(listOfWorkspaces.owner && listOfWorkspaces.guest){
+        return res.status(200).json({ workspaces: listOfWorkspaces});
       }
       const workspacesInDb = await service.findWorkspacesAndProjects(userId);
-      if(workspacesInDb.length > 0){
+      if(workspacesInDb.owner && workspacesInDb.guest){
         return res.status(200).json({ workspaces: workspacesInDb});
       }
 

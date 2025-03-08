@@ -113,9 +113,18 @@ class WorkspaceService {
 
       const listOfWorkspaces = Workspaces.map(member => member.workspace.dataValues);
       await WorkspaceRedis.saveWorkspaces(userId, listOfWorkspaces);
-      return listOfWorkspaces;
+
+      const organizedWorkspaces = listOfWorkspaces.reduce((acc, data) => {
+        if(data.userId === userId){
+          acc.owner.push(data);
+        } else if(data.userId !== userId){
+          acc.guest.push(data);
+        }
+        return acc;
+      }, { owner: [], guest: [] });
+
+      return organizedWorkspaces;
     } catch (error) {
-      console.error('Error:', error);
       return boom.internal('Error:', error);
     }
   }

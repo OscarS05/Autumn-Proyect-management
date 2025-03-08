@@ -1,5 +1,6 @@
 const { Boom } = require('@hapi/boom');
 const BaseRedisService = require('./base.redisService');
+const { DatabaseModule } = require('@faker-js/faker');
 
 class WorkspaceRedisService extends BaseRedisService {
   constructor(redisClient, projectRedisService){
@@ -26,6 +27,7 @@ class WorkspaceRedisService extends BaseRedisService {
 
         pipeline.sadd(this.userWorkspacesKey(userId), workspace.id);
         pipeline.sadd(this.workspaceMembers(workspace.id), userId);
+        pipeline.expire(this.workspaceMembers(workspace.id), 3 * 24 * 60 * 60);
 
         if(Array.isArray(workspace.project) && workspace.project.length > 0) {
           const listOfProjects = [...workspace.project].map(project => project.dataValues);
@@ -113,7 +115,10 @@ class WorkspaceRedisService extends BaseRedisService {
     if(projectsIds.length === 0) return { workspace, projects: [] };
 
     const projects = await this.projectRedisService.getProjects(projectsIds);
-    return { workspace, projects };
+    const data = { workspaces: [workspace], projects };
+
+    const organizedData = this.organizeData(data);
+    return organizedData;
   }
 
   async getWorkspacesAndProjects(userId){
@@ -142,7 +147,18 @@ class WorkspaceRedisService extends BaseRedisService {
     if(projectsIds.length === 0) return { workspaces, projects: [] };
 
     const projects = await this.projectRedisService.getProjects(projectsIds);
-    return { workspaces, projects };
+    const data = { workspaces, projects };
+
+    const organizedData = this.organizeData(data);
+    const structuredWorkspaces = organizedData.reduce((acc, data) => {
+      if(data.userId == userId){
+        acc.owner.push(data);
+      } else if(data.userId !== userId){
+        acc.guest.push(data);
+      }
+      return acc;
+    }, { owner: [], guest: [] });
+    return structuredWorkspaces;
   }
 
   async getWorkspaces(workspacesIds){
@@ -160,6 +176,25 @@ class WorkspaceRedisService extends BaseRedisService {
       return acc;
     }, []);
     return workspaces;
+  }
+
+  organizeData(data){
+    const listOfWorkspaces = data.workspaces.map(workspace => {
+      const relatedProjects = data.projects.filter(project => project.workspaceId === workspace.id);
+      return {
+        ...workspace,
+        id: Number(workspace.id),
+        userId: Number(workspace.userId),
+        projects: relatedProjects.map(project => ({
+          ...project,
+          id: Number(project.id),
+          workspaceId: Number(project.workspaceId),
+          workspaceMemberId: Number(project.workspaceMemberId)
+        }))
+      };
+    });
+
+    return listOfWorkspaces;
   }
 }
 
