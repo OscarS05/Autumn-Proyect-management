@@ -68,10 +68,14 @@ class WorkspaceRedisService extends BaseRedisService {
       if(!workspaceId) throw Boom.badRequest('workspaceId not provided');
 
       const workspaceMembersIds = await this.redis.smembers(this.workspaceMembers(workspaceId));
+      const workspaceProjects = await this.redis.smembers(this.workspaceProjectsKey(workspaceId));
       const pipeline = this.redis.pipeline();
 
       workspaceMembersIds.forEach(memberId => {
         pipeline.srem(this.userWorkspacesKey(memberId), workspaceId);
+      });
+      workspaceProjects.forEach(projectId => {
+        pipeline.del(this.projectKey(projectId));
       });
       pipeline.del(this.workspaceMembers(workspaceId));
       pipeline.del(this.workspaceKey(workspaceId));
