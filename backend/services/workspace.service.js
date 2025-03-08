@@ -53,57 +53,12 @@ class WorkspaceService {
     }
   }
 
-  async transferOwnership(workspaceId, currentOwnerId, newOwnerId){
-    const transaction = await sequelize.transaction();
-    try {
-      const workspace = await models.Workspace.findOne({
-        where: { id: workspaceId, userId: currentOwnerId },
-        include: {
-          model: models.User,
-          as: 'members',
-          attributes: ['id', 'name'],
-          where: { id: newOwnerId },
-          required: false
-        }
-      });
-      console.log('workspace:', workspace.dataValues);
-      if(!workspace || workspace.members.length === 0){
-        throw boom.badRequest('Workspace not found or new owner is incorrect');
-      }
-
-      const [updatedRows, [updatedWorkspace]] = await models.Workspace.update(
-        { userId: newOwnerId },
-        { where: { id: workspaceId }, returning: true, transaction },
-      );
-      if(updatedRows === 0){
-        await transaction.rollback();
-        throw boom.badRequest('Failed to update workspace owner');
-      }
-
-      await models.WorkspaceMember.update(
-        { propertyStatus: 'owner', role: 'admin' },
-        { where: { workspaceId, userId: newOwnerId }, transaction }
-      );
-      await models.WorkspaceMember.update(
-        { propertyStatus: 'guest', role: 'member' },
-        { where: { workspaceId, userId: currentOwnerId }, transaction }
-      );
-
-      await transaction.commit();
-      await WorkspaceRedis.updateWorkspace(updatedWorkspace);
-      return updatedWorkspace;
-    } catch (error) {
-      await transaction.rollback();
-      console.error('Error:', error);
-      throw boom.badRequest('Failed to transfer ownership');
-    }
-  }
-
   async delete(userId, workspaceId){
     const transaction = await sequelize.transaction();
     try {
       const deleted = await models.Workspace.destroy({
-        where: { id: workspaceId, userId }
+        where: { id: workspaceId, userId },
+        transaction
       });
 
       if (deleted === 0){
@@ -111,18 +66,12 @@ class WorkspaceService {
         throw boom.notFound('Workspace not found or unauthorized');
       }
 
-      await models.WorkspaceMember.destroy({
-        where: { workspaceId },
-        transaction
-      });
-
       await transaction.commit();
       await WorkspaceRedis.deleteWorkspace(workspaceId);
 
       return deleted;
     } catch (error) {
       await transaction.rollback();
-      console.error('Error:', error);
       throw boom.badRequest('Failed to delete workspace');
     }
   }

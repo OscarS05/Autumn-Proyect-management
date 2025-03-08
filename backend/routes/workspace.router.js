@@ -104,26 +104,6 @@ router.patch('/update-workspace/:workspaceId',
   }
 );
 
-router.patch('/:workspaceId/transfer-ownership',
-  validateSession,
-  validatorHandler(workspaceIdSchema, 'params'),
-  validatorHandler(transferOwnership, 'body'),
-  async (req, res, next) => {
-    try {
-      const { workspaceId } = req.params;
-      const userId = req.user.sub;
-      const { newOwnerId } = req.body;
-
-      const updatedWorkspace = await service.transferOwnership(workspaceId, userId, newOwnerId);
-      if(!updatedWorkspace) throw Boom.notFound('Workspace not found or transfer failed');
-
-      res.status(200).json({ updatedWorkspace });
-    } catch (error) {
-      next(error);
-    }
-  }
-)
-
 router.delete('/delete-workspace/:workspaceId',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
@@ -198,6 +178,26 @@ router.patch('/:workspaceId/members/:workspaceMemberId',
   }
 );
 
+router.patch('/:workspaceId/transfer-ownership',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  validatorHandler(transferOwnership, 'body'),
+  async (req, res, next) => {
+    try {
+      const { workspaceId } = req.params;
+      const userId = req.user.sub;
+      const { newOwnerId } = req.body;
+
+      const updatedWorkspace = await workspaceMemberService.transferOwnership(workspaceId, userId, newOwnerId);
+      if(!updatedWorkspace) throw Boom.notFound('Workspace not found or transfer failed');
+
+      res.status(200).json({ updatedWorkspace });
+    } catch (error) {
+      next(error);
+    }
+  }
+)
+
 router.delete('/:workspaceId/members/:workspaceMemberId',
   validateSession,
   validatorHandler(removeMember, 'params'),
@@ -211,6 +211,25 @@ router.delete('/:workspaceId/members/:workspaceMemberId',
       if(deletedMember === 0) return next(Boom.badRequest('Member not found or already removed'));
 
       res.status(200).json({ message: 'Member was removed successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete('/:workspaceId/members',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  checkAdminRole,
+  async (req, res, next) => {
+    try {
+      const { workspaceId } = req.params;
+      const requesterStatus = req.workspaceMemberStatus;
+
+      const deletedMember = await workspaceMemberService.leaveTheWorkspace(workspaceId, requesterStatus);
+      if(deletedMember === 0) return next(Boom.badRequest('Member not found or already removed'));
+
+      res.status(200).json({ message: 'Owner was removed successfully' });
     } catch (error) {
       next(error);
     }
