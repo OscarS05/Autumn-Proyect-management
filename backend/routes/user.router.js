@@ -30,7 +30,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.post('/sign-up',
+router.post('/',
   validatorHandler(createUserSchema, 'body'),
   async (req, res, next) => {
     try {

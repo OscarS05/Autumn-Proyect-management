@@ -64,7 +64,7 @@ router.get('/',
   }
 )
 
-router.post('/create-workspace',
+router.post('/',
   validateSession,
   authorizationToCreateWorkspace,
   validatorHandler(createWorkspace, 'body'),
@@ -84,7 +84,7 @@ router.post('/create-workspace',
   }
 )
 
-router.patch('/update-workspace/:workspaceId',
+router.patch('/:workspaceId',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
   validatorHandler(updateWorkspace, 'body'),
@@ -104,7 +104,7 @@ router.patch('/update-workspace/:workspaceId',
   }
 );
 
-router.delete('/delete-workspace/:workspaceId',
+router.delete('/:workspaceId',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
   async (req, res, next) => {
@@ -178,7 +178,7 @@ router.patch('/:workspaceId/members/:workspaceMemberId',
   }
 );
 
-router.patch('/:workspaceId/transfer-ownership',
+router.patch('/:workspaceId/ownership',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
   validatorHandler(transferOwnership, 'body'),

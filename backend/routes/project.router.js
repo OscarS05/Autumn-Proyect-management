@@ -37,7 +37,7 @@ router.get('/:workspaceId',
   }
 );
 
-router.post('/create-project',
+router.post('/',
   validateSession,
   validatorHandler(createProject, 'body'),
   authorizationToCreateProject,
@@ -56,7 +56,7 @@ router.post('/create-project',
   }
 );
 
-router.patch('/update-project/:projectId',
+router.patch('/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
   validatorHandler(updateProject, 'body'),
@@ -75,7 +75,7 @@ router.patch('/update-project/:projectId',
   }
 );
 
-router.patch('/:projectId/transfer-ownership',
+router.patch('/:projectId/ownership',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
   validatorHandler(transferOwnership, 'body'),
@@ -94,7 +94,7 @@ router.patch('/:projectId/transfer-ownership',
   }
 );
 
-router.delete('/delete-project/:projectId',
+router.delete('/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
   validatorHandler(deleteProject, 'body'),

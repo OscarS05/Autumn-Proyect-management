@@ -17,7 +17,7 @@ const { AuthRedis } = require('../services/redis/index');
 
 const router = express.Router();
 
-router.post('/sign-in',
+router.post('/login',
   passport.authenticate('local', { session: false }),
   async (req, res, next) => {
     try {
@@ -110,7 +110,7 @@ router.post('/verify-email-to-recover-password',
   }
 );
 
-router.patch('/change-password',
+router.patch('/password',
   validatorHandler(changePassword, 'body'),
   async (req, res, next) => {
     try {
