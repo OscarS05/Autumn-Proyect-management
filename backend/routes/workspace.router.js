@@ -35,7 +35,7 @@ router.get('/:workspaceId/projects',
         return res.status(200).json({ workspace: data});
       }
 
-      res.status(400).json({ message: 'Workspace not found' });
+      res.status(200).json({ message: 'Workspace not found', workspace: data });
     } catch (error) {
       next(error);
     }
@@ -57,7 +57,7 @@ router.get('/',
         return res.status(200).json({ workspaces: workspacesInDb});
       }
 
-      res.status(400).json({ workspaces: [], projects: []});
+      res.status(200).json({ workspaces: [], projects: []});
     } catch (error) {
       next(error);
     }

@@ -201,7 +201,7 @@ class WorkspaceMemberService {
       });
       return workspaceMembers;
     } catch (error) {
-      console.error('Error:', error);
+      if(error.isBoom) throw error;
       throw boom.badRequest('Failed to find workspace memebrs');
     }
   }

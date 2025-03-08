@@ -30,7 +30,7 @@ router.get('/:workspaceId',
         return res.status(200).json({ projects: projectsInDb });
       }
 
-      res.status(400).json({ message: 'Workspace not found' });
+      res.status(200).json({ message: 'Workspace not found', workspace: projectsInDb });
     } catch (error) {
       next(error);
     }

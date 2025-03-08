@@ -128,9 +128,6 @@ class ProjectService {
       const Projects = await models.Project.findAll({
         where: { workspaceId }
       });
-      if (Projects.length === 0) {
-        throw boom.badRequest('Failed to get projects');;
-      }
       const listOfProjects = Projects.map(Project => Project.dataValues);
       await ProjectRedis.saveProjects(listOfProjects);
       return listOfProjects;
