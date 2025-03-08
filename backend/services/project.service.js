@@ -11,8 +11,13 @@ class ProjectService {
   async create({ name, visibility, workspaceId, workspaceMemberId }) {
     const transaction = await sequelize.transaction();
     try {
+      const workspaceMember = await models.WorkspaceMember.findOne(
+        { where: { id: workspaceMemberId } }
+      );
+      if(workspaceMember.workspaceId !== workspaceId) throw boom.badRequest('WorkspaceId is wrong');
+
       const project = await models.Project.create(
-        { name, visibility, workspaceId, workspaceMemberId },
+        { name, visibility, workspaceId: workspaceMember.workspaceId, workspaceMemberId:workspaceMember.id },
         { transaction }
       );
 
