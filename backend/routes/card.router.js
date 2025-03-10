@@ -1,6 +1,6 @@
 const express = require('express');
 
-const CardService = require('./../services/card.service');
+const CardService = require('./../services/db/card.service');
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createCardSchema, updateCardSchema, deleteCardSchema } = require('./../schemas/card.schema');
 

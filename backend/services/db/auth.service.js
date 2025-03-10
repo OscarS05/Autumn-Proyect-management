@@ -2,20 +2,19 @@ const jwt = require('jsonwebtoken');
 const boom = require('@hapi/boom');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
-
-const UserService = require('./user.service');
-const service = new UserService();
-
-const { AuthRedis } = require('./redis/index');
-
-const { config } = require('./../config/config');
+const { config } = require('../../config/config');
 
 
 class AuthService {
-  constructor() {}
+  constructor(sequelize, models, userService, redisModels) {
+    this.sequelize = sequelize;
+    this.models = models;
+    this.userService = userService;
+    this.redisModels = redisModels;
+  }
 
   async getUser(email, password){
-    const user = await service.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
     if(!user){
       throw boom.unauthorized();
     }
@@ -38,7 +37,7 @@ class AuthService {
     const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '15m' });
     const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '15d' });
 
-    await AuthRedis.saveRefreshToken(payload.sub, refreshToken);
+    await this.redisModels.AuthRedis.saveRefreshToken(payload.sub, refreshToken);
 
     return({ accessToken, refreshToken });
   }
@@ -53,15 +52,15 @@ class AuthService {
   }
 
   async sendEmailConfirmation(email){
-    const user = await service.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
     if(!user){
       throw boom.notFound('User not found');
     }
     const payload = { sub: user.id, rol: user.role};
     const token = jwt.sign(payload, config.jwtSecretVerifyEmail, { expiresIn: '15min' });
     const link = `${config.frontUrl}/auth/verify-email/email-confirmed?token=${token}`
-    await service.update(user.id, {recoveryToken: token});
-    await AuthRedis.saveTokenInRedis(user.id, token);
+    await this.userService.update(user.id, {recoveryToken: token});
+    await this.redisModels.AuthRedis.saveTokenInRedis(user.id, token);
     const mail = {
       from: config.smtpEmail,
       to: `${user.email}`,
@@ -75,7 +74,7 @@ class AuthService {
 
   async verifyEmailToActivateAccount(token){
     const user = await this.verifyEmail(token);
-    const tokenInRedis = await AuthRedis.verifyTokenInRedis(user.id, token);
+    const tokenInRedis = await this.redisModels.AuthRedis.verifyTokenInRedis(user.id, token);
 
     if(tokenInRedis !== token){
       throw boom.unauthorized();
@@ -83,13 +82,13 @@ class AuthService {
     if(user.isVerified){
       throw boom.badRequest('The user is already verified. Please, sign in!');
     }
-    await service.update(user.id, { isVerified: true, recoveryToken: null});
+    await this.userService.update(user.id, { isVerified: true, recoveryToken: null});
     return user;
   }
 
   async verifyEmail(token){
     const payload = jwt.verify(token, config.jwtSecretVerifyEmail);
-    const user = await service.findOne(payload.sub);
+    const user = await this.userService.findOne(payload.sub);
     if(!user){
       throw boom.notFound('Not found');
     }
@@ -103,12 +102,12 @@ class AuthService {
         throw boom.unauthorized();
       }
 
-      const tokenInRedis = await AuthRedis.verifyTokenInRedis(payload.sub, token);
+      const tokenInRedis = await this.redisModels.AuthRedis.verifyTokenInRedis(payload.sub, token);
 
       if(tokenInRedis !== token) throw boom.unauthorized();
 
       const hash = await bcrypt.hash(credentials.newPassword, 10);
-      await service.update(payload.sub, {recoveryToken: null, password: hash, isVerified: true});
+      await this.userService.update(payload.sub, {recoveryToken: null, password: hash, isVerified: true});
 
       return { message: 'Password changed! Please, sign up.' };
     } catch (error) {
@@ -134,7 +133,7 @@ class AuthService {
   async verifyTokensToVerifyEmail(token){
     try {
       const decodedToken = jwt.verify(token, config.jwtSecretVerifyEmail);
-      const tokenInRedis = await AuthRedis.verifyTokenInRedis(decodedToken.sub, token);
+      const tokenInRedis = await this.redisModels.AuthRedis.verifyTokenInRedis(decodedToken.sub, token);
 
       if(!tokenInRedis || tokenInRedis !== token){
         throw boom.unauthorized();

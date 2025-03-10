@@ -5,14 +5,8 @@ const jwt = require('jsonwebtoken');
 const { config } = require('../config/config');
 
 const { AuthRedis } = require('../services/redis/index');
-const AuthService = require('../services/auth.service');
-const authService = new AuthService();
+const { authService } = require('../services/db/index');
 
-const WorkspaceService = require('../services/workspace.service');
-const workspaceService = new WorkspaceService();
-
-const ProjectService = require('../services/project.service');
-const projectService = new ProjectService();
 
 const limiter = (limit, windowMs) => rateLimit( {
   windowMs: windowMs, // 15 minutes = 15 * 60 * 1000

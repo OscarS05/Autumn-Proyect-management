@@ -9,8 +9,7 @@ const { workspaceIdSchema } = require('./../schemas/workspace.schema');
 const { validateSession } = require('../middlewares/authentication.handler');
 const { authorizationToCreateProject } = require('../middlewares/authorization.handler');
 
-const ProjectService = require('./../services/project.service');
-const service = new ProjectService();
+const { projectService } = require('../services/db/index');
 const { ProjectRedis } = require('../services/redis/index');
 
 
@@ -25,7 +24,7 @@ router.get('/:workspaceId',
       if(projectsInRedis && projectsInRedis.length > 0){
         return res.status(200).json({ projects: projectsInRedis });
       }
-      const projectsInDb = await service.findAll(workspaceId);
+      const projectsInDb = await projectService.findAll(workspaceId);
       if(projectsInDb && projectsInDb.length > 0){
         return res.status(200).json({ projects: projectsInDb });
       }
@@ -46,7 +45,7 @@ router.post('/',
       const { name, visibility, workspaceId, workspaceMemberId } = req.body;
       const userId = req.user.sub;
 
-      const projectCreated = await service.create({ name, visibility, workspaceId, workspaceMemberId });
+      const projectCreated = await projectService.create({ name, visibility, workspaceId, workspaceMemberId });
       if(!projectCreated) return Boom.badRequest('Failed to create workspace');
 
       res.status(201).json({ message: 'Project created successfully', project: projectCreated });
@@ -65,7 +64,7 @@ router.patch('/:projectId',
       const { projectId } = req.params;
       const data = req.body;
 
-      const updatedProject = await service.update(projectId, data);
+      const updatedProject = await projectService.update(projectId, data);
       if(!updatedProject) return Boom.badRequest('Failed to create workspace');
 
       res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
@@ -84,7 +83,7 @@ router.patch('/:projectId/ownership',
       const { projectId } = req.params;
       const { currentOwnerId, newOwnerId } = req.body;
 
-      const updatedProject = await service.transferOwnership(projectId, currentOwnerId, newOwnerId);
+      const updatedProject = await projectService.transferOwnership(projectId, currentOwnerId, newOwnerId);
       if(!updatedProject) throw Boom.notFound('Workspace or new owner not found');
 
       res.status(200).json({ updatedProject });
@@ -103,7 +102,7 @@ router.delete('/:projectId',
       const { projectId } = req.params;
       const { workspaceId, workspaceMemberId, projectMemberId } = req.body;
 
-      const response = await service.delete(projectId, workspaceId, workspaceMemberId, projectMemberId);
+      const response = await projectService.delete(projectId, workspaceId, workspaceMemberId, projectMemberId);
       if(response === 0) return Boom.badRequest('Failed to delete project');
 
       res.status(200).json({ message: 'Project deleted successfully' });

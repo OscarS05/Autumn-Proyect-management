@@ -1,43 +1,38 @@
 const boom = require('@hapi/boom');
-const { models } = require('../libs/sequelize');
-
-const WorkspaceService = require('./workspace.service');
-const workspaceService = new WorkspaceService();
-
-const { WorkspaceRedis } = require('./redis/index');
-const { WorkspaceMemberRedis } = require('./redis/index');
-const sequelize = require('../libs/sequelize');
 
 class WorkspaceMemberService {
-  constructor(){}
+  constructor(sequelize, models, redisModels) {
+    this.sequelize = sequelize;
+    this.models = models;
+    this.redisModels = redisModels;
+  }
 
   async create(workspaceId, userId){
     try {
-      const isMember = await models.WorkspaceMember.findOne(
+      const isMember = await this.models.WorkspaceMember.findOne(
         { where: { workspaceId, userId } }
       );
       if(isMember){
         throw boom.conflict('User is already a member of this workspace');
       }
 
-      const addedMember = await models.WorkspaceMember.create({
+      const addedMember = await this.models.WorkspaceMember.create({
         workspaceId,
         userId,
         role: 'member',
         propertyStatus: 'guest'
       });
 
-      await WorkspaceMemberRedis.saveWorkspaceIdByUserId(userId, workspaceId);
+      await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(userId, workspaceId);
       return addedMember;
     } catch (error) {
-      console.error('Error:', error);
-      throw boom.badRequest(error.message || 'Failed to create workspace memebrs');
+      throw boom.badRequest(error.message || 'Failed to create workspace members');
     }
   }
 
   async changeRole(workspaceId, workspaceMemberId, newRole){
     try {
-      const [ updatedRows, [updatedWorkspaceMember] ] = await models.WorkspaceMember.update(
+      const [ updatedRows, [updatedWorkspaceMember] ] = await this.models.WorkspaceMember.update(
         { role: newRole },
         { where: { workspaceId, id: workspaceMemberId }, returning: true }
       );
@@ -45,12 +40,11 @@ class WorkspaceMemberService {
 
       return updatedWorkspaceMember.dataValues;
     } catch (error) {
-      console.error('Error:', error);
       throw boom.badRequest(error.message || 'Failed to update role');
     }
   }
 
-  async updateRole(workspaceId, workspaceMemberId, newRole){
+  async handleUpdateRole(workspaceId, workspaceMemberId, newRole){
     try {
       const memberStatus = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
       if(memberStatus.property_status === 'owner') throw boom.forbidden("You cannot change the owner's role");
@@ -64,15 +58,15 @@ class WorkspaceMemberService {
   }
 
   async deleteMember(workspaceId, workspaceMemberId, userId){
-    const transaction = await sequelize.transaction();
+    const transaction = await this.sequelize.transaction();
     try {
-      const removedMember = await models.WorkspaceMember.destroy(
+      const removedMember = await this.models.WorkspaceMember.destroy(
         { where: { workspaceId, id: workspaceMemberId }, transaction }
       );
       if(removedMember === 0) throw boom.badRequest('Member not found or already removed');
 
       await transaction.commit()
-      await WorkspaceMemberRedis.deleteMember(userId, workspaceId);
+      await this.redisModels.WorkspaceMemberRedis.deleteMember(userId, workspaceId);
       return removedMember;
     } catch (error) {
       await transaction.rollback();
@@ -99,7 +93,7 @@ class WorkspaceMemberService {
   async leaveTheWorkspace(workspaceId, requesterStatus){
     try {
       const workspaceMembers = await this.findAllMembers(workspaceId);
-      if(requesterStatus.property_status === 'owner'){
+      if(requesterStatus.property_status === 'owner' || requesterStatus.propertyStatus === 'owner'){
         const removedOwner = await this.handleOwnerExit(workspaceId, requesterStatus, workspaceMembers);
         return removedOwner;
       } else {
@@ -115,10 +109,9 @@ class WorkspaceMemberService {
   async handleOwnerExit(workspaceId, requesterStatus, workspaceMembers){
     try {
       if(workspaceMembers.length === 1 && workspaceMembers[0].propertyStatus === 'owner'){
-        const removedWokspace = await workspaceService.delete(requesterStatus.userId, workspaceId);
-        return removedWokspace;
-      }
-      if(workspaceMembers.length > 1){
+        const removedWorkspace = await this.models.workspaceService.delete(requesterStatus.userId, workspaceId);
+        return removedWorkspace;
+      } else if(workspaceMembers.length > 1){
         const { admins, members } = workspaceMembers.reduce((acc, member) => {
           if(member.propertyStatus !== 'owner'){
             if(member.role === 'admin'){
@@ -146,12 +139,15 @@ class WorkspaceMemberService {
   }
 
   async transferOwnership(workspaceId, currentOwnerId, newOwnerId){
-    const transaction = await sequelize.transaction();
+    if(newOwnerId === currentOwnerId){
+      throw boom.conflict('New owner cannot be the current owner');
+    }
+    const transaction = await this.sequelize.transaction();
     try {
-      const workspace = await models.Workspace.findOne({
+      const workspace = await this.models.Workspace.findOne({
         where: { id: workspaceId, userId: currentOwnerId },
         include: {
-          model: models.User,
+          model: this.models.User,
           as: 'members',
           attributes: ['id', 'name'],
           where: { id: newOwnerId },
@@ -162,7 +158,7 @@ class WorkspaceMemberService {
         throw boom.badRequest('Workspace not found or new owner is incorrect');
       }
 
-      const [updatedRows, [updatedWorkspace]] = await models.Workspace.update(
+      const [updatedRows, [updatedWorkspace]] = await this.models.Workspace.update(
         { userId: newOwnerId },
         { where: { id: workspaceId }, returning: true, transaction },
       );
@@ -171,17 +167,17 @@ class WorkspaceMemberService {
         throw boom.badRequest('Failed to update workspace owner');
       }
 
-      await models.WorkspaceMember.update(
+      await this.models.WorkspaceMember.update(
         { propertyStatus: 'owner', role: 'admin' },
         { where: { workspaceId, userId: newOwnerId }, transaction }
       );
-      await models.WorkspaceMember.update(
+      await this.models.WorkspaceMember.update(
         { propertyStatus: 'guest', role: 'member' },
         { where: { workspaceId, userId: currentOwnerId }, transaction }
       );
 
       await transaction.commit();
-      await WorkspaceRedis.updateWorkspace(updatedWorkspace);
+      await this.redisModels.WorkspaceRedis.updateWorkspace(updatedWorkspace);
       return updatedWorkspace;
     } catch (error) {
       await transaction.rollback();
@@ -191,24 +187,24 @@ class WorkspaceMemberService {
 
   async findAll(workspaceId){
     try {
-      const workspaceMembers = await models.WorkspaceMember.findAll({
+      const workspaceMembers = await this.models.WorkspaceMember.findAll({
         where: { workspaceId },
         include: [
-          { model: models.User, as:'user', attributes: ['id', 'name'] },
-          { model: models.Team, as: 'teams', through: { attributes: [] } },
-          { model: models.Project, as: 'projects', through: { attributes: [] } }
+          { model: this.models.User, as:'user', attributes: ['id', 'name'] },
+          { model: this.models.Team, as: 'teams', through: { attributes: [] } },
+          { model: this.models.Project, as: 'projects', through: { attributes: [] } }
         ]
       });
       return workspaceMembers;
     } catch (error) {
       if(error.isBoom) throw error;
-      throw boom.badRequest('Failed to find workspace memebrs');
+      throw boom.badRequest('Failed to find workspace members');
     }
   }
 
   async findStatusByMemberId(workspaceId, workspaceMemberId){
     try {
-      const status = await models.WorkspaceMember.findOne({
+      const status = await this.models.WorkspaceMember.findOne({
         where: { workspaceId, id: workspaceMemberId },
         attributes: ['role', 'property_status', 'userId'],
       });
@@ -216,14 +212,13 @@ class WorkspaceMemberService {
 
       return status.dataValues;
     } catch (error) {
-      console.error('Error:', error);
       throw boom.badRequest(error.message || 'Failed to find role');
     }
   }
 
   async findStatusByUserId(workspaceId, userId){
     try {
-      const status = await models.WorkspaceMember.findOne({
+      const status = await this.models.WorkspaceMember.findOne({
         where: { workspaceId, userId },
         attributes: ['id', 'role', 'property_status', 'userId'],
       });
@@ -237,7 +232,7 @@ class WorkspaceMemberService {
 
   async findAllMembers(workspaceId){
     try {
-      const members = await models.WorkspaceMember.findAll(
+      const members = await this.models.WorkspaceMember.findAll(
         { where: { workspaceId } }
       );
       if(members.length === 0) throw boom.badRequest('Workspace does not exist');
@@ -252,14 +247,14 @@ class WorkspaceMemberService {
 
   async checkWorkspaceMembership(workspaceId, userId){
     try {
-      const isMember = await models.WorkspaceMember.findOne(
+      const isMember = await this.models.WorkspaceMember.findOne(
         { where: { workspaceId, userId } }
       );
 
       return isMember;
     } catch (error) {
       if(error.isBoom) throw error;
-      throw boom.badRequest('Failed to check workspace memebrship');
+      throw boom.badRequest('Failed to check workspace membership');
     }
   }
 }

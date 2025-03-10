@@ -1,10 +1,8 @@
 const boom = require('@hapi/boom');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
-const { models } = require('../libs/sequelize');
-const { config } = require('../config/config');
-const UserService = require('../services/user.service');
+const { models } = require('../../libs/sequelize');
+const { config } = require('../../config/config');
+const UserService = require('../db/user.service');
 const service = new UserService();
 
 class ListService {

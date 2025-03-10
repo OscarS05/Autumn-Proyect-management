@@ -1,20 +1,16 @@
 const express = require('express');
+const router = express.Router();
 
-const AuthService = require('./../services/auth.service');
-const serviceAuth = new AuthService();
-
-const UserService = require('./../services/user.service');
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createUserSchema } = require('./../schemas/user.schema');
 const { config } = require('../config/config');
 
-const router = express.Router();
-const service = new UserService();
+const { userService, authService } = require('../services/db/index');
 
 router.get('/:email', async (req, res, next) => {
   try {
     const { email } = req.params;
-    const cardId = await service.findByEmail(email);
+    const cardId = await userService.findByEmail(email);
     res.json(cardId);
   } catch (error) {
     next(error);
@@ -23,7 +19,7 @@ router.get('/:email', async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   try {
-    const users = await service.findAll();
+    const users = await userService.findAll();
     res.json(users);
   } catch (error) {
     next(error);
@@ -38,8 +34,8 @@ router.post('/',
       if (body.password !== body.confirmPassword) {
         return res.status(400).json({ message: 'Passwords do not match' });
       }
-      const newUser = await service.create(body);
-      const { send, token } = await serviceAuth.sendEmailConfirmation(body.email);
+      const newUser = await userService.create(body);
+      const { send, token } = await authService.sendEmailConfirmation(body.email);
       if(token){
         res.cookie('verifyEmail', token, {
           httpOnly: true,

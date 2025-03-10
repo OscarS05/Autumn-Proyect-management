@@ -1,28 +1,25 @@
 const express = require('express');
+const router = express.Router();
+
 const passport = require('passport');
 const boom = require('@hapi/boom');
 
+const { config } = require('../config/config');
 const { changePassword } = require('./../schemas/user.schema');
 
 const { validatorHandler } = require('./../middlewares/validator.handler')
 const { limiter, validateSession } = require('./../middlewares/authentication.handler');
 
-const { ValidationError } = require('sequelize');
-const { config } = require('../config/config');
-
-const AuthService = require('./../services/auth.service');
-const service = new AuthService();
+const { authService } = require('../services/db/index');
 const { AuthRedis } = require('../services/redis/index');
 
-
-const router = express.Router();
 
 router.post('/login',
   passport.authenticate('local', { session: false }),
   async (req, res, next) => {
     try {
       const user = req.user;
-      const { accessToken, refreshToken } = await service.signToken(user);
+      const { accessToken, refreshToken } = await authService.signToken(user);
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: config.env === 'production' ? true : false,
@@ -46,8 +43,8 @@ router.post('/logout',
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    const decodedAccessToken = service.validateAccessToken(accessToken);
-    await service.logout(decodedAccessToken.sub, refreshToken);
+    const decodedAccessToken = authService.validateAccessToken(accessToken);
+    await authService.logout(decodedAccessToken.sub, refreshToken);
 
     res.clearCookie('refreshToken');
     res.status(200).json({ message: 'Logout successful' });
@@ -67,8 +64,8 @@ router.post('/verify-email',
         throw boom.unauthorized();
       }
 
-      const user = await service.verifyEmailToActivateAccount(token);
-      const tokens = await service.signToken(user);
+      const user = await authService.verifyEmailToActivateAccount(token);
+      const tokens = await authService.signToken(user);
 
       res.cookie('refreshToken', tokens.refreshToken, {
         httpOnly: true,
@@ -97,7 +94,7 @@ router.post('/verify-email-to-recover-password',
       if (!token || !tokenInParams) {
         return res.status(401).json({ message: 'Unuthorized' });
       }
-      const user = await service.verifyEmail(tokenInParams);
+      const user = await authService.verifyEmail(tokenInParams);
       const tokenInRedis = await AuthRedis.verifyTokenInRedis(user.id, token);
 
       if(tokenInRedis !== tokenInParams){
@@ -119,7 +116,7 @@ router.patch('/password',
         return res.status(401).json({ message: 'Unauthorized' });
       }
       const credentials = req.body;
-      const rta = await service.changePassword(token, credentials);
+      const rta = await authService.changePassword(token, credentials);
 
       res.clearCookie('refreshToken', {
         httpOnly: true,
@@ -145,7 +142,7 @@ router.post('/send-verification-email',
     try {
       const { email } = req.body;
 
-      const { send, token } = await service.sendEmailConfirmation(email);
+      const { send, token } = await authService.sendEmailConfirmation(email);
 
       if(token){
         res.cookie('verifyEmail', token, {
@@ -175,10 +172,10 @@ router.post('/resend-verification-email',
         return res.status(401).json({ message: 'Unauthorized' });
       }
 
-      const user = await service.verifyEmail(tokenToVerifyEmail);
+      const user = await authService.verifyEmail(tokenToVerifyEmail);
       const userEmail = user.dataValues?.email || user.email;
 
-      const { send, token } = await service.sendEmailConfirmation(userEmail);
+      const { send, token } = await authService.sendEmailConfirmation(userEmail);
 
       if(token){
         res.cookie('verifyEmail', token, {
@@ -223,7 +220,7 @@ router.post('/validate-tokens-to-verify-email',
         return res.status(401).json({ message: "Not authorized" });
       }
 
-      const isTheTokenValid = await service.verifyTokensToVerifyEmail(token);
+      const isTheTokenValid = await authService.verifyTokensToVerifyEmail(token);
 
       if(!isTheTokenValid){
         return res.status(401).json({ message: "Invalid token" });

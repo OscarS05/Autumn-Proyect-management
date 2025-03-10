@@ -1,14 +1,6 @@
 const boom = require('@hapi/boom');
 
-const WorkspaceService = require('../services/workspace.service');
-const workspaceService = new WorkspaceService();
-
-const WorkspaceMemberService = require('../services/workspace-member.service');
-const workspaceMemberService = new WorkspaceMemberService();
-
-const ProjectService = require('../services/project.service');
-const projectService = new ProjectService();
-
+const { workspaceService, workspaceMemberService, projectService } = require('../services/db/index');
 
 const LIMITS = {
   BASIC: { WORKSPACES: 6, PROJECTS: 10 },
@@ -98,6 +90,7 @@ async function checkWorkspaceMembership(req, res, next){
       throw boom.forbidden('You do not have permission to perform this action');
     }
 
+    req.workspaceMemberStatus = isMember;
     next();
   } catch (error) {
     next(error);

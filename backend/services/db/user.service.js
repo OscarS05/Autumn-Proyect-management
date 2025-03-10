@@ -1,9 +1,11 @@
 const boom = require('@hapi/boom');
 const bcrypt = require('bcrypt');
-const { models } = require('../libs/sequelize');
 
 class UserService {
-  constructor() {}
+  constructor(sequelize, models) {
+    this.sequelize = sequelize;
+    this.models = models;
+  }
 
   async create(data) {
     const { password, confirmPassword } = data;
@@ -11,7 +13,7 @@ class UserService {
       throw boom.badRequest('Passwords do not match');
     }
     const hash = await bcrypt.hash(password, 10);
-    const newUser = await models.User.create({
+    const newUser = await this.models.User.create({
       ...data,
       password: hash,
     });
@@ -46,14 +48,14 @@ class UserService {
   }
 
   async findByEmail(email){
-    const rta = await models.User.findOne({
+    const rta = await this.models.User.findOne({
       where: { email },
     });
     return rta;
   }
 
   async findOne(id){
-    const user = await models.User.findByPk(id);
+    const user = await this.models.User.findByPk(id);
     if(!user){
       throw boom.notFound('User not found');
     }
@@ -61,7 +63,7 @@ class UserService {
   }
 
   async findAll(conditional){
-    const users = await models.User.findAll(conditional || {});
+    const users = await this.models.User.findAll(conditional || {});
     return users.map(user => {
       if (user.dataValues) {
         delete user.dataValues.recoveryToken;

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Boom, boomify } = require('@hapi/boom');
+const { Boom } = require('@hapi/boom');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
@@ -9,13 +9,8 @@ const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdPar
 const { validateSession } = require('../middlewares/authentication.handler');
 const { authorizationToCreateWorkspace, checkAdminRole, checkOwnership, checkWorkspaceMembership } = require('../middlewares/authorization.handler');
 
-const WorkspaceService = require('./../services/workspace.service');
-const service = new WorkspaceService();
-
-const WorkspaceMemberService = require('./../services/workspace-member.service');
-const workspaceMemberService = new WorkspaceMemberService();
-
 const { WorkspaceRedis } = require('../services/redis/index');
+const { workspaceService, workspaceMemberService } = require('../services/db/index');
 
 // Workspaces
 router.get('/:workspaceId/projects',
@@ -30,7 +25,7 @@ router.get('/:workspaceId/projects',
       if(workspaceAndItsProjects){
         return res.status(200).json({ workspace: workspaceAndItsProjects});
       }
-      const data = await service.findWorkspaceAndItsProjects(workspaceId, userId);
+      const data = await workspaceService.findWorkspaceAndItsProjects(workspaceId, userId);
       if(data && data.length > 0){
         return res.status(200).json({ workspace: data});
       }
@@ -52,7 +47,7 @@ router.get('/',
       if(listOfWorkspaces.owner && listOfWorkspaces.guest){
         return res.status(200).json({ workspaces: listOfWorkspaces});
       }
-      const workspacesInDb = await service.findWorkspacesAndProjects(userId);
+      const workspacesInDb = await workspaceService.findWorkspacesAndProjects(userId);
       if(workspacesInDb.owner && workspacesInDb.guest){
         return res.status(200).json({ workspaces: workspacesInDb});
       }
@@ -73,7 +68,7 @@ router.post('/',
       const { name, description } = req.body;
       const userId = req.user.sub;
 
-      const workspace = await service.create({ name, description, userId });
+      const workspace = await workspaceService.create({ name, description, userId });
       if(workspace.isBoom){
         return next(Boom.badRequest('Failed to create workspace'));
       }
@@ -95,7 +90,7 @@ router.patch('/:workspaceId',
       const { workspaceId } = req.params;
       const userId = req.user.sub;
 
-      const workspaceUpdated = await service.update(workspaceId, data, userId);
+      const workspaceUpdated = await workspaceService.update(workspaceId, data, userId);
       if(!workspaceUpdated) return next(Boom.badRequest('Failed to update workspace'));
 
       res.status(200).json({ message: 'Workspace updated successfully', workspace: workspaceUpdated });
@@ -114,7 +109,7 @@ router.delete('/:workspaceId',
       const { workspaceId } = req.params;
       const userId = req.user.sub;
 
-      const isWorkspaceDeleted = await service.delete(userId, workspaceId);
+      const isWorkspaceDeleted = await workspaceService.delete(userId, workspaceId);
       if(!isWorkspaceDeleted) return next(Boom.notFound('Workspace not found'));
 
       res.status(200).json({ message: 'Workspace deleted successfully' });
@@ -172,7 +167,7 @@ router.patch('/:workspaceId/members/:workspaceMemberId',
       const { workspaceId, workspaceMemberId } = req.params;
       const { newRole } = req.body;
 
-      const updatedMember = await workspaceMemberService.updateRole(workspaceId, workspaceMemberId, newRole);
+      const updatedMember = await workspaceMemberService.handleUpdateRole(workspaceId, workspaceMemberId, newRole);
       if(updatedMember === 0) throw Boom.badRequest('Failed to update role');
 
       res.status(200).json({ message: 'Updated successfully', updatedMember });

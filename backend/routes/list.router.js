@@ -2,7 +2,7 @@ const express = require('express');
 const passport = require('passport');
 
 const { createListSchema, updateListSchema, deleteListSchema } = require('./../schemas/list.schema');
-const ListService = require('./../services/list.service');
+const ListService = require('./../services/db/list.service');
 const { validatorHandler } = require('../middlewares/validator.handler');
 const service = new ListService();
 
