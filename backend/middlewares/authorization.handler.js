@@ -1,6 +1,6 @@
 const boom = require('@hapi/boom');
 
-const { workspaceService, workspaceMemberService, projectService } = require('../services/db/index');
+const { workspaceService, workspaceMemberService, projectService, projectMemberService } = require('../services/db/index');
 
 const LIMITS = {
   BASIC: { WORKSPACES: 6, PROJECTS: 10 },
@@ -97,20 +97,28 @@ async function checkWorkspaceMembership(req, res, next){
   }
 }
 
-// async function checkProjectMembership(req, res, next){
-//   try {
-//     const user = req.user;
-//     const { workspaceId } = req.params;
+async function checkProjectMembership(req, res, next){
+  try {
+    const user = req.user;
+    const { projectId } = req.params;
 
-//     const isMember = await projectService.checkProjectMembership(workspaceId, user.sub);
-//     if(!isMember){
-//       throw boom.forbidden('You do not have permission to perform this action');
-//     }
+    const isMember = await projectMemberService.getProjectMember(projectId, user.sub);
+    if(!isMember){
+      throw boom.forbidden('You do not have permission to perform this action');
+    }
 
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// }
+    req.projectMember = isMember;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
 
-module.exports = { authorizationToCreateWorkspace, authorizationToCreateProject, checkAdminRole, checkOwnership, checkWorkspaceMembership };
+module.exports = {
+  authorizationToCreateWorkspace,
+  authorizationToCreateProject,
+  checkAdminRole,
+  checkOwnership,
+  checkWorkspaceMembership,
+  checkProjectMembership
+};

@@ -3,7 +3,8 @@ const express = require('express');
 const userRouter = require('./user.router');
 const authRouter = require('./auth.router');
 const workspaceRouter = require('./workspace.router');
-const projectRouter = require('./project.router');
+const projectRouter = require('./project-members.router');
+// const projectRouter = require('./project.router');
 const listRouter = require('./list.router');
 const cardRouter = require('./card.router');
 
