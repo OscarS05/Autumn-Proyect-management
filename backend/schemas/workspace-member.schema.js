@@ -25,5 +25,4 @@ const transferOwnership = Joi.object({
   newOwnerId: id.required()
 });
 
-
 module.exports = { createWorkspaceMember, updateWorkspaceMember, transferOwnership, updateWorkspaceMemberIdParams, removeMember }
