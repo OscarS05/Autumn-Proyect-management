@@ -3,12 +3,12 @@ const Joi = require('joi');
 const id = Joi.number().integer();
 const role = Joi.string().valid('member', 'admin');
 
-const getProjectMembersSchema = Joi.object({
+const projectIdSchema = Joi.object({
   projectId: id.required(),
 });
 
-const createWorkspaceMember = Joi.object({
-  userId: id.required()
+const addProjectMember = Joi.object({
+  workspaceMemberId: id.required()
 });
 
 const updateWorkspaceMember = Joi.object({
@@ -31,5 +31,6 @@ const transferOwnership = Joi.object({
 
 
 module.exports = {
-  getProjectMembersSchema
+  addProjectMember,
+  projectIdSchema
 };
