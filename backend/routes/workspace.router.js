@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { Boom } = require('@hapi/boom');
 
-const { validatorHandler } = require('./../middlewares/validator.handler');
 const { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema } = require('./../schemas/workspace.schema');
 const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember } = require('./../schemas/workspace-member.schema');
 
+const { validatorHandler } = require('./../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
-const { authorizationToCreateWorkspace, checkAdminRole, checkOwnership, checkWorkspaceMembership } = require('../middlewares/authorization.handler');
+const { authorizationToCreateWorkspace, checkAdminRole, checkOwnership, checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 
 const { WorkspaceRedis } = require('../services/redis/index');
 const { workspaceService, workspaceMemberService } = require('../services/db/index');

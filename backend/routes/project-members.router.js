@@ -3,9 +3,10 @@ const router = require('./project.router');
 const { Boom } = require('@hapi/boom');
 
 const { validateSession } = require('../middlewares/authentication.handler');
-const { checkProjectMembership } = require('../middlewares/authorization.handler');
-const { getProjectMembersSchema } = require('../schemas/project-members.schema');
+const { checkProjectMembership } = require('../middlewares/authorization/project.authorization');
 const { validatorHandler } = require('../middlewares/validator.handler');
+
+const { getProjectMembersSchema } = require('../schemas/project-members.schema');
 
 const { projectMemberService } = require('../services/db/index');
 
