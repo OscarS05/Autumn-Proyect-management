@@ -1,6 +1,6 @@
 const boom = require('@hapi/boom');
 
-const { workspaceService, workspaceMemberService, projectService } = require('../services/db/index');
+const { workspaceService, workspaceMemberService } = require('../../services/db/index');
 
 const LIMITS = {
   BASIC: { WORKSPACES: 6, PROJECTS: 10 },
@@ -18,27 +18,6 @@ async function authorizationToCreateWorkspace(req, res, next){
     }
     if(user.role === 'premium' && count >= LIMITS.PREMIUM.WORKSPACES){
       throw boom.forbidden('Workspace limit reached for premium users');
-    }
-
-    next();
-  } catch (error) {
-    console.error("Error in auth middleware:", error);
-    next(error);
-  }
-}
-
-async function authorizationToCreateProject(req, res, next){
-  const user = req.user;
-  if(!user) return next(boom.unauthorized('User not authenticated'));
-  const { workspaceId, workspaceMemberId } = req.body;
-  try {
-    const count = await projectService.countProjectsByWorkspaceMember(workspaceId, workspaceMemberId);
-
-    if(user.role === 'basic' && count >= LIMITS.BASIC.PROJECTS){
-      throw boom.forbidden('Project limit reached for basic users');
-    }
-    if(user.role === 'premium' && count >= LIMITS.PREMIUM.PROJECTS){
-      throw boom.forbidden('Project limit reached for basic users');
     }
 
     next();
@@ -97,20 +76,10 @@ async function checkWorkspaceMembership(req, res, next){
   }
 }
 
-// async function checkProjectMembership(req, res, next){
-//   try {
-//     const user = req.user;
-//     const { workspaceId } = req.params;
-
-//     const isMember = await projectService.checkProjectMembership(workspaceId, user.sub);
-//     if(!isMember){
-//       throw boom.forbidden('You do not have permission to perform this action');
-//     }
-
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// }
-
-module.exports = { authorizationToCreateWorkspace, authorizationToCreateProject, checkAdminRole, checkOwnership, checkWorkspaceMembership };
+module.exports = {
+  LIMITS,
+  authorizationToCreateWorkspace,
+  checkAdminRole,
+  checkOwnership,
+  checkWorkspaceMembership,
+};

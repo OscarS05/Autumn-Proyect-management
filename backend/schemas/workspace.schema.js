@@ -18,9 +18,5 @@ const workspaceIdSchema =  Joi.object({
   workspaceId: id.required()
 });
 
-const transferOwnership = Joi.object({
-  newOwnerId: id.required()
-});
 
-
-module.exports = { createWorkspace, updateWorkspace, transferOwnership, workspaceIdSchema }
+module.exports = { createWorkspace, updateWorkspace, workspaceIdSchema }

@@ -8,6 +8,7 @@ const AuthService = require('./auth.service');
 const WorkspaceService = require('./workspace.service');
 const WorkspaceMemberService = require('./workspace-member.service');
 const ProjectService = require('./project.service');
+const ProjectMemberService = require('./project-member.service');
 
 
 const config = {
@@ -21,5 +22,13 @@ const authService = new AuthService(config.sequelize, config.models, userService
 const workspaceService = new WorkspaceService(config.sequelize, config.models, redisModels);
 const workspaceMemberService = new WorkspaceMemberService(config.sequelize, config.models, redisModels);
 const projectService = new ProjectService(config.sequelize, config.models, redisModels);
+const projectMemberService = new ProjectMemberService(config.sequelize, config.models, redisModels);
 
-module.exports = { userService, authService, workspaceService, workspaceMemberService, projectService };
+module.exports = {
+  userService,
+  authService,
+  workspaceService,
+  workspaceMemberService,
+  projectService,
+  projectMemberService
+};

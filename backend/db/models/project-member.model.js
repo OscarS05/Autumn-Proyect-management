@@ -79,6 +79,16 @@ class ProjectMember extends Model {
       foreignKey: 'projectMemberId',
       as: 'items',
     });
+
+    this.belongsTo(models.Project, {
+      as: 'project',
+      foreignKey: 'projectId'
+    });
+
+    this.belongsTo(models.WorkspaceMember, {
+      as: 'workspaceMember',
+      foreignKey: 'workspaceMemberId'
+    });
   }
 
   static config(sequelize) {

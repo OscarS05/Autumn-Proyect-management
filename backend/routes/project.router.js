@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { Boom } = require('@hapi/boom');
 
-const { validatorHandler } = require('./../middlewares/validator.handler');
-const { createProject, deleteProject, updateProject, projectIdSchema, transferOwnership } = require('./../schemas/project.schema');
 const { workspaceIdSchema } = require('./../schemas/workspace.schema');
+const { createProject, deleteProject, updateProject, projectIdSchema, transferOwnership } = require('./../schemas/project.schema');
 
+const { validatorHandler } = require('./../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
-const { authorizationToCreateProject } = require('../middlewares/authorization.handler');
+const { authorizationToCreateProject } = require('../middlewares/authorization/project.authorization');
 
 const { projectService } = require('../services/db/index');
 const { ProjectRedis } = require('../services/redis/index');
@@ -46,7 +46,7 @@ router.post('/',
       const userId = req.user.sub;
 
       const projectCreated = await projectService.create({ name, visibility, workspaceId, workspaceMemberId });
-      if(!projectCreated) return Boom.badRequest('Failed to create workspace');
+      if(!projectCreated) throw Boom.badRequest('Failed to create workspace');
 
       res.status(201).json({ message: 'Project created successfully', project: projectCreated });
     } catch (error) {
