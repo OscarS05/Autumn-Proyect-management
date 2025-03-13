@@ -1,4 +1,4 @@
-const { Boom } = require("@hapi/boom");
+const boom = require("@hapi/boom");
 
 class ProjectMemberService {
   constructor(sequelize, models, redisModels){
@@ -7,14 +7,20 @@ class ProjectMemberService {
     this.redisModels = redisModels;
   }
 
-  async addProjectMember(projectId, workspaceMemberId, userId){
+  async addProjectMember(projectId, workspaceMemberId){
     const transaction = await this.sequelize.transaction();
     try {
+      const workspaceMember = await this.models.WorkspaceMember.findOne({
+        where: { id: workspaceMemberId },
+        transaction
+      });
+      if(!workspaceMember) throw boom.conflict('Workspace member ID is not part of the workspace');
+
       const isMember = await this.models.ProjectMember.findOne({
         where: { projectId, workspaceMemberId },
         transaction
       });
-      if(isMember) throw Boom.conflict('Workspace member is already part of this project');
+      if(isMember) throw boom.conflict('Workspace member is already part of this project');
 
       const addedMember = await this.models.ProjectMember.create(
         { workspaceMemberId, role: 'member', propertyStatus: 'guest', projectId },
@@ -23,15 +29,14 @@ class ProjectMemberService {
 
       await this.redisModels.ProjectMemberRedis.saveProjectMember(
         addedMember.projectId,
-        addedMember.workspaceMemberId,
-        userId
+        workspaceMember.id
       );
 
       await transaction.commit();
       return addedMember.dataValues;
     } catch (error) {
       await transaction.rollback();
-      throw Boom.badRequest(error.message || 'Failed to add member to project');
+      throw boom.badRequest(error.message || 'Failed to add member to project');
     }
   }
 
@@ -43,7 +48,7 @@ class ProjectMemberService {
 
       return projectMembers;
     } catch (error) {
-      throw Boom.badRequest(error.message || 'Failed to find project members');
+      throw boom.badRequest(error.message || 'Failed to find project members');
     }
   }
 
@@ -61,7 +66,7 @@ class ProjectMemberService {
 
       return projectMembers.dataValues;
     } catch (error) {
-      throw Boom.badRequest(error.message || 'Failed to find project members');
+      throw boom.badRequest(error.message || 'Failed to find project members');
     }
   }
 }

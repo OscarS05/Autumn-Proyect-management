@@ -18,8 +18,8 @@ const ProjectMemberRedis = new ProjectMemberRedisService(config.redisClient);
 
 module.exports = {
   AuthRedis,
-  ProjectRedis,
   WorkspaceRedis,
   WorkspaceMemberRedis,
+  ProjectRedis,
   ProjectMemberRedis
 };

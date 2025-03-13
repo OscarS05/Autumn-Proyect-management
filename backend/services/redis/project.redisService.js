@@ -21,6 +21,9 @@ class ProjectRedisService extends BaseRedisService{
       pipeline.hset(this.projectKey(project.id), ...Object.entries(projectData).flat());
       pipeline.expire(this.projectKey(project.id), 3 * 24 * 60 * 60);
 
+      pipeline.sadd(this.projectMembers(project.id), project.workspaceMemberId);
+      pipeline.expire(this.projectMembers(project.id), 3 * 24 * 60 * 60);
+
       pipeline.sadd(this.workspaceProjectsKey(project.workspaceId), project.id);
       pipeline.sadd(this.workspaceProjectsKey(project.workspaceId), 3 * 24 * 60 * 60);
     });
@@ -46,9 +49,10 @@ class ProjectRedisService extends BaseRedisService{
     return pipelineResult;
   }
 
-  async deleteProject(projectId, workspaceId){
+  async deleteProject(projectId, workspaceId, workspaceMemberId){
     const pipeline = this.redis.pipeline();
 
+    pipeline.srem(this.projectMembers(projectId), workspaceMemberId);
     pipeline.srem(this.workspaceProjectsKey(workspaceId), projectId);
     pipeline.del(this.projectKey(projectId));
 

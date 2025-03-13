@@ -98,7 +98,7 @@ router.delete('/:workspaceId/members/:workspaceMemberId',
       const { workspaceId, workspaceMemberId } = req.params;
       const requesterStatus = req.workspaceMemberStatus;
 
-      const deletedMember = await workspaceMemberService.removeMember(workspaceId, workspaceMemberId, requesterStatus);
+      const deletedMember = await workspaceMemberService.handleRemoveMember(workspaceId, workspaceMemberId, requesterStatus);
       if(deletedMember === 0) return next(Boom.badRequest('Member not found or already removed'));
 
       res.status(200).json({ message: 'Member was removed successfully' });

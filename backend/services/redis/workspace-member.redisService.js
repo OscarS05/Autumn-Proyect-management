@@ -6,19 +6,26 @@ class WorkspaceMemberRedisService extends BaseRedisService {
     super(redisClient);
   }
 
-  async saveWorkspaceIdByUserId(userId, workspaceId){
+  async saveWorkspaceIdByUserId(userId, workspaceIds, workspaceMemberIds){
     try {
-      if (!userId || !workspaceId) {
+      if (!userId || workspaceIds.length === 0 || workspaceMemberIds.length === 0) {
         throw Boom.badRequest('userId or workspaceId not provided');
       }
 
       const pipeline = this.redis.pipeline();
 
-      pipeline.sadd(this.userWorkspacesKey(userId), workspaceId);
+      workspaceIds.forEach(workspaceId => {
+        pipeline.sadd(this.workspaceMembers(workspaceId), userId);
+        pipeline.expire(this.workspaceMembers(workspaceId), 3 * 24 * 60 * 60);
+
+        pipeline.sadd(this.userWorkspacesKey(userId), workspaceId);
+      });
       pipeline.expire(this.userWorkspacesKey(userId), 3 * 24 * 60 * 60);
 
-      pipeline.sadd(this.workspaceMembers(workspaceId), userId);
-      pipeline.expire(this.workspaceMembers(workspaceId), 3 * 24 * 60 * 60);
+      workspaceMemberIds.forEach(workspaceMemberId => {
+        pipeline.sadd(this.userWorkspaceMemberKey(userId), workspaceMemberId);
+      });
+      pipeline.expire(this.userWorkspaceMemberKey(userId), 3 * 24 * 60 * 60);
 
       const result = await pipeline.exec();
 
@@ -31,10 +38,11 @@ class WorkspaceMemberRedisService extends BaseRedisService {
     }
   }
 
-  async deleteMember(userId, workspaceId){
+  async deleteMember(userId, workspaceId, workspaceMemberId){
     try {
       const pipeline = this.redis.pipeline();
 
+      pipeline.srem(this.userWorkspaceMemberKey(userId), workspaceMemberId);
       pipeline.srem(this.workspaceMembers(workspaceId), userId);
       pipeline.srem(this.userWorkspacesKey(userId), workspaceId);
 

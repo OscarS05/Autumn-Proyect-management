@@ -19,7 +19,7 @@ router.get('/:workspaceId/projects',
       const userId = req.user.sub;
       const { workspaceId } = req.params;
 
-      const workspaceAndItsProjects = await WorkspaceRedis.getWorkspaceAndItsProjects(workspaceId);
+      const workspaceAndItsProjects = await WorkspaceRedis.getWorkspaceAndItsProjects(workspaceId, userId);
       if(workspaceAndItsProjects){
         return res.status(200).json({ workspace: workspaceAndItsProjects});
       }
@@ -106,8 +106,9 @@ router.delete('/:workspaceId',
     try {
       const { workspaceId } = req.params;
       const userId = req.user.sub;
+      const requesterStatus = req.ownerStatus;
 
-      const isWorkspaceDeleted = await workspaceService.delete(userId, workspaceId);
+      const isWorkspaceDeleted = await workspaceService.delete(userId, workspaceId, requesterStatus.id);
       if(!isWorkspaceDeleted) return next(Boom.notFound('Workspace not found'));
 
       res.status(200).json({ message: 'Workspace deleted successfully' });

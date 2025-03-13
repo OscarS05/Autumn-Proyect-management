@@ -110,7 +110,8 @@ class ProjectService {
       );
 
       await transaction.commit();
-      await this.redisModels.ProjectRedis.deleteProject(projectId, workspaceId);
+      await this.redisModels.ProjectRedis.deleteProject(projectId, workspaceId, workspaceMemberId);
+      await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, workspaceMemberId);
       return response;
     } catch (error) {
       await transaction.rollback();

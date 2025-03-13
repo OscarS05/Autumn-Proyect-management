@@ -23,7 +23,7 @@ class WorkspaceMemberService {
         propertyStatus: 'guest'
       });
 
-      await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(userId, workspaceId);
+      await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(userId, [workspaceId], [addedMember.id]);
       return addedMember;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to create workspace members');
@@ -66,7 +66,7 @@ class WorkspaceMemberService {
       if(removedMember === 0) throw boom.badRequest('Member not found or already removed');
 
       await transaction.commit()
-      await this.redisModels.WorkspaceMemberRedis.deleteMember(userId, workspaceId);
+      await this.redisModels.WorkspaceMemberRedis.deleteMember(userId, workspaceId, workspaceMemberId);
       return removedMember;
     } catch (error) {
       await transaction.rollback();
@@ -74,7 +74,7 @@ class WorkspaceMemberService {
     }
   }
 
-  async removeMember(workspaceId, workspaceMemberId, requesterStatus){
+  async handleRemoveMember(workspaceId, workspaceMemberId, requesterStatus){
     try {
       const memberStatus = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
       if(memberStatus.property_status === 'owner') throw boom.forbidden("You cannot remove the owner");
@@ -109,7 +109,7 @@ class WorkspaceMemberService {
   async handleOwnerExit(workspaceId, requesterStatus, workspaceMembers){
     try {
       if(workspaceMembers.length === 1 && workspaceMembers[0].propertyStatus === 'owner'){
-        const removedWorkspace = await this.models.workspaceService.delete(requesterStatus.userId, workspaceId);
+        const removedWorkspace = await this.models.workspaceService.delete(requesterStatus.userId, workspaceId, requesterStatus.id);
         return removedWorkspace;
       } else if(workspaceMembers.length > 1){
         const { admins, members } = workspaceMembers.reduce((acc, member) => {

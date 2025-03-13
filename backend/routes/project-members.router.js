@@ -38,7 +38,7 @@ router.post('/:projectId/members',
       const{ projectId } = req.params;
       const { workspaceMemberId } = req.body;
 
-      const addedMember = await projectMemberService.addProjectMember(projectId, workspaceMemberId, userId);
+      const addedMember = await projectMemberService.addProjectMember(projectId, workspaceMemberId);
       if(!addedMember) throw Boom.badRequest('Failed to add member to project');
 
       res.status(200).json({ message: 'Member was added successfully', addedMember });

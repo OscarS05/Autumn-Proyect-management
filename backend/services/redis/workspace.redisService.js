@@ -1,6 +1,5 @@
 const { Boom } = require('@hapi/boom');
 const BaseRedisService = require('./base.redisService');
-const { DatabaseModule } = require('@faker-js/faker');
 
 class WorkspaceRedisService extends BaseRedisService {
   constructor(redisClient, projectRedisService){
@@ -26,6 +25,7 @@ class WorkspaceRedisService extends BaseRedisService {
         pipeline.expire(this.workspaceKey(workspace.id), 3 * 24 * 60 * 60);
 
         pipeline.sadd(this.userWorkspacesKey(userId), workspace.id);
+
         pipeline.sadd(this.workspaceMembers(workspace.id), userId);
         pipeline.expire(this.workspaceMembers(workspace.id), 3 * 24 * 60 * 60);
 
@@ -43,7 +43,6 @@ class WorkspaceRedisService extends BaseRedisService {
       const resultSaveProjects = await this.projectRedisService.saveProjects(projects);
       return { result, resultSaveProjects };
     } catch (error) {
-      console.error('Error:', error);
       throw Boom.badRequest(error.message || 'Failed to delete workspace');
     }
   }
@@ -89,18 +88,13 @@ class WorkspaceRedisService extends BaseRedisService {
 
       return { isSuccess };
     } catch (error) {
-      console.error('Error:', error);
       throw Boom.badRequest(error.message || 'Failed to delete workspace');
     }
   }
 
-  async getWorkspaceAndItsProjects(workspaceId){
-    const pipeline = this.redis.pipeline();
-    pipeline.hgetall(this.workspaceKey(workspaceId));
-    pipeline.smembers(this.workspaceProjectsKey(workspaceId));
-
-    const resultPipeline = await pipeline.exec();
-    const { workspace, projectsIds } = resultPipeline.reduce((acc, [_, data]) => {
+  async getWorkspaceAndItsProjects(workspaceId, userId){
+    const workspaceAndProjectsIds = await this.getWorkspacesAndProjectsIds([workspaceId]);
+    const { workspace, projectsIds } = workspaceAndProjectsIds.reduce((acc, [_, data]) => {
       if(data){
         if(data.type === 'workspace'){
           acc.workspace = data;
@@ -114,25 +108,22 @@ class WorkspaceRedisService extends BaseRedisService {
     if(!workspace) return { workspace: {}, projects: [] };
     if(projectsIds.length === 0) return { workspace, projects: [] };
 
-    const projects = await this.projectRedisService.getProjects(projectsIds);
+    const [ projects, workspaceMemberIds ] = await Promise.all([
+      this.projectRedisService.getProjects(projectsIds),
+      this.getUserWorkspaceMemberIds(userId),
+    ]);
     const data = { workspaces: [workspace], projects };
 
-    const organizedData = this.organizeData(data);
+    const organizedData = await this.structureData(data, workspaceMemberIds);
     return organizedData;
   }
 
   async getWorkspacesAndProjects(userId){
-    const workspacesIds = await this.redis.smembers(this.userWorkspacesKey(userId));
+    const workspacesIds = await this.getWorkspacesIdsByUser(userId);
     if(workspacesIds.length === 0) return { workspaces: [], projects: [] };
 
-    const pipeline = this.redis.pipeline();
-    workspacesIds.forEach(workspaceId => {
-      pipeline.hgetall(this.workspaceKey(workspaceId));
-      pipeline.smembers(this.workspaceProjectsKey(workspaceId));
-    });
-
-    const resultPipeline = await pipeline.exec();
-    const { workspaces, projectsIds } = resultPipeline.reduce((acc, [_, data]) => {
+    const workspacesAndProjects = await this.getWorkspacesAndProjectsIds(workspacesIds);
+    const { workspaces, projectsIds } = workspacesAndProjects.reduce((acc, [_, data]) => {
       if(data){
         if(data.type === 'workspace'){
           acc.workspaces.push(data);
@@ -146,11 +137,14 @@ class WorkspaceRedisService extends BaseRedisService {
     if(workspaces.length === 0) return { workspaces: [], projects: [] };
     if(projectsIds.length === 0) return { workspaces, projects: [] };
 
-    const projects = await this.projectRedisService.getProjects(projectsIds);
-    const data = { workspaces, projects };
+    const [ projects, workspaceMemberIds ] = await Promise.all([
+      this.projectRedisService.getProjects(projectsIds),
+      this.getUserWorkspaceMemberIds(userId),
+    ]);
 
-    const organizedData = this.organizeData(data);
-    const structuredWorkspaces = organizedData.reduce((acc, data) => {
+    const data = { workspaces, projects };
+    const structuredData = await this.structureData(data, workspaceMemberIds);
+    const organizedWorkspaces = structuredData.reduce((acc, data) => {
       if(data.userId == userId){
         acc.owner.push(data);
       } else if(data.userId !== userId){
@@ -158,7 +152,66 @@ class WorkspaceRedisService extends BaseRedisService {
       }
       return acc;
     }, { owner: [], guest: [] });
-    return structuredWorkspaces;
+
+    return organizedWorkspaces;
+  }
+
+  async structureData(data, workspaceMemberIds){
+    const listOfWorkspaces = await Promise.all(data.workspaces.map(async (workspace) => {
+      const relatedProjects = data.projects.filter(project => project.workspaceId === workspace.id);
+      const projectWithAccess = await Promise.all(relatedProjects.map(async (project) => {
+        const isMember = await this.canAccessProject(project.id, workspaceMemberIds);
+        return {
+          ...project,
+          id: Number(project.id),
+          workspaceId: Number(project.workspaceId),
+          workspaceMemberId: Number(project.workspaceMemberId),
+          access: isMember,
+        };
+      }));
+      return {
+        ...workspace,
+        id: Number(workspace.id),
+        userId: Number(workspace.userId),
+        projects: projectWithAccess
+      };
+    }));
+
+    return listOfWorkspaces;
+  }
+
+  async canAccessProject(projectId, workspaceMemberIds) {
+    const members = await this.redis.smembers(`project:${projectId}:members`);
+    const isMember = members.some(id => workspaceMemberIds.includes(id));
+    return isMember;
+  }
+
+  async getUserWorkspaceMemberIds(userId){
+    const workspaceMemberIds = await this.redis.smembers(this.userWorkspaceMemberKey(userId));
+    return workspaceMemberIds;
+  }
+
+  async getWorkspacesIdsByUser(userId){
+    const workspacesIds = await this.redis.smembers(this.userWorkspacesKey(userId));
+    return workspacesIds;
+  }
+
+  async getWorkspacesAndProjectsIds(workspacesIds){
+    try {
+      const pipeline = this.redis.pipeline();
+      workspacesIds.forEach(workspaceId => {
+        pipeline.hgetall(this.workspaceKey(workspaceId));
+        pipeline.smembers(this.workspaceProjectsKey(workspaceId));
+      });
+
+      const resultPipeline = await pipeline.exec();
+      const isSuccessfully = resultPipeline.every(res => res[0] === null);
+      if(!isSuccessfully) throw Boom.badRequest('Failed to get workspaces or projects ids');
+
+      return resultPipeline
+    } catch (error) {
+      throw Boom.badRequest(error.message || 'Failed to get workspaces and their projects ids');
+    }
   }
 
   async getWorkspaces(workspacesIds){
@@ -176,25 +229,6 @@ class WorkspaceRedisService extends BaseRedisService {
       return acc;
     }, []);
     return workspaces;
-  }
-
-  organizeData(data){
-    const listOfWorkspaces = data.workspaces.map(workspace => {
-      const relatedProjects = data.projects.filter(project => project.workspaceId === workspace.id);
-      return {
-        ...workspace,
-        id: Number(workspace.id),
-        userId: Number(workspace.userId),
-        projects: relatedProjects.map(project => ({
-          ...project,
-          id: Number(project.id),
-          workspaceId: Number(project.workspaceId),
-          workspaceMemberId: Number(project.workspaceMemberId)
-        }))
-      };
-    });
-
-    return listOfWorkspaces;
   }
 }
 

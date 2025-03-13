@@ -14,13 +14,18 @@ class WorkspaceService {
         { name: name, description: description, userId: userId },
         { transaction }
       );
-      await this.models.WorkspaceMember.create(
+      const workspaceMember = await this.models.WorkspaceMember.create(
         { userId, workspaceId: workspace.dataValues.id, role: 'admin', propertyStatus: 'owner'},
         { transaction }
       )
 
       await transaction.commit();
       await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, [ workspace.dataValues ]);
+      await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(
+        userId,
+        workspaceMember.workspaceId,
+        workspaceMember.id
+      );
 
       return workspace;
     } catch (error) {
@@ -49,7 +54,7 @@ class WorkspaceService {
     }
   }
 
-  async delete(userId, workspaceId){
+  async delete(userId, workspaceId, workspaceMemberId){
     const transaction = await this.sequelize.transaction();
     try {
       const deleted = await this.models.Workspace.destroy({
@@ -78,18 +83,9 @@ class WorkspaceService {
         where: { id: workspaceId },
         include: [{ model: this.models.Project, as: 'project' }]
       });
-      const { workspace, projects } = Workspace.reduce((acc, data) => {
-        if(data.dataValues){
-          acc.workspace.push(data.dataValues);
-        } else if (data.dataValues.project > 0){
-          acc.projects.push(data.dataValues.projects);
-        }
-        return acc;
-      }, { workspace: [], projects: [] });
 
-      await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, workspace);
-      await this.redisModels.ProjectRedis.saveProjects(workspace.id, projects);
-      return workspace;
+      await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, Workspace);
+      return Workspace;
     } catch (error) {
       return boom.badRequest(error.message || 'Failed to find the workspace and its projects');
     }
@@ -106,8 +102,22 @@ class WorkspaceService {
           }],
       });
 
+      const { workspaceIds, workspaceMemberIds } = Workspaces.reduce((acc, data) => {
+        if(data){
+          acc.workspaceIds.push(data.workspaceId);
+          acc.workspaceMemberIds.push(data.id);
+        }
+        return acc;
+      }, { workspaceIds: [], workspaceMemberIds: [] });
+
       const listOfWorkspaces = Workspaces.map(member => member.workspace.dataValues);
+
       await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, listOfWorkspaces);
+      await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(
+        userId,
+        workspaceIds,
+        workspaceMemberIds
+      );
 
       const organizedWorkspaces = listOfWorkspaces.reduce((acc, data) => {
         if(data.userId === userId){

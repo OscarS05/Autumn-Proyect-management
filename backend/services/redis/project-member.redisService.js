@@ -6,16 +6,13 @@ class ProjectMemberRedisService extends BaseRedisService {
     super(redisClient);
   }
 
-  async saveProjectMember(projectId, workspaceMemberId, userId){
+  async saveProjectMember(projectId, workspaceMemberId){
     try {
-      if (!projectId || !workspaceMemberId || !userId) {
+      if (!projectId || !workspaceMemberId) {
         throw Boom.badRequest('projectId or workspaceMemberId or userId not provided');
       }
 
       const pipeline = this.redis.pipeline();
-
-      pipeline.sadd(this.userWorkspaceMemberKey(userId), workspaceMemberId);
-      pipeline.expire(this.userWorkspaceMemberKey(userId), 3 * 24 * 60 * 60);
 
       pipeline.sadd(this.projectMembers(projectId), workspaceMemberId);
       pipeline.expire(this.projectMembers(projectId), 3 * 24 * 60 * 60);
@@ -27,6 +24,22 @@ class ProjectMemberRedisService extends BaseRedisService {
       return { isSuccessfully };
     } catch (error) {
       throw Boom.badRequest(error.message || 'Failed to save project member');
+    }
+  }
+
+  async deleteProjectMember(projectId, workspaceMemberId){
+    try {
+      if (!projectId || !workspaceMemberId) {
+        throw Boom.badRequest('projectId or workspaceMemberId or userId not provided');
+      }
+
+      const result = this.redis.srem(this.projectMembers(projectId), workspaceMemberId);
+      const isSuccessfully = result.every(res => res[0] == null);
+      if(!isSuccessfully) throw Boom.badRequest('Failed to delete project member in Redis');
+
+      return { isSuccessfully };
+    } catch (error) {
+      throw Boom.badRequest(error.message || 'Failed to delete project member');
     }
   }
 }
