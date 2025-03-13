@@ -6,7 +6,7 @@ const { createWorkspace, updateWorkspace, workspaceIdSchema } = require('./../sc
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
-const { authorizationToCreateWorkspace, checkAdminRole, checkOwnership } = require('../middlewares/authorization/workspace.authorization');
+const { authorizationToCreateWorkspace, checkAdminRole, checkOwnership, checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 
 const { WorkspaceRedis } = require('../services/redis/index');
 const { workspaceService } = require('../services/db/index');
@@ -14,6 +14,7 @@ const { workspaceService } = require('../services/db/index');
 router.get('/:workspaceId/projects',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
+  checkWorkspaceMembership,
   async (req, res, next) => {
     try {
       const userId = req.user.sub;
@@ -108,7 +109,7 @@ router.delete('/:workspaceId',
       const userId = req.user.sub;
       const requesterStatus = req.ownerStatus;
 
-      const isWorkspaceDeleted = await workspaceService.delete(userId, workspaceId, requesterStatus.id);
+      const isWorkspaceDeleted = await workspaceService.delete(userId, workspaceId);
       if(!isWorkspaceDeleted) return next(boom.notFound('Workspace not found'));
 
       res.status(200).json({ message: 'Workspace deleted successfully' });

@@ -17,32 +17,64 @@ class AuthRedisService extends BaseRedisService {
   }
 
   async saveRefreshToken(userId, refreshToken) {
-    const response = await this.redis.set(this.refreshTokenKey(userId, refreshToken), refreshToken, 'EX', 15 * 24 * 60 * 60);
-    return response;
+    try {
+      const response = await this.redis.set(this.refreshTokenKey(userId, refreshToken), refreshToken, 'EX', 15 * 24 * 60 * 60);
+      if(response !== 'OK') throw boom.badRequest('Failed to save refresh token in Redis');
+      return response;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to save refresh token in Redis');
+    }
   }
 
   async verifyRefreshTokenInRedis(userId, refreshToken) {
-    const storedToken = await this.redis.get(this.refreshTokenKey(userId, refreshToken));
-    return storedToken;
+    try {
+      const storedToken = await this.redis.get(this.refreshTokenKey(userId, refreshToken));
+      if(storedToken === null) throw boom.badRequest('Key does not exist');
+      return storedToken;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to verify refresh token in Redis');
+    }
   }
 
   async removeRefreshToken(userId, refreshToken) {
-    const response = await this.redis.del(this.refreshTokenKey(userId, refreshToken));
-    return response;
+    try {
+      const response = await this.redis.del(this.refreshTokenKey(userId, refreshToken));
+      if(response === 0) throw boom.badRequest('Failed to remove refresh token in Redis (The key might not exist)');
+      return response;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to remove refresh token in Redis');
+    }
   }
 
   async saveTokenInRedis(userId, token){
-    await this.redis.set(this.tokenToVerifyEmail(userId, token), token, 'EX', 15 * 60);
+    try {
+      const result = await this.redis.set(this.tokenToVerifyEmail(userId, token), token, 'EX', 15 * 60);
+      if(result !== 'OK') throw boom.badRequest('Failed to save token in Redis');
+      return result;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to save token in Redis');
+    }
   }
 
   async verifyTokenInRedis(userId, token){
-    const storedToken = await this.redis.get(this.tokenToVerifyEmail(userId, token));
-    if(storedToken !== token) throw boom.unauthorized();
-    return storedToken;
+    try {
+      const storedToken = await this.redis.get(this.tokenToVerifyEmail(userId, token));
+      if(storedToken === null) throw boom.badRequest('Key does not exist');
+      if(storedToken !== token) throw boom.unauthorized();
+      return storedToken;
+    } catch (error) {
+
+    }
   }
 
   async removeToken(userId, token){
-    await this.redis.del(this.tokenToVerifyEmail(userId, token));
+    try {
+      const result = await this.redis.del(this.tokenToVerifyEmail(userId, token));
+      if(result === 0) throw boom.badRequest('Failed to remove token in Redis. (The key might not exist)');
+      return result;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to remove token in Redis');
+    }
   }
 }
 

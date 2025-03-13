@@ -126,8 +126,10 @@ class WorkspaceMemberService {
         if(admins.length > 0){
           await this.transferOwnership(workspaceId, requesterStatus.userId, admins[0].userId);
         } else if(members.length > 0){
-          await this.changeRole(workspaceId, members[0].id, 'admin');
-          await this.transferOwnership(workspaceId, requesterStatus.userId, members[0].userId);
+          await Promise.all([
+            this.changeRole(workspaceId, members[0].id, 'admin'),
+            this.transferOwnership(workspaceId, requesterStatus.userId, members[0].userId),
+          ]);
         }
         const removedOwner = await this.deleteMember(workspaceId, requesterStatus.id, requesterStatus.userId);
         return removedOwner;
@@ -162,19 +164,18 @@ class WorkspaceMemberService {
         { userId: newOwnerId },
         { where: { id: workspaceId }, returning: true, transaction },
       );
-      if(updatedRows === 0){
-        await transaction.rollback();
-        throw boom.badRequest('Failed to update workspace owner');
-      }
+      if(updatedRows === 0) throw boom.badRequest('Failed to update workspace owner');
 
-      await this.models.WorkspaceMember.update(
-        { propertyStatus: 'owner', role: 'admin' },
-        { where: { workspaceId, userId: newOwnerId }, transaction }
-      );
-      await this.models.WorkspaceMember.update(
-        { propertyStatus: 'guest', role: 'member' },
-        { where: { workspaceId, userId: currentOwnerId }, transaction }
-      );
+      await Promise.all([
+        this.models.WorkspaceMember.update(
+          { propertyStatus: 'owner', role: 'admin' },
+          { where: { workspaceId, userId: newOwnerId }, transaction }
+        ),
+        this.models.WorkspaceMember.update(
+          { propertyStatus: 'guest', role: 'member' },
+          { where: { workspaceId, userId: currentOwnerId }, transaction }
+        ),
+      ]);
 
       await transaction.commit();
       await this.redisModels.WorkspaceRedis.updateWorkspace(updatedWorkspace);

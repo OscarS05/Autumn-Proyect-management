@@ -8,17 +8,21 @@ class UserService {
   }
 
   async create(data) {
-    const { password, confirmPassword } = data;
-    if (password !== confirmPassword) {
-      throw boom.badRequest('Passwords do not match');
+    try {
+      const { password, confirmPassword } = data;
+      if (password !== confirmPassword) {
+        throw boom.badRequest('Passwords do not match');
+      }
+      const hash = await bcrypt.hash(password, 10);
+      const newUser = await this.models.User.create({
+        ...data,
+        password: hash,
+      });
+      delete newUser.dataValues.password;
+      return newUser;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to create user');
     }
-    const hash = await bcrypt.hash(password, 10);
-    const newUser = await this.models.User.create({
-      ...data,
-      password: hash,
-    });
-    delete newUser.dataValues.password;
-    return newUser;
   }
 
   async update(id, changes) {
@@ -48,29 +52,41 @@ class UserService {
   }
 
   async findByEmail(email){
-    const rta = await this.models.User.findOne({
-      where: { email },
-    });
-    return rta;
+    try {
+      const rta = await this.models.User.findOne({
+        where: { email },
+      });
+      return rta;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to find user by email');
+    }
   }
 
   async findOne(id){
-    const user = await this.models.User.findByPk(id);
-    if(!user){
-      throw boom.notFound('User not found');
+    try {
+      const user = await this.models.User.findByPk(id);
+      if(!user){
+        throw boom.notFound('User not found');
+      }
+      return user;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to find user');
     }
-    return user;
   }
 
   async findAll(conditional){
-    const users = await this.models.User.findAll(conditional || {});
-    return users.map(user => {
-      if (user.dataValues) {
-        delete user.dataValues.recoveryToken;
-        delete user.dataValues.password;
-      }
-      return user;
-    });
+    try {
+      const users = await this.models.User.findAll(conditional || {});
+      return users.map(user => {
+        if (user.dataValues) {
+          delete user.dataValues.recoveryToken;
+          delete user.dataValues.password;
+        }
+        return user;
+      });
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to find all users');
+    }
   }
 }
 

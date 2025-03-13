@@ -20,12 +20,19 @@ class WorkspaceService {
       )
 
       await transaction.commit();
-      await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, [ workspace.dataValues ]);
-      await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(
-        userId,
-        workspaceMember.workspaceId,
-        workspaceMember.id
-      );
+
+      try {
+        Promise.all([
+          await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, [ workspace.dataValues ]),
+          await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(
+            userId,
+            [workspaceMember.workspaceId],
+            [workspaceMember.id]
+          ),
+        ])
+      } catch (error) {
+        throw boom.badRequest(error.message || 'Something went wrong to save workspace in Redis');
+      }
 
       return workspace;
     } catch (error) {
@@ -54,7 +61,7 @@ class WorkspaceService {
     }
   }
 
-  async delete(userId, workspaceId, workspaceMemberId){
+  async delete(userId, workspaceId){
     const transaction = await this.sequelize.transaction();
     try {
       const deleted = await this.models.Workspace.destroy({
@@ -101,6 +108,7 @@ class WorkspaceService {
             include: [{ model: this.models.Project, as: 'project', }],
           }],
       });
+      if(Workspaces.length === 0) return [];
 
       const { workspaceIds, workspaceMemberIds } = Workspaces.reduce((acc, data) => {
         if(data){

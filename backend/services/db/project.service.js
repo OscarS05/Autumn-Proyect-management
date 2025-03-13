@@ -26,6 +26,7 @@ class ProjectService {
       );
       await transaction.commit();
       await this.redisModels.ProjectRedis.saveProjects([ project.dataValues ]);
+
       return project;
     } catch (error) {
       await transaction.rollback();
@@ -77,14 +78,16 @@ class ProjectService {
         throw boom.badRequest('Failed to update owner in project');
       }
 
-      await this.models.ProjectMember.update(
-        { role: 'admin', propertyStatus: 'owner' },
-        { where: { projectId, workspaceMemberId: newOwnerId }, transaction }
-      );
-      await this.models.ProjectMember.update(
-        { role: 'member', propertyStatus: 'guest' },
-        { where: { projectId, workspaceMemberId: currentOwnerId }, transaction }
-      );
+      await Promise.all([
+        this.models.ProjectMember.update(
+          { role: 'admin', propertyStatus: 'owner' },
+          { where: { projectId, workspaceMemberId: newOwnerId }, transaction }
+        ),
+        this.models.ProjectMember.update(
+          { role: 'member', propertyStatus: 'guest' },
+          { where: { projectId, workspaceMemberId: currentOwnerId }, transaction }
+        ),
+      ]);
 
       await transaction.commit();
       await this.redisModels.ProjectRedis.updateProject(updatedProject);
@@ -110,8 +113,8 @@ class ProjectService {
       );
 
       await transaction.commit();
-      await this.redisModels.ProjectRedis.deleteProject(projectId, workspaceId, workspaceMemberId);
-      await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, workspaceMemberId);
+      await this.redisModels.ProjectRedis.deleteProject(projectId, workspaceId);
+
       return response;
     } catch (error) {
       await transaction.rollback();

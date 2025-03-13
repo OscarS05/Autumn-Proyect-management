@@ -34,10 +34,9 @@ class ProjectMemberRedisService extends BaseRedisService {
       }
 
       const result = this.redis.srem(this.projectMembers(projectId), workspaceMemberId);
-      const isSuccessfully = result.every(res => res[0] == null);
-      if(!isSuccessfully) throw boom.badRequest('Failed to delete project member in Redis');
+      if (result === 0) throw boom.badRequest('No members were removed in Redis');
 
-      return { isSuccessfully };
+      return result;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to delete project member');
     }

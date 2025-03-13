@@ -46,12 +46,6 @@ class BaseRedisService {
   async del(key) {
     await this.redis.del(key);
   }
-
-  // async executePipeline(ids, keyFunction, redisCommand) {
-  //   const pipeline = this.redis.pipeline();
-  //   ids.forEach(id => pipeline[redisCommand](keyFunction(id)));
-  //   return (await pipeline.exec()).map(result => result[1]);
-  // }
 }
 
 module.exports = BaseRedisService;

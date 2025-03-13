@@ -27,12 +27,13 @@ class ProjectMemberService {
         { transaction }
       );
 
+      await transaction.commit();
+
       await this.redisModels.ProjectMemberRedis.saveProjectMember(
         addedMember.projectId,
         workspaceMember.id
       );
 
-      await transaction.commit();
       return addedMember.dataValues;
     } catch (error) {
       await transaction.rollback();

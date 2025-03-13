@@ -28,9 +28,8 @@ class WorkspaceMemberRedisService extends BaseRedisService {
       pipeline.expire(this.userWorkspaceMemberKey(userId), 3 * 24 * 60 * 60);
 
       const result = await pipeline.exec();
-
       const isSuccess = result.every(res => res[0] === null);
-      if(!isSuccess) throw boom.badRequest('Failed to save workspaceId by userId in Redis');
+      if(!isSuccess) throw boom.badRequest('Failed to save workspaceId by userId in Redis because something went wrong in the pipeline');
 
       return { isSuccess };
     } catch (error) {
@@ -48,7 +47,6 @@ class WorkspaceMemberRedisService extends BaseRedisService {
 
       const resultPipeline = await pipeline.exec();
       const isSuccessful = resultPipeline.every(res => res[0] == null);
-
       if(!isSuccessful) throw boom.badRequest('Failed to remove workspace in Redis');
 
       return isSuccessful;
