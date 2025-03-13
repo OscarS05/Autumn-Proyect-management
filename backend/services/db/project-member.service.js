@@ -12,9 +12,23 @@ class ProjectMemberService {
     try {
       const workspaceMember = await this.models.WorkspaceMember.findOne({
         where: { id: workspaceMemberId },
+        include: [{
+          model: this.models.Workspace,
+          as: 'workspace',
+          required: true,
+          attributes: ['id', 'name'],
+          include: [{
+            model: this.models.Project,
+            as: 'project',
+            where: { id: projectId },
+            required: true,
+            attributes: ['id', 'workspaceId']
+          }]
+        }],
+        attributes: ['id', 'workspaceId'],
         transaction
       });
-      if(!workspaceMember) throw boom.conflict('Workspace member ID is not part of the workspace');
+      if(!workspaceMember) throw boom.conflict('Workspace member ID does not exist or is not part of the workspace');
 
       const isMember = await this.models.ProjectMember.findOne({
         where: { projectId, workspaceMemberId },
