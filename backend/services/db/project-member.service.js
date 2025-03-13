@@ -55,6 +55,33 @@ class ProjectMemberService {
     }
   }
 
+  async changeRole(projectId, projectMemberId, newRole){
+    try {
+      const [updatedRows, [updatedProjectMember]] = await this.models.ProjectMember.update(
+        { role: newRole },
+        { where: { id: projectMemberId, projectId }, returning: true }
+      );
+      if(updatedRows === 0) throw boom.badRequest('Failed to update role');
+
+      return updatedProjectMember.dataValues;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to change role');
+    }
+  }
+
+  async roleChangeController(projectId, projectMemberId, newRole){
+    try {
+      const memberStatus = await this.getProjectMemberById(projectId, projectMemberId);
+      if(memberStatus.propertyStatus === 'owner') throw boom.forbidden("You cannot change the owner's role");
+      if(memberStatus.role === newRole) throw boom.conflict('The member already has this role');
+
+      const updatedMember = await this.changeRole(projectId, projectMemberId, newRole);
+      return updatedMember;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to change role');
+    }
+  }
+
   async getProjectMembers(projectId){
     try {
       const projectMembers = await this.models.ProjectMember.findAll(
@@ -82,6 +109,18 @@ class ProjectMemberService {
       return projectMembers.dataValues;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to find project members');
+    }
+  }
+
+  async getProjectMemberById(projectId, projectMemberId){
+    try {
+      const member = await this.models.ProjectMember.findOne({
+        where: { id: projectMemberId, projectId },
+      });
+
+      return member.dataValues;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to get project member status');
     }
   }
 }

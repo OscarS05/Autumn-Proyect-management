@@ -11,13 +11,13 @@ const addProjectMember = Joi.object({
   workspaceMemberId: id.required()
 });
 
-const updateWorkspaceMember = Joi.object({
+const roleChangeSchema = Joi.object({
   newRole: role.required(),
 });
 
-const updateWorkspaceMemberIdParams = Joi.object({
-  workspaceId: id.required(),
-  workspaceMemberId: id.required(),
+const projectParamsSchemas = Joi.object({
+  projectId: id.required(),
+  projectMemberId: id.required(),
 });
 
 const removeMember =  Joi.object({
@@ -32,5 +32,7 @@ const transferOwnership = Joi.object({
 
 module.exports = {
   addProjectMember,
-  projectIdSchema
+  projectIdSchema,
+  projectParamsSchemas,
+  roleChangeSchema
 };
