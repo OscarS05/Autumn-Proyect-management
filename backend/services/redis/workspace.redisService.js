@@ -1,4 +1,4 @@
-const { Boom } = require('@hapi/boom');
+const boom = require('@hapi/boom');
 const BaseRedisService = require('./base.redisService');
 
 class WorkspaceRedisService extends BaseRedisService {
@@ -43,7 +43,7 @@ class WorkspaceRedisService extends BaseRedisService {
       const resultSaveProjects = await this.projectRedisService.saveProjects(projects);
       return { result, resultSaveProjects };
     } catch (error) {
-      throw Boom.badRequest(error.message || 'Failed to delete workspace');
+      throw boom.badRequest(error.message || 'Failed to delete workspace');
     }
   }
 
@@ -66,7 +66,7 @@ class WorkspaceRedisService extends BaseRedisService {
 
   async deleteWorkspace(workspaceId){
     try {
-      if(!workspaceId) throw Boom.badRequest('workspaceId not provided');
+      if(!workspaceId) throw boom.badRequest('workspaceId not provided');
 
       const workspaceMembersIds = await this.redis.smembers(this.workspaceMembers(workspaceId));
       const workspaceProjects = await this.redis.smembers(this.workspaceProjectsKey(workspaceId));
@@ -84,11 +84,11 @@ class WorkspaceRedisService extends BaseRedisService {
       const result = await pipeline.exec();
 
       const isSuccess = result.every(res => res[0] === null);
-      if(!isSuccess) throw Boom.badRequest('Failed to delete all workspace data in Redis');
+      if(!isSuccess) throw boom.badRequest('Failed to delete all workspace data in Redis');
 
       return { isSuccess };
     } catch (error) {
-      throw Boom.badRequest(error.message || 'Failed to delete workspace');
+      throw boom.badRequest(error.message || 'Failed to delete workspace');
     }
   }
 
@@ -206,11 +206,11 @@ class WorkspaceRedisService extends BaseRedisService {
 
       const resultPipeline = await pipeline.exec();
       const isSuccessfully = resultPipeline.every(res => res[0] === null);
-      if(!isSuccessfully) throw Boom.badRequest('Failed to get workspaces or projects ids');
+      if(!isSuccessfully) throw boom.badRequest('Failed to get workspaces or projects ids');
 
       return resultPipeline
     } catch (error) {
-      throw Boom.badRequest(error.message || 'Failed to get workspaces and their projects ids');
+      throw boom.badRequest(error.message || 'Failed to get workspaces and their projects ids');
     }
   }
 

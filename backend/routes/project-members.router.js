@@ -1,6 +1,6 @@
 const router = require('./project.router');
 
-const { Boom } = require('@hapi/boom');
+const boom = require('@hapi/boom');
 
 const { validateSession } = require('../middlewares/authentication.handler');
 const { checkProjectMembership, checkAdminRole } = require('../middlewares/authorization/project.authorization');
@@ -39,7 +39,7 @@ router.post('/:projectId/members',
       const { workspaceMemberId } = req.body;
 
       const addedMember = await projectMemberService.addProjectMember(projectId, workspaceMemberId);
-      if(!addedMember) throw Boom.badRequest('Failed to add member to project');
+      if(!addedMember) throw boom.badRequest('Failed to add member to project');
 
       res.status(200).json({ message: 'Member was added successfully', addedMember });
     } catch (error) {

@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const { Boom } = require('@hapi/boom');
+const boom = require('@hapi/boom');
 
 const UserService = require('./../../services/db/user.service');
 const service = new UserService();
@@ -32,6 +32,6 @@ module.exports = cron.schedule('0 0 * * *', async () => {
       return { message: 'No unverified accounts were found to remove.' };
     }
   } catch (error) {
-    return Boom.internal('Error in cron job', error);
+    return boom.internal('Error in cron job', error);
   }
 });

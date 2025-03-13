@@ -1,4 +1,4 @@
-const { Boom } = require('@hapi/boom');
+const boom = require('@hapi/boom');
 const BaseRedisService = require('./base.redisService');
 
 class WorkspaceMemberRedisService extends BaseRedisService {
@@ -9,7 +9,7 @@ class WorkspaceMemberRedisService extends BaseRedisService {
   async saveWorkspaceIdByUserId(userId, workspaceIds, workspaceMemberIds){
     try {
       if (!userId || workspaceIds.length === 0 || workspaceMemberIds.length === 0) {
-        throw Boom.badRequest('userId or workspaceId not provided');
+        throw boom.badRequest('userId or workspaceId not provided');
       }
 
       const pipeline = this.redis.pipeline();
@@ -30,11 +30,11 @@ class WorkspaceMemberRedisService extends BaseRedisService {
       const result = await pipeline.exec();
 
       const isSuccess = result.every(res => res[0] === null);
-      if(!isSuccess) throw Boom.badRequest('Failed to save workspaceId by userId in Redis');
+      if(!isSuccess) throw boom.badRequest('Failed to save workspaceId by userId in Redis');
 
       return { isSuccess };
     } catch (error) {
-      throw Boom.badRequest(error.message || 'Failed to save workspaceId by userId in Redis');
+      throw boom.badRequest(error.message || 'Failed to save workspaceId by userId in Redis');
     }
   }
 
@@ -49,11 +49,11 @@ class WorkspaceMemberRedisService extends BaseRedisService {
       const resultPipeline = await pipeline.exec();
       const isSuccessful = resultPipeline.every(res => res[0] == null);
 
-      if(!isSuccessful) throw Boom.badRequest('Failed to remove workspace in Redis');
+      if(!isSuccessful) throw boom.badRequest('Failed to remove workspace in Redis');
 
       return isSuccessful;
     } catch (error) {
-      throw Boom.badRequest(error.message || 'Failed to remove workspace in Redis');
+      throw boom.badRequest(error.message || 'Failed to remove workspace in Redis');
     }
   }
 }

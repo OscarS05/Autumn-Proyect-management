@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Boom } = require('@hapi/boom');
+const boom = require('@hapi/boom');
 
 const { createWorkspace, updateWorkspace, workspaceIdSchema } = require('./../schemas/workspace.schema');
 
@@ -67,8 +67,8 @@ router.post('/',
       const userId = req.user.sub;
 
       const workspace = await workspaceService.create({ name, description, userId });
-      if(workspace.isBoom){
-        return next(Boom.badRequest('Failed to create workspace'));
+      if(workspace.isboom){
+        return next(boom.badRequest('Failed to create workspace'));
       }
       res.status(201).json({ workspace: workspace });
     } catch (error) {
@@ -89,7 +89,7 @@ router.patch('/:workspaceId',
       const userId = req.user.sub;
 
       const workspaceUpdated = await workspaceService.update(workspaceId, data, userId);
-      if(!workspaceUpdated) return next(Boom.badRequest('Failed to update workspace'));
+      if(!workspaceUpdated) return next(boom.badRequest('Failed to update workspace'));
 
       res.status(200).json({ message: 'Workspace updated successfully', workspace: workspaceUpdated });
     } catch (error) {
@@ -109,7 +109,7 @@ router.delete('/:workspaceId',
       const requesterStatus = req.ownerStatus;
 
       const isWorkspaceDeleted = await workspaceService.delete(userId, workspaceId, requesterStatus.id);
-      if(!isWorkspaceDeleted) return next(Boom.notFound('Workspace not found'));
+      if(!isWorkspaceDeleted) return next(boom.notFound('Workspace not found'));
 
       res.status(200).json({ message: 'Workspace deleted successfully' });
     } catch (error) {

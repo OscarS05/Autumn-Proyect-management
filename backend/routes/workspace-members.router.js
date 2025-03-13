@@ -1,6 +1,6 @@
 const router = require('./workspace.router');
 
-const { Boom } = require('@hapi/boom');
+const boom = require('@hapi/boom');
 
 const { workspaceIdSchema } = require('./../schemas/workspace.schema');
 const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember, transferOwnership } = require('./../schemas/workspace-member.schema');
@@ -39,7 +39,7 @@ router.post('/:workspaceId/members',
       const { userId } = req.body;
 
       const addedMember = await workspaceMemberService.create(workspaceId, userId);
-      if(!addedMember) throw Boom.badRequest('Failed to add member');
+      if(!addedMember) throw boom.badRequest('Failed to add member');
 
       res.status(201).json({ message: 'Member added successfully', workspaceMember: addedMember });
     } catch (error) {
@@ -59,7 +59,7 @@ router.patch('/:workspaceId/members/:workspaceMemberId',
       const { newRole } = req.body;
 
       const updatedMember = await workspaceMemberService.handleUpdateRole(workspaceId, workspaceMemberId, newRole);
-      if(updatedMember === 0) throw Boom.badRequest('Failed to update role');
+      if(updatedMember === 0) throw boom.badRequest('Failed to update role');
 
       res.status(200).json({ message: 'Updated successfully', updatedMember });
     } catch (error) {
@@ -80,7 +80,7 @@ router.patch('/:workspaceId/ownership',
       const { newOwnerId } = req.body;
 
       const updatedWorkspace = await workspaceMemberService.transferOwnership(workspaceId, userId, newOwnerId);
-      if(!updatedWorkspace) throw Boom.notFound('Workspace not found or transfer failed');
+      if(!updatedWorkspace) throw boom.notFound('Workspace not found or transfer failed');
 
       res.status(200).json({ updatedWorkspace });
     } catch (error) {
@@ -99,7 +99,7 @@ router.delete('/:workspaceId/members/:workspaceMemberId',
       const requesterStatus = req.workspaceMemberStatus;
 
       const deletedMember = await workspaceMemberService.handleRemoveMember(workspaceId, workspaceMemberId, requesterStatus);
-      if(deletedMember === 0) return next(Boom.badRequest('Member not found or already removed'));
+      if(deletedMember === 0) return next(boom.badRequest('Member not found or already removed'));
 
       res.status(200).json({ message: 'Member was removed successfully' });
     } catch (error) {
@@ -118,7 +118,7 @@ router.delete('/:workspaceId/members',
       const requesterStatus = req.workspaceMemberStatus;
 
       const deletedMember = await workspaceMemberService.leaveTheWorkspace(workspaceId, requesterStatus);
-      if(deletedMember === 0) return next(Boom.badRequest('Member not found or already removed'));
+      if(deletedMember === 0) return next(boom.badRequest('Member not found or already removed'));
 
       res.status(200).json({ message: 'Owner was removed successfully' });
     } catch (error) {

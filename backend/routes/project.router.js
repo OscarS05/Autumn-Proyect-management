@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Boom } = require('@hapi/boom');
+const boom = require('@hapi/boom');
 
 const { workspaceIdSchema } = require('./../schemas/workspace.schema');
 const { createProject, deleteProject, updateProject, projectIdSchema, transferOwnership } = require('./../schemas/project.schema');
@@ -46,7 +46,7 @@ router.post('/',
       const userId = req.user.sub;
 
       const projectCreated = await projectService.create({ name, visibility, workspaceId, workspaceMemberId });
-      if(!projectCreated) throw Boom.badRequest('Failed to create workspace');
+      if(!projectCreated) throw boom.badRequest('Failed to create workspace');
 
       res.status(201).json({ message: 'Project created successfully', project: projectCreated });
     } catch (error) {
@@ -65,7 +65,7 @@ router.patch('/:projectId',
       const data = req.body;
 
       const updatedProject = await projectService.update(projectId, data);
-      if(!updatedProject) return Boom.badRequest('Failed to create workspace');
+      if(!updatedProject) return boom.badRequest('Failed to create workspace');
 
       res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
     } catch (error) {
@@ -84,7 +84,7 @@ router.patch('/:projectId/ownership',
       const { currentOwnerId, newOwnerId } = req.body;
 
       const updatedProject = await projectService.transferOwnership(projectId, currentOwnerId, newOwnerId);
-      if(!updatedProject) throw Boom.notFound('Workspace or new owner not found');
+      if(!updatedProject) throw boom.notFound('Workspace or new owner not found');
 
       res.status(200).json({ updatedProject });
     } catch (error) {
@@ -103,7 +103,7 @@ router.delete('/:projectId',
       const { workspaceId, workspaceMemberId, projectMemberId } = req.body;
 
       const response = await projectService.delete(projectId, workspaceId, workspaceMemberId, projectMemberId);
-      if(response === 0) return Boom.badRequest('Failed to delete project');
+      if(response === 0) return boom.badRequest('Failed to delete project');
 
       res.status(200).json({ message: 'Project deleted successfully' });
     } catch (error) {
