@@ -15,8 +15,8 @@ class WorkspaceMemberRedisService extends BaseRedisService {
       const pipeline = this.redis.pipeline();
 
       workspaceIds.forEach(workspaceId => {
-        pipeline.sadd(this.workspaceMembers(workspaceId), userId);
-        pipeline.expire(this.workspaceMembers(workspaceId), 3 * 24 * 60 * 60);
+        pipeline.sadd(this.workspaceMembersByUserId(workspaceId), userId);
+        pipeline.expire(this.workspaceMembersByUserId(workspaceId), 3 * 24 * 60 * 60);
 
         pipeline.sadd(this.userWorkspacesKey(userId), workspaceId);
       });
@@ -42,7 +42,7 @@ class WorkspaceMemberRedisService extends BaseRedisService {
       const pipeline = this.redis.pipeline();
 
       pipeline.srem(this.userWorkspaceMemberKey(userId), workspaceMemberId);
-      pipeline.srem(this.workspaceMembers(workspaceId), userId);
+      pipeline.srem(this.workspaceMembersByUserId(workspaceId), userId);
       pipeline.srem(this.userWorkspacesKey(userId), workspaceId);
 
       const resultPipeline = await pipeline.exec();

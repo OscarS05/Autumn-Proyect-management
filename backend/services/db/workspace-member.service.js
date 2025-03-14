@@ -1,10 +1,11 @@
 const boom = require('@hapi/boom');
 
 class WorkspaceMemberService {
-  constructor(sequelize, models, redisModels) {
+  constructor(sequelize, models, redisModels, workspaceService) {
     this.sequelize = sequelize;
     this.models = models;
     this.redisModels = redisModels;
+    this.workspaceService = workspaceService
   }
 
   async create(workspaceId, userId){
@@ -109,7 +110,8 @@ class WorkspaceMemberService {
   async handleOwnerExit(workspaceId, requesterStatus, workspaceMembers){
     try {
       if(workspaceMembers.length === 1 && workspaceMembers[0].propertyStatus === 'owner'){
-        const removedWorkspace = await this.models.workspaceService.delete(requesterStatus.userId, workspaceId, requesterStatus.id);
+        const workspaceMembersIds = workspaceMembers.map(workspaceMember => workspaceMember.id);
+        const removedWorkspace = await this.workspaceService.delete(requesterStatus.userId, workspaceId, workspaceMembersIds);
         return removedWorkspace;
       } else if(workspaceMembers.length > 1){
         const { admins, members } = workspaceMembers.reduce((acc, member) => {

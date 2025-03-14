@@ -26,8 +26,8 @@ class WorkspaceRedisService extends BaseRedisService {
 
         pipeline.sadd(this.userWorkspacesKey(userId), workspace.id);
 
-        pipeline.sadd(this.workspaceMembers(workspace.id), userId);
-        pipeline.expire(this.workspaceMembers(workspace.id), 3 * 24 * 60 * 60);
+        pipeline.sadd(this.workspaceMembersByUserId(workspace.id), userId);
+        pipeline.expire(this.workspaceMembersByUserId(workspace.id), 3 * 24 * 60 * 60);
 
         if(Array.isArray(workspace.project) && workspace.project.length > 0) {
           const listOfProjects = [...workspace.project].map(project => project.dataValues);
@@ -73,22 +73,31 @@ class WorkspaceRedisService extends BaseRedisService {
     }
   }
 
-  async deleteWorkspace(workspaceId){
+  async deleteWorkspace(workspaceId, userId, workspaceMembersIds){
     try {
       if(!workspaceId) throw boom.badRequest('workspaceId not provided');
-      const [ workspaceMembersIds, workspaceProjects ] = await Promise.all([
-        this.redis.smembers(this.workspaceMembers(workspaceId)),
+      if(workspaceMembersIds.length === 0) throw boom.badRequest('workspaceMembers not provided');
+      const [ workspaceMembersByUsersIds, workspaceProjects ] = await Promise.all([
+        this.redis.smembers(this.workspaceMembersByUserId(workspaceId)),
         this.redis.smembers(this.workspaceProjectsKey(workspaceId)),
       ]);
 
       const pipeline = this.redis.pipeline();
-      workspaceMembersIds.forEach(memberId => {
-        pipeline.srem(this.userWorkspacesKey(memberId), workspaceId);
+
+      workspaceMembersByUsersIds.forEach(userId => {
+        pipeline.srem(this.userWorkspacesKey(userId), workspaceId);
       });
+
+      workspaceMembersIds.forEach(workspaceMemberId => {
+        pipeline.srem(this.userWorkspaceMemberKey(userId), workspaceMemberId);
+      });
+
       workspaceProjects.forEach(projectId => {
+        pipeline.del(this.projectMembers(projectId));
         pipeline.del(this.projectKey(projectId));
       });
-      pipeline.del(this.workspaceMembers(workspaceId));
+
+      pipeline.del(this.workspaceMembersByUserId(workspaceId));
       pipeline.del(this.workspaceKey(workspaceId));
 
       const result = await pipeline.exec();

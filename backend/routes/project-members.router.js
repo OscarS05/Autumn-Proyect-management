@@ -41,7 +41,7 @@ router.post('/:projectId/members',
       const addedMember = await projectMemberService.addProjectMember(projectId, workspaceMemberId);
       if(!addedMember) throw boom.badRequest('Failed to add member to project');
 
-      res.status(200).json({ message: 'Member was added successfully', addedMember });
+      res.status(201).json({ message: 'Member was added successfully', addedMember });
     } catch (error) {
       next(error);
     }
@@ -101,6 +101,25 @@ router.delete('/:projectId/members/:projectMemberId',
       if(deletedMember === 0) throw boom.badRequest('Failed to delete the member');
 
       res.status(200).json({ message: 'Member was removed successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete('/:projectId/members',
+  validateSession,
+  validatorHandler(projectIdSchema, 'params'),
+  checkProjectMembership,
+  async (req, res, next) => {
+    try {
+      const { projectId } = req.params;
+      const requesterData = req.projectMember;
+
+      const removedMember = await projectMemberService.leaveTheProject(projectId, requesterData);
+      if(removedMember === 0) throw boom.badRequest('Failed to leave the project');
+
+      res.status(200).json({ message: 'You have successfully left the project' });
     } catch (error) {
       next(error);
     }

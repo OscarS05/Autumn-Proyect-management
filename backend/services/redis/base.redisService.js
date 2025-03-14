@@ -27,7 +27,7 @@ class BaseRedisService {
     return `project:${projectId}:members`;
   }
 
-  workspaceMembers(workspaceId){
+  workspaceMembersByUserId(workspaceId){
     return `workspace:${workspaceId}:members`;
   }
 }

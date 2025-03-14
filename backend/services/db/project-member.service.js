@@ -1,10 +1,11 @@
 const boom = require("@hapi/boom");
 
 class ProjectMemberService {
-  constructor(sequelize, models, redisModels){
+  constructor(sequelize, models, redisModels, projectService){
     this.sequelize = sequelize;
     this.models = models;
     this.redisModels = redisModels;
+    this.projectService = projectService;
   }
 
   async addProjectMember(projectId, workspaceMemberId){
@@ -82,37 +83,6 @@ class ProjectMemberService {
     }
   }
 
-  async deleteMember(projectId, projectMemberId){
-    try {
-      const removedMember = await this.models.ProjectMember.destroy(
-        { where: { projectId, id: projectMemberId } }
-      );
-
-      return removedMember;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Failed to remove member');
-    }
-  }
-
-  async removeMemberController(projectId, projectMemberId, requesterData){
-    try {
-      const memberTobeRemoved = await this.getProjectMemberById(projectId, projectMemberId);
-      if(memberTobeRemoved == null) throw boom.badRequest('The project member you want to delete does not exist in the project');
-      if(memberTobeRemoved.propertyStatus === 'owner') throw boom.forbidden("You cannot remove the owner");
-      if(memberTobeRemoved.role === 'admin' && requesterData.propertyStatus === 'guest') throw boom.forbidden("You cannot remove an administrator");
-      if(memberTobeRemoved.id === requesterData.id) throw boom.forbidden("You cannot remove yourself");
-
-      const removedMember = await this.deleteMember(projectId, projectMemberId);
-      if(removedMember === 0) throw boom.badRequest('Member not found or already removed');
-
-      await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, memberTobeRemoved.workspaceMemberId);
-
-      return removedMember;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Unexpected error while removing member');
-    }
-  }
-
   async transferOwnership(projectId, currentOwnerId, newOwnerId){
     const transaction = await this.sequelize.transaction();
     try {
@@ -157,6 +127,95 @@ class ProjectMemberService {
     }
   }
 
+  async deleteMember(projectId, projectMemberId){
+    try {
+      const removedMember = await this.models.ProjectMember.destroy(
+        { where: { projectId, id: projectMemberId } }
+      );
+
+      return removedMember;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to remove member');
+    }
+  }
+
+  async removeMemberController(projectId, projectMemberId, requesterData){
+    try {
+      const memberTobeRemoved = await this.getProjectMemberById(projectId, projectMemberId);
+      if(memberTobeRemoved == null) throw boom.badRequest('The project member you want to delete does not exist in the project');
+      if(memberTobeRemoved.propertyStatus === 'owner') throw boom.forbidden("You cannot remove the owner");
+      if(memberTobeRemoved.role === 'admin' && requesterData.propertyStatus === 'guest') throw boom.forbidden("You cannot remove an administrator");
+      if(memberTobeRemoved.id === requesterData.id) throw boom.forbidden("You cannot remove yourself");
+
+      const removedMember = await this.deleteMember(projectId, projectMemberId);
+      if(removedMember === 0) throw boom.badRequest('Member not found or already removed');
+
+      await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, memberTobeRemoved.workspaceMemberId);
+
+      return removedMember;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Unexpected error while removing member');
+    }
+  }
+
+  async leaveTheProject(projectId, requesterData){
+      try {
+        if(requesterData.propertyStatus === 'owner'){
+          const removedOwner = await this.handleOwnerExit(projectId, requesterData);
+          return removedOwner;
+        } else {
+          const removedMember = await this.deleteMember(projectId, requesterData.id);
+          if(removedMember === 0) throw boom.badRequest('Member not found or already removed');
+
+          await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, requesterData.workspaceMemberId);
+          return removedMember;
+        }
+      } catch (error) {
+        throw boom.badRequest(error.message || 'Unexpected error while leaving the workspace');
+      }
+    }
+
+    async handleOwnerExit(projectId, requesterData){
+      try {
+        const [ workspaceId, projectMembers ] = await Promise.all([
+          this.projectService.findProjectWorkspace(projectId),
+          this.findAllProjectMembers(projectId),
+        ]);
+
+        if(projectMembers.length === 1 && projectMembers[0].propertyStatus === 'owner'){
+          const removedWorkspace = await this.projectService.delete(projectId, workspaceId, requesterData.workspaceMemberId, requesterData.id);
+          return removedWorkspace;
+        } else if(projectMembers.length > 1){
+          const { admins, members } = projectMembers.reduce((acc, member) => {
+            if(member.propertyStatus !== 'owner'){
+              if(member.role === 'admin'){
+                acc.admins.push(member);
+              } else if(member.role === 'member'){
+                acc.members.push(member);
+              }
+            }
+            return acc;
+          }, { admins: [], members: [] });
+
+          if(admins.length > 0){
+            await this.transferOwnership(projectId, requesterData.workspaceMemberId, admins[0].workspaceMemberId);
+          } else if(members.length > 0){
+            await Promise.all([
+              this.changeRole(projectId, members[0].id, 'admin'),
+              this.transferOwnership(projectId, requesterData.workspaceMemberId, members[0].workspaceMemberId),
+            ]);
+          }
+          const removedOwner = await this.deleteMember(projectId, requesterData.id);
+          if(removedOwner === 0) throw boom.badRequest('Member not found or already removed');
+
+          await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, requesterData.workspaceMemberId);
+          return removedOwner;
+        }
+      } catch (error) {
+        throw boom.badRequest(error.message || 'Unexpected error while removing the owner');
+      }
+    }
+
   async getProjectMembers(projectId){
     try {
       const projectMembers = await this.models.ProjectMember.findAll(
@@ -196,6 +255,17 @@ class ProjectMemberService {
       return member;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to get project member status');
+    }
+  }
+
+  async findAllProjectMembers(projectId){
+    try {
+      const projectMembers = await this.models.ProjectMember.findAll({
+        where: { projectId }
+      });
+      return projectMembers;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Something went wrong');
     }
   }
 }

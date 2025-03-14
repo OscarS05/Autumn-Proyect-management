@@ -61,7 +61,7 @@ class WorkspaceService {
     }
   }
 
-  async delete(userId, workspaceId){
+  async delete(userId, workspaceId, workspaceMembersIds){
     const transaction = await this.sequelize.transaction();
     try {
       const deleted = await this.models.Workspace.destroy({
@@ -75,7 +75,7 @@ class WorkspaceService {
       }
 
       await transaction.commit();
-      await this.redisModels.WorkspaceRedis.deleteWorkspace(workspaceId);
+      await this.redisModels.WorkspaceRedis.deleteWorkspace(workspaceId, userId, workspaceMembersIds);
 
       return deleted;
     } catch (error) {

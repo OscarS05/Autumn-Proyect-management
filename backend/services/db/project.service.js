@@ -87,6 +87,18 @@ class ProjectService {
     }
   }
 
+  async findProjectWorkspace(projectId){
+    try {
+      const workspace = await this.models.Project.findOne({
+        where: { id: projectId }
+      });
+      const workspaceId = workspace.id;
+      return workspaceId;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to find project workspace');
+    }
+  }
+
   async countProjectsByWorkspaceMember(workspaceId, workspaceMemberId){
     const count = await this.models.Project.count(
       { where: { workspaceId, workspaceMemberId } }

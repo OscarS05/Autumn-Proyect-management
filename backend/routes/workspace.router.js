@@ -109,7 +109,7 @@ router.delete('/:workspaceId',
       const userId = req.user.sub;
       const requesterStatus = req.ownerStatus;
 
-      const isWorkspaceDeleted = await workspaceService.delete(userId, workspaceId);
+      const isWorkspaceDeleted = await workspaceService.delete(userId, workspaceId, [requesterStatus.id]);
       if(!isWorkspaceDeleted) return next(boom.notFound('Workspace not found'));
 
       res.status(200).json({ message: 'Workspace deleted successfully' });
