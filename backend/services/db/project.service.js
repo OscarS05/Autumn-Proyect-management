@@ -50,54 +50,6 @@ class ProjectService {
     }
   }
 
-  async transferOwnership(projectId, currentOwnerId, newOwnerId){
-    const transaction = await this.sequelize.transaction();
-    try {
-      const project = await this.models.Project.findOne({
-        where: { id: projectId, workspaceMemberId: currentOwnerId },
-        include: {
-          model: this.models.WorkspaceMember,
-          as: 'members',
-          attributes: ['id', 'role', 'property_status'],
-          where: { id: newOwnerId },
-          required: false
-        }
-      });
-      if(!project){
-        throw boom.badRequest('Project not found');
-      }
-      if(project.members.length === 0){
-        throw boom.badRequest('New owner is incorrect');
-      }
-
-      const [ updatedRows, [updatedProject] ] = await this.models.Project.update(
-        { workspaceMemberId: newOwnerId },
-        { where: { id: projectId }, returning: true, transaction },
-      );
-      if(updatedRows === 0){
-        throw boom.badRequest('Failed to update owner in project');
-      }
-
-      await Promise.all([
-        this.models.ProjectMember.update(
-          { role: 'admin', propertyStatus: 'owner' },
-          { where: { projectId, workspaceMemberId: newOwnerId }, transaction }
-        ),
-        this.models.ProjectMember.update(
-          { role: 'member', propertyStatus: 'guest' },
-          { where: { projectId, workspaceMemberId: currentOwnerId }, transaction }
-        ),
-      ]);
-
-      await transaction.commit();
-      await this.redisModels.ProjectRedis.updateProject(updatedProject);
-      return updatedProject;
-    } catch (error) {
-      await transaction.rollback();
-      throw boom.badRequest(error.message || 'Failed to transfer ownership');
-    }
-  }
-
   async delete(projectId, workspaceId, workspaceMemberId, projectMemberId){
     const transaction = await this.sequelize.transaction();
 

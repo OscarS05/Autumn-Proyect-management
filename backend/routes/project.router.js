@@ -3,7 +3,7 @@ const router = express.Router();
 const boom = require('@hapi/boom');
 
 const { workspaceIdSchema } = require('./../schemas/workspace.schema');
-const { createProject, deleteProject, updateProject, projectIdSchema, transferOwnership } = require('./../schemas/project.schema');
+const { createProject, deleteProject, updateProject, projectIdSchema } = require('./../schemas/project.schema');
 
 const { validatorHandler } = require('./../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
@@ -68,25 +68,6 @@ router.patch('/:projectId',
       if(!updatedProject) return boom.badRequest('Failed to create workspace');
 
       res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.patch('/:projectId/ownership',
-  validateSession,
-  validatorHandler(projectIdSchema, 'params'),
-  validatorHandler(transferOwnership, 'body'),
-  async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const { currentOwnerId, newOwnerId } = req.body;
-
-      const updatedProject = await projectService.transferOwnership(projectId, currentOwnerId, newOwnerId);
-      if(!updatedProject) throw boom.notFound('Workspace or new owner not found');
-
-      res.status(200).json({ updatedProject });
     } catch (error) {
       next(error);
     }

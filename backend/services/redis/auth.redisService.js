@@ -29,7 +29,7 @@ class AuthRedisService extends BaseRedisService {
   async verifyRefreshTokenInRedis(userId, refreshToken) {
     try {
       const storedToken = await this.redis.get(this.refreshTokenKey(userId, refreshToken));
-      if(storedToken === null) throw boom.badRequest('Key does not exist');
+      if(storedToken == null) throw boom.badRequest('Key does not exist');
       return storedToken;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to verify refresh token in Redis');

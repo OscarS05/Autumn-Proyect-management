@@ -30,22 +30,6 @@ class BaseRedisService {
   workspaceMembers(workspaceId){
     return `workspace:${workspaceId}:members`;
   }
-
-  async set(key, value, expiration = null) {
-    if (expiration) {
-      return this.redis.set(key, JSON.stringify(value), "EX", expiration);
-    }
-    return this.redis.set(key, JSON.stringify(value));
-  }
-
-  async get(key) {
-    const data = await this.redis.get(key);
-    return data || null;
-  }
-
-  async del(key) {
-    await this.redis.del(key);
-  }
 }
 
 module.exports = BaseRedisService;

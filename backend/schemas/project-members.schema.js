@@ -26,6 +26,7 @@ const removeMember =  Joi.object({
 });
 
 const transferOwnership = Joi.object({
+  currentOwnerId: id.required(),
   newOwnerId: id.required()
 });
 
@@ -34,5 +35,6 @@ module.exports = {
   addProjectMember,
   projectIdSchema,
   projectParamsSchemas,
-  roleChangeSchema
+  roleChangeSchema,
+  transferOwnership
 };

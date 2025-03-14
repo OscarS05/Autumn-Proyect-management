@@ -4,9 +4,9 @@ const boom = require('@hapi/boom');
 
 const { validatorHandler } = require('../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
-const { checkProjectMembership, checkAdminRole } = require('../middlewares/authorization/project.authorization');
+const { checkProjectMembership, checkAdminRole, checkOwnership } = require('../middlewares/authorization/project.authorization');
 
-const { projectIdSchema, addProjectMember, roleChangeSchema, projectParamsSchemas } = require('../schemas/project-members.schema');
+const { projectIdSchema, addProjectMember, roleChangeSchema, projectParamsSchemas, transferOwnership } = require('../schemas/project-members.schema');
 
 const { projectMemberService } = require('../services/db/index');
 
@@ -62,6 +62,26 @@ router.patch('/:projectId/members/:projectMemberId',
       if(!updatedMember) throw boom.badRequest('Failed to update role');
 
       res.status(200).json({ message: 'The role has been changed successfully', updatedMember });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.patch('/:projectId/ownership',
+  validateSession,
+  validatorHandler(projectIdSchema, 'params'),
+  validatorHandler(transferOwnership, 'body'),
+  checkOwnership,
+  async (req, res, next) => {
+    try {
+      const { projectId } = req.params;
+      const { currentOwnerId, newOwnerId } = req.body;
+
+      const updatedProject = await projectMemberService.transferOwnership(projectId, currentOwnerId, newOwnerId);
+      if(!updatedProject) throw boom.notFound('Workspace or new owner not found');
+
+      res.status(200).json({ updatedProject });
     } catch (error) {
       next(error);
     }
