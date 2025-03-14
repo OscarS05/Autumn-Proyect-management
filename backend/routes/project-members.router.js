@@ -88,4 +88,23 @@ router.patch('/:projectId/ownership',
   }
 );
 
+router.delete('/:projectId/members/:projectMemberId',
+  validateSession,
+  validatorHandler(projectParamsSchemas, 'params'),
+  checkAdminRole,
+  async (req, res, next) => {
+    try {
+      const { projectId, projectMemberId } = req.params;
+      const requesterData = req.projectMember.dataValues;
+
+      const deletedMember = await projectMemberService.removeMemberController(projectId, projectMemberId, requesterData);
+      if(deletedMember === 0) throw boom.badRequest('Failed to delete the member');
+
+      res.status(200).json({ message: 'Member was removed successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 module.exports = router;

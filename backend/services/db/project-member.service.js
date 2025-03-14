@@ -82,6 +82,37 @@ class ProjectMemberService {
     }
   }
 
+  async deleteMember(projectId, projectMemberId){
+    try {
+      const removedMember = await this.models.ProjectMember.destroy(
+        { where: { projectId, id: projectMemberId } }
+      );
+
+      return removedMember;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to remove member');
+    }
+  }
+
+  async removeMemberController(projectId, projectMemberId, requesterData){
+    try {
+      const memberTobeRemoved = await this.getProjectMemberById(projectId, projectMemberId);
+      if(memberTobeRemoved == null) throw boom.badRequest('The project member you want to delete does not exist in the project');
+      if(memberTobeRemoved.propertyStatus === 'owner') throw boom.forbidden("You cannot remove the owner");
+      if(memberTobeRemoved.role === 'admin' && requesterData.propertyStatus === 'guest') throw boom.forbidden("You cannot remove an administrator");
+      if(memberTobeRemoved.id === requesterData.id) throw boom.forbidden("You cannot remove yourself");
+
+      const removedMember = await this.deleteMember(projectId, projectMemberId);
+      if(removedMember === 0) throw boom.badRequest('Member not found or already removed');
+
+      await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, memberTobeRemoved.workspaceMemberId);
+
+      return removedMember;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Unexpected error while removing member');
+    }
+  }
+
   async transferOwnership(projectId, currentOwnerId, newOwnerId){
     const transaction = await this.sequelize.transaction();
     try {
@@ -162,7 +193,7 @@ class ProjectMemberService {
         where: { id: projectMemberId, projectId },
       });
 
-      return member.dataValues;
+      return member;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to get project member status');
     }
