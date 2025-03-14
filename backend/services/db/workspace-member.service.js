@@ -1,11 +1,13 @@
 const boom = require('@hapi/boom');
 
 class WorkspaceMemberService {
-  constructor(sequelize, models, redisModels, workspaceService) {
+  constructor(sequelize, models, redisModels, workspaceService, projectService, projectMemberService) {
     this.sequelize = sequelize;
     this.models = models;
     this.redisModels = redisModels;
-    this.workspaceService = workspaceService
+    this.workspaceService = workspaceService;
+    this.projectService = projectService;
+    this.projectMemberService = projectMemberService;
   }
 
   async create(workspaceId, userId){
@@ -48,7 +50,7 @@ class WorkspaceMemberService {
   async handleUpdateRole(workspaceId, workspaceMemberId, newRole){
     try {
       const memberStatus = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
-      if(memberStatus.property_status === 'owner') throw boom.forbidden("You cannot change the owner's role");
+      if(memberStatus.propertyStatus === 'owner') throw boom.forbidden("You cannot change the owner's role");
       if(memberStatus.role === newRole) throw boom.conflict('The member already has this role');
 
       const updatedMember = await this.changeRole(workspaceId, workspaceMemberId, newRole);
@@ -78,8 +80,8 @@ class WorkspaceMemberService {
   async handleRemoveMember(workspaceId, workspaceMemberId, requesterStatus){
     try {
       const memberStatus = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
-      if(memberStatus.property_status === 'owner') throw boom.forbidden("You cannot remove the owner");
-      if(memberStatus.role === 'admin' && requesterStatus.property_status === 'guest') throw boom.forbidden("You cannot remove an administrator");
+      if(memberStatus.propertyStatus === 'owner') throw boom.forbidden("You cannot remove the owner");
+      if(memberStatus.role === 'admin' && requesterStatus.propertyStatus === 'guest') throw boom.forbidden("You cannot remove an administrator");
       if(memberStatus.userId === requesterStatus.userId) throw boom.forbidden("You cannot remove yourself");
 
       const removedMember = await this.deleteMember(workspaceId, workspaceMemberId, memberStatus.userId);
@@ -93,11 +95,28 @@ class WorkspaceMemberService {
 
   async leaveTheWorkspace(workspaceId, requesterStatus){
     try {
-      const workspaceMembers = await this.findAllMembers(workspaceId);
-      if(requesterStatus.property_status === 'owner' || requesterStatus.propertyStatus === 'owner'){
+      const [ workspaceMembers, projectsWithMembers ] = await Promise.all([
+        this.findAllMembers(workspaceId),
+        this.projectService.findProjectsByRequester(requesterStatus.id),
+      ]);
+
+      const projectWithOnlyOwner = projectsWithMembers.find(project => project.projectMembers.length === 1);
+      if(projectWithOnlyOwner && workspaceMembers.length > 1){
+        throw boom.forbidden(`You must assign a new owner before leaving the workspace. In the project: ${projectWithOnlyOwner.name}`);
+      }
+
+      await Promise.all(projectsWithMembers.map(async (project) => {
+        const availableMembers = project.projectMembers.filter(projectMember => projectMember.workspaceMemberId !== requesterStatus.id);
+        if (availableMembers.length === 0) {
+          throw boom.forbidden(`Cannot leave the workspace. No members available to take ownership of project: ${project.name}`);
+        }
+        await this.projectMemberService.transferOwnership(project.id, requesterStatus.id, availableMembers[0].workspaceMemberId);
+      }));
+
+      if(requesterStatus.propertyStatus === 'owner'){
         const removedOwner = await this.handleOwnerExit(workspaceId, requesterStatus, workspaceMembers);
         return removedOwner;
-      } else {
+      } else if(requesterStatus.propertyStatus === 'guest') {
         const removedMember = await this.deleteMember(workspaceId, requesterStatus.id, requesterStatus.userId);
         return removedMember;
       }
@@ -209,7 +228,7 @@ class WorkspaceMemberService {
     try {
       const status = await this.models.WorkspaceMember.findOne({
         where: { workspaceId, id: workspaceMemberId },
-        attributes: ['role', 'property_status', 'userId'],
+        attributes: ['role', 'propertyStatus', 'userId'],
       });
       if(!status) throw boom.notFound('Workspace member or workspace not found');
 
@@ -223,7 +242,7 @@ class WorkspaceMemberService {
     try {
       const status = await this.models.WorkspaceMember.findOne({
         where: { workspaceId, userId },
-        attributes: ['id', 'role', 'property_status', 'userId'],
+        attributes: ['id', 'role', 'propertyStatus', 'userId'],
       });
       if(!status) throw boom.notFound('Workspace member or workspace not found');
 

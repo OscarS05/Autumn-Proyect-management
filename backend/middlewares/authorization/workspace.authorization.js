@@ -48,7 +48,7 @@ async function checkOwnership(req, res, next){
     const user = req.user;
     const { workspaceId } = req.params;
     const memberStatus = await workspaceMemberService.findStatusByUserId(workspaceId, user.sub);
-    if(memberStatus.property_status !== 'owner'){
+    if(memberStatus.propertyStatus !== 'owner'){
       throw boom.forbidden('You do not have permission to perform this action');
     }
 

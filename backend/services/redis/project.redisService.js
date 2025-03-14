@@ -67,7 +67,6 @@ class ProjectRedisService extends BaseRedisService{
   async deleteProject(projectId, workspaceId){
     try {
       const pipeline = this.redis.pipeline();
-
       pipeline.del(this.projectMembers(projectId));
       pipeline.srem(this.workspaceProjectsKey(workspaceId), projectId);
       pipeline.del(this.projectKey(projectId));

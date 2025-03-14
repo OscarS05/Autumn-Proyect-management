@@ -173,48 +173,48 @@ class ProjectMemberService {
       } catch (error) {
         throw boom.badRequest(error.message || 'Unexpected error while leaving the workspace');
       }
-    }
+  }
 
-    async handleOwnerExit(projectId, requesterData){
-      try {
-        const [ workspaceId, projectMembers ] = await Promise.all([
-          this.projectService.findProjectWorkspace(projectId),
-          this.findAllProjectMembers(projectId),
-        ]);
+  async handleOwnerExit(projectId, requesterData){
+    try {
+      const [ workspaceId, projectMembers ] = await Promise.all([
+        this.projectService.findProjectWorkspace(projectId),
+        this.getProjectMembers(projectId),
+      ]);
 
-        if(projectMembers.length === 1 && projectMembers[0].propertyStatus === 'owner'){
-          const removedWorkspace = await this.projectService.delete(projectId, workspaceId, requesterData.workspaceMemberId, requesterData.id);
-          return removedWorkspace;
-        } else if(projectMembers.length > 1){
-          const { admins, members } = projectMembers.reduce((acc, member) => {
-            if(member.propertyStatus !== 'owner'){
-              if(member.role === 'admin'){
-                acc.admins.push(member);
-              } else if(member.role === 'member'){
-                acc.members.push(member);
-              }
+      if(projectMembers.length === 1 && projectMembers[0].propertyStatus === 'owner'){
+        const removedWorkspace = await this.projectService.delete(projectId, workspaceId, requesterData.workspaceMemberId, requesterData.id);
+        return removedWorkspace;
+      } else if(projectMembers.length > 1){
+        const { admins, members } = projectMembers.reduce((acc, member) => {
+          if(member.propertyStatus !== 'owner'){
+            if(member.role === 'admin'){
+              acc.admins.push(member);
+            } else if(member.role === 'member'){
+              acc.members.push(member);
             }
-            return acc;
-          }, { admins: [], members: [] });
-
-          if(admins.length > 0){
-            await this.transferOwnership(projectId, requesterData.workspaceMemberId, admins[0].workspaceMemberId);
-          } else if(members.length > 0){
-            await Promise.all([
-              this.changeRole(projectId, members[0].id, 'admin'),
-              this.transferOwnership(projectId, requesterData.workspaceMemberId, members[0].workspaceMemberId),
-            ]);
           }
-          const removedOwner = await this.deleteMember(projectId, requesterData.id);
-          if(removedOwner === 0) throw boom.badRequest('Member not found or already removed');
+          return acc;
+        }, { admins: [], members: [] });
 
-          await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, requesterData.workspaceMemberId);
-          return removedOwner;
+        if(admins.length > 0){
+          await this.transferOwnership(projectId, requesterData.workspaceMemberId, admins[0].workspaceMemberId);
+        } else if(members.length > 0){
+          await Promise.all([
+            this.changeRole(projectId, members[0].id, 'admin'),
+            this.transferOwnership(projectId, requesterData.workspaceMemberId, members[0].workspaceMemberId),
+          ]);
         }
-      } catch (error) {
-        throw boom.badRequest(error.message || 'Unexpected error while removing the owner');
+        const removedOwner = await this.deleteMember(projectId, requesterData.id);
+        if(removedOwner === 0) throw boom.badRequest('Member not found or already removed');
+
+        await this.redisModels.ProjectMemberRedis.deleteProjectMember(projectId, requesterData.workspaceMemberId);
+        return removedOwner;
       }
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Unexpected error while removing the owner');
     }
+  }
 
   async getProjectMembers(projectId){
     try {
@@ -255,17 +255,6 @@ class ProjectMemberService {
       return member;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to get project member status');
-    }
-  }
-
-  async findAllProjectMembers(projectId){
-    try {
-      const projectMembers = await this.models.ProjectMember.findAll({
-        where: { projectId }
-      });
-      return projectMembers;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong');
     }
   }
 }

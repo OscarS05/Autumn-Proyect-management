@@ -20,9 +20,9 @@ const config = {
 const userService = new UserService(config.sequelize, config.models);
 const authService = new AuthService(config.sequelize, config.models, userService, redisModels);
 const workspaceService = new WorkspaceService(config.sequelize, config.models, redisModels);
-const workspaceMemberService = new WorkspaceMemberService(config.sequelize, config.models, redisModels, workspaceService);
 const projectService = new ProjectService(config.sequelize, config.models, redisModels);
 const projectMemberService = new ProjectMemberService(config.sequelize, config.models, redisModels, projectService);
+const workspaceMemberService = new WorkspaceMemberService(config.sequelize, config.models, redisModels, workspaceService, projectService, projectMemberService);
 
 module.exports = {
   userService,

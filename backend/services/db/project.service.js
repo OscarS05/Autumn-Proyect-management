@@ -1,4 +1,5 @@
 const boom = require('@hapi/boom');
+const { PassThrough } = require('nodemailer/lib/xoauth2');
 
 class ProjectService {
   constructor(sequelize, models, redisModels) {
@@ -89,10 +90,11 @@ class ProjectService {
 
   async findProjectWorkspace(projectId){
     try {
-      const workspace = await this.models.Project.findOne({
+      const project = await this.models.Project.findOne({
         where: { id: projectId }
       });
-      const workspaceId = workspace.id;
+
+      const workspaceId = project.workspaceId;
       return workspaceId;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to find project workspace');
@@ -105,6 +107,23 @@ class ProjectService {
     )
 
     return count;
+  }
+
+  async findProjectsByRequester(workspaceMemberId){
+    try {
+      const projectsWithMembers = await this.models.Project.findAll({
+        where: { workspaceMemberId },
+        include: [{
+          model: this.models.ProjectMember,
+          as: 'projectMembers',
+          attributes: ['id', 'projectId', 'workspaceMemberId'],
+          required: false,
+        }]
+      });
+      return projectsWithMembers;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Something went wrong while searching for projects by workspace member id');
+    }
   }
 }
 
