@@ -4,7 +4,7 @@ const id = Joi.number().integer();
 const name = Joi.string().min(3).max(50)
   .pattern(/^[a-zA-Z0-9-_ ]+$/)
   .messages({
-    'string.pattern.base': 'El nombre del proyecto contiene caracteres no permitidos'
+    'string.pattern.base': 'The project name contains illegal characters'
   });
 const visibility = Joi.string().valid('private', 'workspace');
 

@@ -19,7 +19,6 @@ async function authorizationToCreateProject(req, res, next){
 
     next();
   } catch (error) {
-    console.error("Error in auth middleware:", error);
     next(error);
   }
 }

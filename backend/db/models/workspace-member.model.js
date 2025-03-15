@@ -67,7 +67,7 @@ class WorkspaceMember extends Model {
     });
 
     this.hasMany(models.Team, {
-      foreignKey: 'ownerId',
+      foreignKey: 'workspaceMemberId',
       as: 'ownedTeams',
     });
 

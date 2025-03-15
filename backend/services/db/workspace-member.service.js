@@ -94,14 +94,8 @@ class WorkspaceMemberService {
         throw boom.forbidden(`You must assign a new member before leaving the workspace. In the project: ${projectWithOnlyOwner.name}`);
       }
 
-      console.log('memberToBeRemoved:', memberToBeRemoved);
-      console.log('workspaceMembers:', workspaceMembers);
-      console.log('projectsWithMembers:', projectsWithMembers);
-      console.log('projectWithOnlyOwner:', projectWithOnlyOwner);
-
       await Promise.all(projectsWithMembers.map(async (project) => {
         const availableMembers = project.projectMembers.filter(projectMember => projectMember.workspaceMemberId !== memberToBeRemoved.id);
-        console.log('availableMembers:', availableMembers);
         if (availableMembers.length === 0) {
           throw boom.forbidden(`Cannot remove the member. No project members available to take ownership of project: ${project.name}`);
         }
@@ -250,13 +244,12 @@ class WorkspaceMemberService {
 
   async findStatusByMemberId(workspaceId, workspaceMemberId){
     try {
-      const status = await this.models.WorkspaceMember.findOne({
+      const workspaceMemebr = await this.models.WorkspaceMember.findOne({
         where: { workspaceId, id: workspaceMemberId },
-        attributes: ['id', 'role', 'propertyStatus', 'userId'],
+        attributes: ['id', 'role', 'propertyStatus', 'userId', 'workspaceId'],
       });
-      if(!status) throw boom.notFound('Workspace member or workspace not found');
 
-      return status.dataValues;
+      return workspaceMemebr?.dataValues;
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to find role');
     }
