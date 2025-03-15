@@ -79,12 +79,36 @@ class WorkspaceMemberService {
 
   async handleRemoveMember(workspaceId, workspaceMemberId, requesterStatus){
     try {
-      const memberStatus = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
-      if(memberStatus.propertyStatus === 'owner') throw boom.forbidden("You cannot remove the owner");
-      if(memberStatus.role === 'admin' && requesterStatus.propertyStatus === 'guest') throw boom.forbidden("You cannot remove an administrator");
-      if(memberStatus.userId === requesterStatus.userId) throw boom.forbidden("You cannot remove yourself");
+      const memberToBeRemoved = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
+      if(memberToBeRemoved.propertyStatus === 'owner') throw boom.forbidden("You cannot remove the owner");
+      if(memberToBeRemoved.role === 'admin' && requesterStatus.propertyStatus === 'guest') throw boom.forbidden("You cannot remove an administrator");
+      if(memberToBeRemoved.userId === requesterStatus.userId) throw boom.forbidden("You cannot remove yourself");
 
-      const removedMember = await this.deleteMember(workspaceId, workspaceMemberId, memberStatus.userId);
+      const [ workspaceMembers, projectsWithMembers ] = await Promise.all([
+        this.findAllMembers(workspaceId),
+        this.projectService.findProjectsByRequester(memberToBeRemoved.id),
+      ]);
+
+      const projectWithOnlyOwner = projectsWithMembers.find(project => project.projectMembers.length === 1);
+      if(projectWithOnlyOwner && workspaceMembers.length > 1){
+        throw boom.forbidden(`You must assign a new member before leaving the workspace. In the project: ${projectWithOnlyOwner.name}`);
+      }
+
+      console.log('memberToBeRemoved:', memberToBeRemoved);
+      console.log('workspaceMembers:', workspaceMembers);
+      console.log('projectsWithMembers:', projectsWithMembers);
+      console.log('projectWithOnlyOwner:', projectWithOnlyOwner);
+
+      await Promise.all(projectsWithMembers.map(async (project) => {
+        const availableMembers = project.projectMembers.filter(projectMember => projectMember.workspaceMemberId !== memberToBeRemoved.id);
+        console.log('availableMembers:', availableMembers);
+        if (availableMembers.length === 0) {
+          throw boom.forbidden(`Cannot remove the member. No project members available to take ownership of project: ${project.name}`);
+        }
+        await this.projectMemberService.transferOwnership(project.id, memberToBeRemoved.id, availableMembers[0].workspaceMemberId);
+      }));
+
+      const removedMember = await this.deleteMember(workspaceId, workspaceMemberId, memberToBeRemoved.userId);
 
       return removedMember;
     } catch (error) {
@@ -108,7 +132,7 @@ class WorkspaceMemberService {
       await Promise.all(projectsWithMembers.map(async (project) => {
         const availableMembers = project.projectMembers.filter(projectMember => projectMember.workspaceMemberId !== requesterStatus.id);
         if (availableMembers.length === 0) {
-          throw boom.forbidden(`Cannot leave the workspace. No members available to take ownership of project: ${project.name}`);
+          throw boom.forbidden(`Cannot leave the workspace. No project members available to take ownership of project: ${project.name}`);
         }
         await this.projectMemberService.transferOwnership(project.id, requesterStatus.id, availableMembers[0].workspaceMemberId);
       }));
@@ -228,7 +252,7 @@ class WorkspaceMemberService {
     try {
       const status = await this.models.WorkspaceMember.findOne({
         where: { workspaceId, id: workspaceMemberId },
-        attributes: ['role', 'propertyStatus', 'userId'],
+        attributes: ['id', 'role', 'propertyStatus', 'userId'],
       });
       if(!status) throw boom.notFound('Workspace member or workspace not found');
 
