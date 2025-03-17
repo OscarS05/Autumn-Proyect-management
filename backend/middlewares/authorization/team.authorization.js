@@ -1,45 +1,48 @@
 const boom = require('@hapi/boom');
 
-const { teamService, workspaceMemberService } = require('../../services/db/index');
+const { teamService } = require('../../services/db/index');
 const { LIMITS } = require('./workspace.authorization');
 
-// async function authorizationToCreateProject(req, res, next){
-//   const user = req.user;
-//   if(!user) return next(boom.unauthorized('User not authenticated'));
-//   const { workspaceId, workspaceMemberId } = req.body;
-//   try {
-//     const count = await projectService.countProjectsByWorkspaceMember(workspaceId, workspaceMemberId);
+async function authorizationToCreateTeam(req, res, next){
+  try {
+    const user = req.user;
+    if(!user) throw boom.unauthorized('User not authenticated');
 
-//     if(user.role === 'basic' && count >= LIMITS.BASIC.PROJECTS){
-//       throw boom.forbidden('Project limit reached for basic users');
-//     }
-//     if(user.role === 'premium' && count >= LIMITS.PREMIUM.PROJECTS){
-//       throw boom.forbidden('Project limit reached for basic users');
-//     }
+    const { workspaceId  } = req.params;
+    const workspaceMemberId = req.workspaceMemberStatus.id;
 
-//     next();
-//   } catch (error) {
-//     console.error("Error in auth middleware:", error);
-//     next(error);
-//   }
-// }
+    const count = await teamService.countTeamsByOwnership(workspaceId, workspaceMemberId);
+    if(user.role === 'basic' && count >= LIMITS.BASIC.TEAMS){
+      throw boom.forbidden('Team limit reached for basic users');
+    }
+    if(user.role === 'premium' && count >= LIMITS.PREMIUM.TEAMS){
+      throw boom.forbidden('Team limit reached for premium users');
+    }
 
-// async function checkProjectMembership(req, res, next){
-//   try {
-//     const user = req.user;
-//     const { projectId } = req.params;
+    next();
+  } catch (error) {
+    console.error("Error in auth middleware:", error);
+    next(error);
+  }
+}
 
-//     const isMember = await projectMemberService.getProjectMemberByUserId(projectId, user.sub);
-//     if(!isMember){
-//       throw boom.forbidden('You do not have permission to perform this action');
-//     }
+async function checkTeamMembership(req, res, next){
+  try {
+    const user = req.user;
+    const { workspaceId } = req.params;
+    const workspaceMember = req.workspaceMemberStatus;
 
-//     req.projectMember = isMember;
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// }
+    const teamMember = await teamService.getTeamMembership(workspaceId, workspaceMember.id);
+    if(!teamMember){
+      throw boom.forbidden('You do not have permission to perform this action');
+    }
+
+    req.projectMember = teamMember;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
 
 // async function checkAdminRole(req, res, next){
 //   try {
@@ -80,5 +83,6 @@ const { LIMITS } = require('./workspace.authorization');
 // }
 
 module.exports = {
-
+  authorizationToCreateTeam,
+  checkTeamMembership
 };

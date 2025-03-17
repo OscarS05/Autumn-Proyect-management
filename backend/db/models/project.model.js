@@ -69,6 +69,12 @@ class Project extends Model {
       as: 'list',
       foreignKey: 'projectId',
     });
+
+    this.belongsToMany(models.Team, {
+      through: models.ProjectTeam,
+      foreignKey: 'projectId',
+      as: 'teams'
+    });
   }
 
   static config(sequelize) {

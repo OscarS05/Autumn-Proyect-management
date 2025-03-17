@@ -51,12 +51,23 @@ class Team extends Model {
     this.belongsToMany(models.WorkspaceMember, {
       through: models.TeamMember,
       foreignKey: 'teamId',
-      as: 'members',
+      as: 'workspaceMember',
+    });
+
+    this.hasMany(models.TeamMember, {
+      foreignKey: 'teamId',
+      as: 'teamMembers'
     });
 
     this.belongsTo(models.Workspace, {
       foreignKey: 'workspaceId',
       as: 'workspace'
+    });
+
+    this.belongsToMany(models.Project, {
+      through: models.ProjectTeam,
+      foreignKey: 'teamId',
+      as: 'projects'
     });
   }
 

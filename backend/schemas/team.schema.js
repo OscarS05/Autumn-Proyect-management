@@ -13,8 +13,6 @@ const teamIdScheme = Joi.object({
 
 const createTeamScheme = Joi.object({
   name: name.required(),
-  workspaceId: id.required(),
-  workspaceMemberId: id.required(),
 });
 
 const updateTeamScheme = Joi.object({

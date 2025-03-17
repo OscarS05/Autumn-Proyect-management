@@ -69,6 +69,10 @@ const TeamMemberSchema = {
 
 class TeamMember extends Model {
   static associate(models) {
+    this.belongsTo(models.WorkspaceMember, {
+      foreignKey: 'workspaceMemberId',
+      as: 'workspaceMember'
+    });
   }
 
   static config(sequelize) {

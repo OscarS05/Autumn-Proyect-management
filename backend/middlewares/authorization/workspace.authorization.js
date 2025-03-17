@@ -64,28 +64,12 @@ async function checkWorkspaceMembership(req, res, next){
     const user = req.user;
     const { workspaceId } = req.params;
 
-    const isMember = await workspaceMemberService.checkWorkspaceMembership(workspaceId, user.sub);
-    if(!isMember){
+    const workspaceMember = await workspaceMemberService.checkWorkspaceMembership(workspaceId, user.sub);
+    if(!workspaceMember){
       throw boom.forbidden('You do not have permission to perform this action');
     }
 
-    req.workspaceMemberStatus = isMember;
-    next();
-  } catch (error) {
-    next(error);
-  }
-}
-
-async function checkWorkspaceMembershipById(req, res, next){
-  try {
-    const user = req.user;
-    const { workspaceId, workspaceMemberId } = req.body;
-
-    const workspaceMember = await workspaceMemberService.findStatusByMemberId(workspaceId, workspaceMemberId);
-    if(!workspaceMember) throw boom.forbidden('You do not have permission to perform this action');
-    if(workspaceMember.userId !== user.sub) throw boom.forbidden('You do not have permission to perform this action');
-
-    req.workspaceMemberData = workspaceMember;
+    req.workspaceMemberStatus = workspaceMember;
     next();
   } catch (error) {
     next(error);
@@ -98,5 +82,4 @@ module.exports = {
   checkAdminRole,
   checkOwnership,
   checkWorkspaceMembership,
-  checkWorkspaceMembershipById
 };

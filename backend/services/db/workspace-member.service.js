@@ -81,7 +81,6 @@ class WorkspaceMemberService {
     try {
       const memberToBeRemoved = await this.findStatusByMemberId(workspaceId, workspaceMemberId);
       if(memberToBeRemoved.propertyStatus === 'owner') throw boom.forbidden("You cannot remove the owner");
-      if(memberToBeRemoved.role === 'admin' && requesterStatus.propertyStatus === 'guest') throw boom.forbidden("You cannot remove an administrator");
       if(memberToBeRemoved.userId === requesterStatus.userId) throw boom.forbidden("You cannot remove yourself");
 
       const [ workspaceMembers, projectsWithMembers ] = await Promise.all([
@@ -286,14 +285,13 @@ class WorkspaceMemberService {
 
   async checkWorkspaceMembership(workspaceId, userId){
     try {
-      const isMember = await this.models.WorkspaceMember.findOne(
+      const workspaceMember = await this.models.WorkspaceMember.findOne(
         { where: { workspaceId, userId } }
       );
 
-      return isMember;
+      return workspaceMember;
     } catch (error) {
-      if(error.isBoom) throw error;
-      throw boom.badRequest('Failed to check workspace membership');
+      throw boom.badRequest(error.message || 'Failed to check workspace membership');
     }
   }
 }

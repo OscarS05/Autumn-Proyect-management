@@ -8,9 +8,14 @@ const { validatorHandler } = require('./../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
 const { authorizationToCreateWorkspace, checkAdminRole, checkOwnership, checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 
-const { WorkspaceRedis } = require('../services/redis/index');
-const { workspaceService } = require('../services/db/index');
+const { authorizationToCreateTeam } = require('../middlewares/authorization/team.authorization');
+const { createTeamScheme } = require('../schemas/team.schema');
 
+
+const { WorkspaceRedis } = require('../services/redis/index');
+const { workspaceService, teamService } = require('../services/db/index');
+
+// WORKSPACES
 router.get('/:workspaceId/projects',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
@@ -113,6 +118,48 @@ router.delete('/:workspaceId',
       if(!isWorkspaceDeleted) return next(boom.notFound('Workspace not found'));
 
       res.status(200).json({ message: 'Workspace deleted successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
+// TEAMS
+router.get('/:workspaceId/teams',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  checkWorkspaceMembership,
+  async (req, res, next) => {
+    try {
+      const { workspaceId } = req.params;
+      const requesterUserId = req.user.sub;
+
+      const teams = await teamService.getTeamsByWorkspaceController(workspaceId, requesterUserId);
+
+      res.status(200).json({ teams });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post('/:workspaceId/teams',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  validatorHandler(createTeamScheme, 'body'),
+  checkWorkspaceMembership,
+  authorizationToCreateTeam,
+  async (req, res, next) => {
+    try {
+      const { name } = req.body;
+      const { workspaceId } = req.params;
+      const workspaceMember = req.workspaceMemberStatus;
+
+      const teamCreated = await teamService.createTeam(name, workspaceId, workspaceMember.id);
+      if(!teamCreated) throw boom.badRequest('Something went wrong while creating team');
+
+      res.status(200).json({ message: 'Team was successfully created', teamCreated });
     } catch (error) {
       next(error);
     }

@@ -22,17 +22,6 @@ const ProjectMemberSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   },
-  teamId:{
-    field: 'team_id',
-    allowNull: true,
-    type: DataTypes.INTEGER,
-    references: {
-      model: WORKSPACE_MEMBER_TABLE,
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE'
-  },
   role: {
     allowNull: false,
     type: DataTypes.STRING,

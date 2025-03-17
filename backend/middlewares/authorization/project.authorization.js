@@ -14,7 +14,7 @@ async function authorizationToCreateProject(req, res, next){
       throw boom.forbidden('Project limit reached for basic users');
     }
     if(user.role === 'premium' && count >= LIMITS.PREMIUM.PROJECTS){
-      throw boom.forbidden('Project limit reached for basic users');
+      throw boom.forbidden('Project limit reached for premium users');
     }
 
     next();

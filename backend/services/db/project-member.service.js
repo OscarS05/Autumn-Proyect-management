@@ -144,7 +144,6 @@ class ProjectMemberService {
       const memberTobeRemoved = await this.getProjectMemberById(projectId, projectMemberId);
       if(memberTobeRemoved == null) throw boom.badRequest('The project member you want to delete does not exist in the project');
       if(memberTobeRemoved.propertyStatus === 'owner') throw boom.forbidden("You cannot remove the owner");
-      if(memberTobeRemoved.role === 'admin' && requesterData.propertyStatus === 'guest') throw boom.forbidden("You cannot remove an administrator");
       if(memberTobeRemoved.id === requesterData.id) throw boom.forbidden("You cannot remove yourself");
 
       const removedMember = await this.deleteMember(projectId, projectMemberId);

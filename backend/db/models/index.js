@@ -5,6 +5,7 @@ const { Team, TeamSchema } = require('./team.model');
 const { TeamMember, TeamMemberSchema } = require('./team-member.model');
 const { ProjectMember, ProjectMemberSchema } = require('./project-member.model');
 const { Project, ProjectSchema } = require('./project.model');
+const { ProjectTeam, ProjectTeamSchema } = require('./project-team.model');
 const { List, ListSchema } = require('./list.model');
 const { Card, CardSchema } = require('./card.model');
 const { CardMember, CardMemberSchema } = require('./card-member.model');
@@ -23,6 +24,7 @@ function setupModels(sequelize){
   TeamMember.init(TeamMemberSchema, TeamMember.config(sequelize));
   Project.init(ProjectSchema, Project.config(sequelize));
   ProjectMember.init(ProjectMemberSchema, ProjectMember.config(sequelize));
+  ProjectTeam.init(ProjectTeamSchema, ProjectTeam.config(sequelize));
   List.init(ListSchema, List.config(sequelize));
   Card.init(CardSchema, Card.config(sequelize));
   CardMember.init(CardMemberSchema, CardMember.config(sequelize));
@@ -39,6 +41,7 @@ function setupModels(sequelize){
   Workspace.associate(sequelize.models);
   WorkspaceMember.associate(sequelize.models);
   Team.associate(sequelize.models);
+  TeamMember.associate(sequelize.models);
   Project.associate(sequelize.models);
   ProjectMember.associate(sequelize.models);
   List.associate(sequelize.models);
