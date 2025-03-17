@@ -8,6 +8,7 @@ const name = Joi.string().min(3).max(50)
   });
 
 const teamIdScheme = Joi.object({
+  workspaceId: id.required(),
   teamId: id.required()
 });
 

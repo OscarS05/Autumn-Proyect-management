@@ -1,4 +1,4 @@
-const router = require('./workspace.router');
+const router = require('./team.router');
 
 const boom = require('@hapi/boom');
 

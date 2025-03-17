@@ -1,6 +1,8 @@
-const express = require('express');
-const router = express.Router();
+const router = require('../routes/workspace.router');
 const boom = require('@hapi/boom');
+
+const { checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
+const { workspaceIdSchema } = require('../schemas/workspace.schema');
 
 const { createTeamScheme, deleteTeamScheme, teamIdScheme, updateTeamScheme } = require('../schemas/team.schema');
 
@@ -10,21 +12,66 @@ const { validatorHandler } = require('./../middlewares/validator.handler');
 
 const { teamService } = require('../services/db/index');
 
-// router.get('/:teamId',
-//   validateSession,
-//   validatorHandler(teamIdScheme, 'params'),
-//   checkTeamMembership,
-//   async (req, res, next) => {
-//     try {
-//       const { teamId } = req.params;
+router.get('/:workspaceId/teams',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  checkWorkspaceMembership,
+  async (req, res, next) => {
+    try {
+      const { workspaceId } = req.params;
+      const requesterUserId = req.user.sub;
 
-//       res.status(200).json({});
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// );
+      const teams = await teamService.getTeamsByWorkspaceController(workspaceId, requesterUserId);
 
+      res.status(200).json({ teams });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
+router.post('/:workspaceId/teams',
+  validateSession,
+  validatorHandler(workspaceIdSchema, 'params'),
+  validatorHandler(createTeamScheme, 'body'),
+  checkWorkspaceMembership,
+  authorizationToCreateTeam,
+  async (req, res, next) => {
+    try {
+      const { name } = req.body;
+      const { workspaceId } = req.params;
+      const workspaceMember = req.workspaceMemberStatus;
+
+      const teamCreated = await teamService.createTeam(name, workspaceId, workspaceMember.id);
+      if(!teamCreated) throw boom.badRequest('Something went wrong while creating team');
+
+      res.status(200).json({ message: 'Team was successfully created', teamCreated });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.patch('/:workspaceId/teams/:teamId',
+  validateSession,
+  validatorHandler(teamIdScheme, 'params'),
+  validatorHandler(updateTeamScheme, 'body'),
+  checkWorkspaceMembership,
+  checkTeamMembership,
+  async (req, res, next) => {
+    try {
+      const { name } = req.body;
+      const teamMember = req.teamMember;
+
+      const updatedTeam = await teamService.updateTeamController(name, teamMember.teamId);
+
+      res.status(200).json({ message: 'Team was successfully updated', updatedTeam });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Sigue el endpoint de DELETE
 
 module.exports = router;

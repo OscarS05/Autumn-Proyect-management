@@ -32,6 +32,30 @@ class TeamService {
     }
   }
 
+  async updateTeam(name, teamId){
+    try {
+      const updatedTeam = await this.models.Team.update(
+        { name },
+        { where: { id: teamId }, returning: true }
+      );
+
+      return updatedTeam;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Something went wrong while updating team');
+    }
+  }
+
+  async updateTeamController(name, teamId){
+    try {
+      const [updatedRows , [updatedTeam]] = await this.updateTeam(name, teamId);
+      if(updatedRows === 0) throw boom.notFound('Team not found');
+
+      return updatedTeam;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Something went wrong while updating team');
+    }
+  }
+
   async getTeamsByWorkspace(workspaceId){
     try {
       const teams = await this.models.Team.findAll({
@@ -137,15 +161,17 @@ class TeamService {
     }
   }
 
-  // async getTeamMembership(workspaceId, workspaceMemberId){
-  //   try {
-  //     const teamMember = await this.models.TeamMember.findOne({
-  //       where: { workspaceId, workspaceMemberId }
-  //     });
-  //   } catch (error) {
-  //     throw boom.badRequest(error.message || 'Something went wrong while finding team member');
-  //   }
-  // }
+  async getTeamMembership(workspaceId, workspaceMemberId){
+    try {
+      const teamMember = await this.models.TeamMember.findOne({
+        where: { workspaceId, workspaceMemberId }
+      });
+
+      return teamMember;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Something went wrong while finding team member');
+    }
+  }
 
   async countTeamsByOwnership(workspaceId, workspaceMemberId){
     try {

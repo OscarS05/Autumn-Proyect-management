@@ -33,11 +33,10 @@ async function checkTeamMembership(req, res, next){
     const workspaceMember = req.workspaceMemberStatus;
 
     const teamMember = await teamService.getTeamMembership(workspaceId, workspaceMember.id);
-    if(!teamMember){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
+    if(!teamMember) throw boom.forbidden('You do not have permission to perform this action')
+    if(teamMember.role !== 'admin')throw boom.forbidden('You do not have permission to perform this action');
 
-    req.projectMember = teamMember;
+    req.teamMember = teamMember;
     next();
   } catch (error) {
     next(error);
