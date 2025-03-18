@@ -4,9 +4,9 @@ const boom = require('@hapi/boom');
 const { checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 const { workspaceIdSchema } = require('../schemas/workspace.schema');
 
-const { createTeamScheme, deleteTeamScheme, teamIdScheme, updateTeamScheme } = require('../schemas/team.schema');
+const { createTeamScheme, deleteTeamScheme, teamIdScheme, updateTeamScheme, asignProjectScheme } = require('../schemas/team.schema');
 
-const { authorizationToCreateTeam, checkTeamMembership } = require('../middlewares/authorization/team.authorization');
+const { authorizationToCreateTeam, checkTeamMembership, checkAdminRoleToAssign } = require('../middlewares/authorization/team.authorization');
 const { validateSession } = require('../middlewares/authentication.handler');
 const { validatorHandler } = require('./../middlewares/validator.handler');
 
@@ -52,6 +52,27 @@ router.post('/:workspaceId/teams',
   }
 );
 
+router.post('/:workspaceId/teams/:teamId/projects/:projectId',
+  validateSession,
+  validatorHandler(asignProjectScheme, 'params'),
+  checkAdminRoleToAssign,
+  async (req, res, next) => {
+    try {
+      const { workspaceId, teamId, projectId } = req.params;
+
+      const result = await teamService.assignProjectController(workspaceId, teamId, projectId);
+
+      res.status(200).json({
+        message: 'The team was successfully assigned',
+        result
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
 router.patch('/:workspaceId/teams/:teamId',
   validateSession,
   validatorHandler(teamIdScheme, 'params'),
@@ -72,6 +93,5 @@ router.patch('/:workspaceId/teams/:teamId',
   }
 );
 
-// Sigue el endpoint de DELETE
 
 module.exports = router;

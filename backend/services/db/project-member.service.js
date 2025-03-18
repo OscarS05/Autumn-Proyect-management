@@ -8,8 +8,7 @@ class ProjectMemberService {
     this.projectService = projectService;
   }
 
-  async addProjectMember(projectId, workspaceMemberId){
-    const transaction = await this.sequelize.transaction();
+  async addProjectMemberController(projectId, workspaceMemberId){
     try {
       const workspaceMember = await this.models.WorkspaceMember.findOne({
         where: { id: workspaceMemberId },
@@ -27,31 +26,37 @@ class ProjectMemberService {
           }]
         }],
         attributes: ['id', 'workspaceId'],
-        transaction
       });
       if(!workspaceMember) throw boom.conflict('Workspace member ID does not exist or is not part of the workspace');
 
       const isMember = await this.models.ProjectMember.findOne({
-        where: { projectId, workspaceMemberId },
-        transaction
+        where: { projectId, workspaceMemberId }
       });
       if(isMember) throw boom.conflict('Workspace member is already part of this project');
 
-      const addedMember = await this.models.ProjectMember.create(
-        { workspaceMemberId, role: 'member', propertyStatus: 'guest', projectId },
-        { transaction }
-      );
 
-      await transaction.commit();
+      const addedMember = await this.addProjectMember(projectId, workspaceMemberId);
+
+      return addedMember?.dataValues || '';
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to add member to project');
+    }
+  }
+
+  async addProjectMember(projectId, workspaceMemberId){
+    try {
+      const addedMember = await this.models.ProjectMember.create(
+        { workspaceMemberId, role: 'member', propertyStatus: 'guest', projectId }
+      );
+      if(!addedMember) throw boom.badRequest('Something went wrong while adding a project member');
 
       await this.redisModels.ProjectMemberRedis.saveProjectMember(
         addedMember.projectId,
-        workspaceMember.id
+        workspaceMemberId
       );
 
-      return addedMember.dataValues;
+      return addedMember;
     } catch (error) {
-      await transaction.rollback();
       throw boom.badRequest(error.message || 'Failed to add member to project');
     }
   }

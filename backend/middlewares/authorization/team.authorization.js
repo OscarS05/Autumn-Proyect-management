@@ -1,6 +1,6 @@
 const boom = require('@hapi/boom');
 
-const { teamService } = require('../../services/db/index');
+const { teamService, workspaceMemberService, projectMemberService } = require('../../services/db/index');
 const { LIMITS } = require('./workspace.authorization');
 
 async function authorizationToCreateTeam(req, res, next){
@@ -38,6 +38,31 @@ async function checkTeamMembership(req, res, next){
 
     req.teamMember = teamMember;
     next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function checkAdminRoleToAssign(req, res, next){
+  try {
+    const userId = req.user.sub;
+    const { workspaceId, projectId } = req.params;
+
+    const member = await workspaceMemberService.checkWorkspaceMembership(workspaceId, userId);
+    if(!member) throw boom.forbidden('You do not belong in the workspace');
+    if(member.role === 'admin'){
+      req.workspaceMember = member;
+      return next();
+    } else if(member.role === 'member'){
+      const projectMember = await projectMemberService.getProjectMemberByUserId(projectId, userId);
+      if(!projectMember) throw boom.forbidden('You do not belong in the project');
+      if(projectMember.role !== 'admin') throw boom.forbidden('You do not have permission to perform this action');
+
+      req.projectMember = projectMember;
+      return next();
+    }
+
+    throw boom.forbidden('You do not have permission to perform this action');
   } catch (error) {
     next(error);
   }
@@ -83,5 +108,6 @@ async function checkTeamMembership(req, res, next){
 
 module.exports = {
   authorizationToCreateTeam,
+  checkAdminRoleToAssign,
   checkTeamMembership
 };

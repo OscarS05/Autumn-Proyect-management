@@ -24,10 +24,17 @@ const deleteTeamScheme = Joi.object({
   workspaceMemberId: id.required(),
 });
 
+const asignProjectScheme = Joi.object({
+  workspaceId: id.required(),
+  teamId: id.required(),
+  projectId: id.required(),
+});
+
 
 module.exports = {
   teamIdScheme,
   createTeamScheme,
   updateTeamScheme,
-  deleteTeamScheme
+  deleteTeamScheme,
+  asignProjectScheme
 }

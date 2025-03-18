@@ -24,7 +24,7 @@ const workspaceService = new WorkspaceService(config.sequelize, config.models, r
 const projectService = new ProjectService(config.sequelize, config.models, redisModels);
 const projectMemberService = new ProjectMemberService(config.sequelize, config.models, redisModels, projectService);
 const workspaceMemberService = new WorkspaceMemberService(config.sequelize, config.models, redisModels, workspaceService, projectService, projectMemberService);
-const teamService = new TeamService(config.sequelize, config.models);
+const teamService = new TeamService(config.sequelize, config.models, projectMemberService);
 
 module.exports = {
   userService,

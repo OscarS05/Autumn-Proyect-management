@@ -7,9 +7,10 @@ const ACTIONS = {
 }
 
 class TeamService {
-  constructor(sequelize, models) {
+  constructor(sequelize, models, projectMemberService) {
     this.sequelize = sequelize;
     this.models = models;
+    this.projectMemberService = projectMemberService
   }
 
   async createTeam(name, workspaceId, workspaceMemberId){
@@ -53,6 +54,43 @@ class TeamService {
       return updatedTeam;
     } catch (error) {
       throw boom.badRequest(error.message || 'Something went wrong while updating team');
+    }
+  }
+
+  async assignProject(teamId, projectId){
+    try {
+      const assignedProject = await this.models.ProjectTeam.create(
+        { teamId, projectId }
+      );
+
+      return assignedProject;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Something went wrong while assigning a project');
+    }
+  }
+
+  async assignProjectController(workspaceId, teamId, projectId){
+    try {
+      const teamMembers = await this.getTeamMembers(workspaceId, teamId);
+      if(teamMembers.length === 0) throw boom.notFound('Team does not exist');
+
+      const projectMembers = await this.projectMemberService.getProjectMembers(projectId);
+      if(projectMembers.length === 0) throw boom.notFound('Project does not exist');
+
+      const nonProjectTeamMembers = teamMembers.filter(teamMember =>
+        !projectMembers.some(projectMember => projectMember.workspaceMemberId === teamMember.workspaceMemberId)
+      );
+
+      const assignedProject = await this.assignProject(teamId, projectId);
+
+      if(nonProjectTeamMembers.length === 0) return { assignedProject, addedMembers: [] };
+      const addedMembers = await Promise.all(
+        nonProjectTeamMembers.map(member => this.projectMemberService.addProjectMember(projectId, member.workspaceMemberId))
+      );
+
+      return { assignedProject,  addedMembers };
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Something went wrong while assigning a project');
     }
   }
 
@@ -158,6 +196,18 @@ class TeamService {
       return formattedTeams
     } catch (error) {
       throw boom.badRequest(error.message || 'Something went wrong while finding teams');
+    }
+  }
+
+  async getTeamMembers(workspaceId, teamId){
+    try {
+      const teamMembers = await this.models.TeamMember.findAll(
+        { where: { workspaceId, teamId } }
+      );
+
+      return teamMembers;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Something went wrong while assigning a project');
     }
   }
 

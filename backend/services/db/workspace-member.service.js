@@ -122,12 +122,12 @@ class WorkspaceMemberService {
         throw boom.forbidden(`You must assign a new owner before leaving the workspace. In the project: ${projectWithOnlyOwner.name}`);
       }
 
-      await Promise.all(projectsWithMembers.map(async (project) => {
+      await Promise.all(projectsWithMembers.map((project) => {
         const availableMembers = project.projectMembers.filter(projectMember => projectMember.workspaceMemberId !== requesterStatus.id);
         if (availableMembers.length === 0) {
           throw boom.forbidden(`Cannot leave the workspace. No project members available to take ownership of project: ${project.name}`);
         }
-        await this.projectMemberService.transferOwnership(project.id, requesterStatus.id, availableMembers[0].workspaceMemberId);
+        return this.projectMemberService.transferOwnership(project.id, requesterStatus.id, availableMembers[0].workspaceMemberId);
       }));
 
       if(requesterStatus.propertyStatus === 'owner'){
