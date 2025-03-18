@@ -21,10 +21,6 @@ const updateTeamScheme = Joi.object({
   name: name.required(),
 });
 
-const deleteTeamScheme = Joi.object({
-  workspaceMemberId: id.required(),
-});
-
 const asignProjectScheme = Joi.object({
   workspaceId: id.required(),
   teamId: id.required(),
@@ -40,7 +36,6 @@ module.exports = {
   teamIdScheme,
   createTeamScheme,
   updateTeamScheme,
-  deleteTeamScheme,
   asignProjectScheme,
   unasignProjectScheme
 }

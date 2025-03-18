@@ -4,9 +4,9 @@ const boom = require('@hapi/boom');
 const { checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 const { workspaceIdSchema } = require('../schemas/workspace.schema');
 
-const { createTeamScheme, deleteTeamScheme, teamIdScheme, updateTeamScheme, asignProjectScheme, unasignProjectScheme } = require('../schemas/team.schema');
+const { createTeamScheme, teamIdScheme, updateTeamScheme, asignProjectScheme, unasignProjectScheme } = require('../schemas/team.schema');
 
-const { authorizationToCreateTeam, checkTeamMembership, checkAdminRoleToAssign } = require('../middlewares/authorization/team.authorization');
+const { authorizationToCreateTeam, checkTeamMembership, checkAdminRoleToAssign, checkTeamOwnership } = require('../middlewares/authorization/team.authorization');
 const { validateSession } = require('../middlewares/authentication.handler');
 const { validatorHandler } = require('./../middlewares/validator.handler');
 
@@ -111,26 +111,22 @@ router.delete('/:workspaceId/teams/:teamId/projects/:projectId',
   }
 );
 
-// Endpoint para eliminar un equipo
-// router.delete('/:workspaceId/teams/:teamId',
-//   validateSession,
-//   validatorHandler(teamIdScheme, 'params'),
-//   checkWorkspaceMembership,
-//   checkTeamMembership,
-//   validatorHandler(deleteTeamScheme, 'body'),
-//   async (req, res, next) => {
-//     try {
-//       const { workspaceId, teamId } = req.params;
-//       const teamMember = req.teamMember;
-//       const { workspaceMemberId } = req.body;
+router.delete('/:workspaceId/teams/:teamId',
+  validateSession,
+  validatorHandler(teamIdScheme, 'params'),
+  checkWorkspaceMembership,
+  checkTeamOwnership,
+  async (req, res, next) => {
+    try {
+      const { workspaceId, teamId } = req.params;
 
-//       const result = await teamService.deleteTeam(workspaceId, teamId, teamMember.id, workspaceMemberId);
+      const result = await teamService.deleteTeamController(workspaceId, teamId);
 
-//       res.status(200).json({ message: 'Team was successfully deleted', result });
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// );
+      res.status(200).json({ message: 'Team was successfully deleted', result });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;

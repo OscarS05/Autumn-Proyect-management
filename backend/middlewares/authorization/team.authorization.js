@@ -28,12 +28,11 @@ async function authorizationToCreateTeam(req, res, next){
 
 async function checkTeamMembership(req, res, next){
   try {
-    const user = req.user;
     const { workspaceId } = req.params;
     const workspaceMember = req.workspaceMemberStatus;
 
     const teamMember = await teamService.getTeamMembership(workspaceId, workspaceMember.id);
-    if(!teamMember) throw boom.forbidden('You do not have permission to perform this action')
+    if(!teamMember) throw boom.forbidden('You do not have permission to perform this action');
     if(teamMember.role !== 'admin')throw boom.forbidden('You do not have permission to perform this action');
 
     req.teamMember = teamMember;
@@ -85,29 +84,25 @@ async function checkAdminRoleToAssign(req, res, next){
 //   }
 // }
 
-// async function checkOwnership(req, res, next){
-//   try {
-//     const user = req.user;
-//     const { projectId } = req.params;
-//     const { currentOwnerId } = req.body;
+async function checkTeamOwnership(req, res, next){
+  try {
+    const { workspaceId } = req.params;
+    const workspaceMember = req.workspaceMemberStatus;
 
-//     const member = await projectMemberService.getProjectMemberByUserId(projectId, user.sub);
-//     if(member.propertyStatus !== 'owner' && member.role !== 'admin'){
-//       throw boom.forbidden('You do not have permission to perform this action');
-//     }
-//     if(member.workspaceMemberId !== currentOwnerId){
-//       throw boom.forbidden('You do not have permission to perform this action');
-//     }
+    const teamMember = await teamService.getTeamMembership(workspaceId, workspaceMember.id);
+    if(!teamMember) throw boom.forbidden('You do not have permission to perform this action');
+    if(teamMember.propertyStatus !== 'owner') throw boom.forbidden('You do not have permission to perform this action');
 
-//     req.ownerStatus = member;
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// }
+    req.teamMember = teamMember;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
 
 module.exports = {
   authorizationToCreateTeam,
   checkAdminRoleToAssign,
-  checkTeamMembership
+  checkTeamMembership,
+  checkTeamOwnership
 };
