@@ -94,6 +94,99 @@ class TeamService {
     }
   }
 
+  async unassignProject(teamId, projectId){
+    const transaction = await this.sequelize.transaction();
+    try {
+      const unassignedProject = await this.models.ProjectTeam.destroy(
+        { where: { teamId, projectId }, transaction }
+      );
+      await transaction.commit();
+      return unassignedProject;
+    } catch (error) {
+      await transaction.rollback();
+      throw boom.badRequest(error.message || 'Something went wrong while unassigning a project');
+    }
+  }
+
+  async unassignProjectController(workspaceId, teamId, projectId, removeTeamMembersFromProject){
+    const transaction = await this.sequelize.transaction();
+    try {
+      const [ team, project, projectTeam ] = await Promise.all([
+        this.models.Team.findOne({ where: { id: teamId, workspaceId }, transaction }),
+        this.models.Project.findOne({ where: { id: projectId, workspaceId }, transaction }),
+        this.models.ProjectTeam.findOne({ where: { teamId, projectId }, transaction }),
+      ]);
+      if (!team) throw boom.notFound('Team does not exist or does not belong to this workspace');
+      if (!project) throw boom.notFound('Project does not exist or does not belong to this workspace');
+      if (!projectTeam) throw boom.notFound('Team is not assigned to this project');
+
+      if(!removeTeamMembersFromProject) {
+        const unassignedProject = await this.unassignProject(teamId, projectId);
+        await transaction.commit();
+        return unassignedProject;
+      } else if(removeTeamMembersFromProject){
+        const response = await this.unassignProjectRemovingMembers(workspaceId, teamId, projectId);
+        await transaction.commit();
+        return response;
+      }
+    } catch (error) {
+      await transaction.rollback();
+      throw boom.badRequest(error.message || 'Something went wrong while unassigning a project');
+    }
+  }
+
+  async unassignProjectRemovingMembers(workspaceId, teamId, projectId){
+    const transaction = await this.sequelize.transaction();
+    try {
+      const projectMembers = await this.projectMemberService.getProjectMembers(projectId);
+      if(projectMembers.length === 0) throw boom.notFound('Project does not exist');
+
+      const teamMembers = await this.getTeamMembers(workspaceId, teamId);
+      if(teamMembers.length === 0) throw boom.notFound('Team does not exist');
+
+      const teamMembersOnProject = teamMembers.filter(teamMember =>
+        projectMembers.some(projectMember => projectMember.workspaceMemberId === teamMember.workspaceMemberId)
+      );
+      if(teamMembersOnProject.length === 0) throw boom.notFound('Team members are not part of this project');
+
+      const projectMembersNotInTeam = projectMembers.filter(projectMember =>
+        !teamMembers.some(teamMember => teamMember.workspaceMemberId === projectMember.workspaceMemberId)
+      );
+      if(projectMembersNotInTeam.length === 0){
+        throw boom.forbidden(
+          'The team cannot be removed from the project because all project members are part of the team. Please, add a new member to the project before unassigning the team'
+        );
+      }
+
+      const projectMembersInTeam = projectMembers.filter(projectMember =>
+        teamMembers.some(teamMember => teamMember.workspaceMemberId === projectMember.workspaceMemberId)
+      );
+      const teamMemberIsOwnerOnProject = projectMembersInTeam.find(member => member.propertyStatus === 'owner');
+      if(teamMemberIsOwnerOnProject){
+        const newOwner =
+          projectMembersNotInTeam.find(member => member.role === 'admin') ||
+          projectMembersNotInTeam.find(member => member.role === 'member');
+        if(!newOwner) throw boom.forbidden('Cannot transfer ownership because no suitable owner is available.');
+
+        await this.projectMemberService.transferOwnership(
+          projectId, teamMemberIsOwnerOnProject.workspaceMemberId, newOwner.workspaceMemberId
+        );
+      }
+
+      const unassignedProject = await this.unassignProject(teamId, projectId);
+
+      const removedMembers = await Promise.all(
+        projectMembersInTeam.map(member => this.projectMemberService.deleteMember(projectId, member.id))
+      );
+
+      await transaction.commit();
+      return { unassignedProject, removedMembers };
+    } catch (error) {
+      await transaction.rollback();
+      throw boom.badRequest(error.message || 'Something went wrong while unassigning a project');
+    }
+  }
+
   async getTeamsByWorkspace(workspaceId){
     try {
       const teams = await this.models.Team.findAll({

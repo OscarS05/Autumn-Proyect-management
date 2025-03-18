@@ -6,6 +6,7 @@ const name = Joi.string().min(3).max(50)
   .messages({
     'string.pattern.base': 'The team name contains illegal characters'
   });
+const boolean = Joi.boolean();
 
 const teamIdScheme = Joi.object({
   workspaceId: id.required(),
@@ -30,11 +31,16 @@ const asignProjectScheme = Joi.object({
   projectId: id.required(),
 });
 
+const unasignProjectScheme = Joi.object({
+  removeTeamMembersFromProject: boolean.required()
+});
+
 
 module.exports = {
   teamIdScheme,
   createTeamScheme,
   updateTeamScheme,
   deleteTeamScheme,
-  asignProjectScheme
+  asignProjectScheme,
+  unasignProjectScheme
 }

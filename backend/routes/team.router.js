@@ -4,7 +4,7 @@ const boom = require('@hapi/boom');
 const { checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 const { workspaceIdSchema } = require('../schemas/workspace.schema');
 
-const { createTeamScheme, deleteTeamScheme, teamIdScheme, updateTeamScheme, asignProjectScheme } = require('../schemas/team.schema');
+const { createTeamScheme, deleteTeamScheme, teamIdScheme, updateTeamScheme, asignProjectScheme, unasignProjectScheme } = require('../schemas/team.schema');
 
 const { authorizationToCreateTeam, checkTeamMembership, checkAdminRoleToAssign } = require('../middlewares/authorization/team.authorization');
 const { validateSession } = require('../middlewares/authentication.handler');
@@ -72,7 +72,6 @@ router.post('/:workspaceId/teams/:teamId/projects/:projectId',
   }
 );
 
-
 router.patch('/:workspaceId/teams/:teamId',
   validateSession,
   validatorHandler(teamIdScheme, 'params'),
@@ -93,5 +92,45 @@ router.patch('/:workspaceId/teams/:teamId',
   }
 );
 
+router.delete('/:workspaceId/teams/:teamId/projects/:projectId',
+  validateSession,
+  validatorHandler(asignProjectScheme, 'params'),
+  validatorHandler(unasignProjectScheme, 'body'),
+  checkAdminRoleToAssign,
+  async (req, res, next) => {
+    try {
+      const { workspaceId, teamId, projectId } = req.params;
+      const { removeTeamMembersFromProject } = req.body;
+
+      const result = await teamService.unassignProjectController(workspaceId, teamId, projectId, removeTeamMembersFromProject);
+
+      res.status(200).json({ message: 'The team was successfully unassigned', result });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Endpoint para eliminar un equipo
+// router.delete('/:workspaceId/teams/:teamId',
+//   validateSession,
+//   validatorHandler(teamIdScheme, 'params'),
+//   checkWorkspaceMembership,
+//   checkTeamMembership,
+//   validatorHandler(deleteTeamScheme, 'body'),
+//   async (req, res, next) => {
+//     try {
+//       const { workspaceId, teamId } = req.params;
+//       const teamMember = req.teamMember;
+//       const { workspaceMemberId } = req.body;
+
+//       const result = await teamService.deleteTeam(workspaceId, teamId, teamMember.id, workspaceMemberId);
+
+//       res.status(200).json({ message: 'Team was successfully deleted', result });
+//     } catch (error) {
+//       next(error);
+//     }
+//   }
+// );
 
 module.exports = router;
