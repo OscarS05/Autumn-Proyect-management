@@ -1,4 +1,5 @@
 const boom = require("@hapi/boom");
+const { workspaceMemberService } = require(".");
 
 class ProjectMemberService {
   constructor(sequelize, models, redisModels, projectService){
@@ -227,6 +228,98 @@ class ProjectMemberService {
       );
 
       return projectMembers;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to find project members');
+    }
+  }
+
+  async getProjectWithItsRelations(projectId){
+    try {
+      const projectMembers = await this.models.Project.findOne({
+          where: { id: projectId },
+          include: [
+            {
+              model: this.models.ProjectMember,
+              as: 'projectMembers',
+              include: [{
+                model: this.models.WorkspaceMember,
+                as: 'workspaceMember',
+                attributes: ['id', 'userId'],
+                include: [{
+                  model: this.models.User,
+                  as: 'user',
+                  attributes: ['id', 'name'],
+                }]
+              }]
+            },
+            {
+              model: this.models.Team,
+              as: 'teams',
+              attributes: ['id', 'name', 'workspaceId'],
+              include: [{
+                model: this.models.TeamMember,
+                as: 'teamMembers',
+                include: [{
+                  model: this.models.WorkspaceMember,
+                  as: 'workspaceMember',
+                  attributes: ['id', 'userId'],
+                  include: [{
+                    model: this.models.User,
+                    as: 'user',
+                    attributes: ['id', 'name'],
+                  }]
+                }]
+              }],
+              through: { attributes: [] }
+            }
+          ],
+          attributes: ['id', 'name', 'workspaceId'],
+        }
+      );
+
+      return projectMembers;
+    } catch (error) {
+      throw boom.badRequest(error.message || 'Failed to find project members');
+    }
+  }
+
+  async controllerGetProjectMembers(projectId){
+    try {
+      const project = await this.getProjectWithItsRelations(projectId);
+
+      const formattedProjectMembers = project.projectMembers.map(projectMember => {
+        return {
+          id: projectMember.id,
+          name: projectMember.workspaceMember.user.name,
+          workspaceMemberId: projectMember.workspaceMember.id,
+          projectId: projectMember.projectId,
+          role: projectMember.role,
+          propertyStatus: projectMember.propertyStatus,
+          teams: project.teams
+            .filter(team => team.teamMembers.some(teamMember => teamMember.workspaceMemberId === projectMember.workspaceMemberId))
+            .map(team => ({
+              id: team.id,
+              name: team.name,
+            }))
+        }
+      });
+      const formattedTeams = project.teams.map(team => {
+        return {
+          id: team.id,
+          name: team.name,
+          members: team.teamMembers.map(teamMember => {
+            return {
+              id: teamMember.workspaceMember.id,
+              name: teamMember.workspaceMember.user.name,
+              role: teamMember.role,
+              propertyStatus: teamMember.propertyStatus,
+              isMemberProject: project.projectMembers.some(projectMember => projectMember.workspaceMemberId === teamMember.workspaceMemberId)
+            }
+          })
+        }
+      });
+
+      return { projectMembers: formattedProjectMembers, teams: formattedTeams };
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to find project members');
     }

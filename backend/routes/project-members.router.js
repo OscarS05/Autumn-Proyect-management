@@ -18,9 +18,9 @@ router.get('/:projectId/members',
     try {
       const { projectId } = req.params;
 
-      const projectMembers = await projectMemberService.getProjectMembers(projectId);
+      const { projectMembers, teams } = await projectMemberService.controllerGetProjectMembers(projectId);
 
-      res.status(200).json({ projectMembers });
+      res.status(200).json({ projectMembers, teams });
     } catch (error) {
       next(error);
     }

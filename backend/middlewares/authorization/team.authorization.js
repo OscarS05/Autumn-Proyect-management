@@ -67,23 +67,6 @@ async function checkAdminRoleToAssign(req, res, next){
   }
 }
 
-// async function checkAdminRole(req, res, next){
-//   try {
-//     const userId = req.user.sub;
-//     const { projectId } = req.params;
-
-//     const member = await projectMemberService.getProjectMemberByUserId(projectId, userId);
-//     if(member.role !== 'admin'){
-//       throw boom.forbidden('You do not have permission to perform this action');
-//     }
-
-//     req.projectMember = member;
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// }
-
 async function checkTeamOwnership(req, res, next){
   try {
     const { workspaceId } = req.params;
