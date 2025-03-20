@@ -2,10 +2,10 @@ const router = require('./team.router');
 
 const boom = require('@hapi/boom');
 
-const { workspaceIdSchema } = require('./../schemas/workspace.schema');
-const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember, transferOwnership } = require('./../schemas/workspace-member.schema');
+const { workspaceIdSchema } = require('../schemas/workspace.schema');
+const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember, transferOwnership } = require('../schemas/workspace-member.schema');
 
-const { validatorHandler } = require('./../middlewares/validator.handler');
+const { validatorHandler } = require('../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
 const { checkAdminRole, checkOwnership, checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 

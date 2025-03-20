@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const boom = require('@hapi/boom');
 
-const { workspaceIdSchema } = require('./../schemas/workspace.schema');
-const { createProject, deleteProject, updateProject, projectIdSchema } = require('./../schemas/project.schema');
+const { workspaceIdSchema } = require('../schemas/workspace.schema');
+const { createProject, deleteProject, updateProject, projectIdSchema } = require('../schemas/project.schema');
+const { checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 
-const { validatorHandler } = require('./../middlewares/validator.handler');
+const { validatorHandler } = require('../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
-const { authorizationToCreateProject } = require('../middlewares/authorization/project.authorization');
+const { authorizationToCreateProject, checkAdminRole, checkOwnership } = require('../middlewares/authorization/project.authorization');
 
 const { projectService } = require('../services/db/index');
 const { ProjectRedis } = require('../services/redis/index');
@@ -16,6 +17,7 @@ const { ProjectRedis } = require('../services/redis/index');
 router.get('/:workspaceId',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
+  checkWorkspaceMembership,
   async (req, res, next) => {
     try {
       const { workspaceId } = req.params;
@@ -59,6 +61,7 @@ router.patch('/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
   validatorHandler(updateProject, 'body'),
+  checkAdminRole,
   async (req, res, next) => {
     try {
       const { projectId } = req.params;
@@ -78,6 +81,7 @@ router.delete('/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
   validatorHandler(deleteProject, 'body'),
+  checkOwnership,
   async (req, res, next) => {
     try {
       const { projectId } = req.params;

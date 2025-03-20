@@ -2,7 +2,7 @@ const boom = require('@hapi/boom');
 
 const { models } = require('../../libs/sequelize');
 const { config } = require('../../config/config');
-const UserService = require('../db/user.service');
+const UserService = require('./user.service');
 const service = new UserService();
 
 class ListService {

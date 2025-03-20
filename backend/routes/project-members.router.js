@@ -4,7 +4,7 @@ const boom = require('@hapi/boom');
 
 const { validatorHandler } = require('../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
-const { checkProjectMembership, checkAdminRole, checkOwnership } = require('../middlewares/authorization/project.authorization');
+const { checkProjectMembership, checkAdminRole, checkOwnershipToTransfer } = require('../middlewares/authorization/project.authorization');
 
 const { projectIdSchema, addProjectMember, roleChangeSchema, projectParamsSchemas, transferOwnership } = require('../schemas/project-members.schema');
 
@@ -72,7 +72,7 @@ router.patch('/:projectId/ownership',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
   validatorHandler(transferOwnership, 'body'),
-  checkOwnership,
+  checkOwnershipToTransfer,
   async (req, res, next) => {
     try {
       const { projectId } = req.params;

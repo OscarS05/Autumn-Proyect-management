@@ -5,10 +5,10 @@ const passport = require('passport');
 const boom = require('@hapi/boom');
 
 const { config } = require('../config/config');
-const { changePassword } = require('./../schemas/user.schema');
+const { changePassword } = require('../schemas/user.schema');
 
-const { validatorHandler } = require('./../middlewares/validator.handler')
-const { limiter, validateSession } = require('./../middlewares/authentication.handler');
+const { validatorHandler } = require('../middlewares/validator.handler')
+const { limiter, validateSession } = require('../middlewares/authentication.handler');
 
 const { authService } = require('../services/db/index');
 const { AuthRedis } = require('../services/redis/index');

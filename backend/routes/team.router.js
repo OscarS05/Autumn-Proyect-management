@@ -1,4 +1,4 @@
-const router = require('../routes/workspace.router');
+const router = require('./workspace.router');
 const boom = require('@hapi/boom');
 
 const { checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
@@ -8,7 +8,7 @@ const { createTeamScheme, teamIdScheme, updateTeamScheme, asignProjectScheme, un
 
 const { authorizationToCreateTeam, checkTeamMembership, checkAdminRoleToAssign, checkTeamOwnership } = require('../middlewares/authorization/team.authorization');
 const { validateSession } = require('../middlewares/authentication.handler');
-const { validatorHandler } = require('./../middlewares/validator.handler');
+const { validatorHandler } = require('../middlewares/validator.handler');
 
 const { teamService } = require('../services/db/index');
 

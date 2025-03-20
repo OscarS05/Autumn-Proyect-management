@@ -57,7 +57,7 @@ async function checkAdminRole(req, res, next){
   }
 }
 
-async function checkOwnership(req, res, next){
+async function checkOwnershipToTransfer(req, res, next){
   try {
     const user = req.user;
     const { projectId } = req.params;
@@ -78,9 +78,27 @@ async function checkOwnership(req, res, next){
   }
 }
 
+async function checkOwnership(req, res, next){
+  try {
+    const user = req.user;
+    const { projectId } = req.params;
+
+    const member = await projectMemberService.getProjectMemberByUserId(projectId, user.sub);
+    if(member.propertyStatus !== 'owner'){
+      throw boom.forbidden('You do not have permission to perform this action');
+    }
+
+    req.ownerStatus = member;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   checkAdminRole,
   checkProjectMembership,
   authorizationToCreateProject,
+  checkOwnershipToTransfer,
   checkOwnership
 };

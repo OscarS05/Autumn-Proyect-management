@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const boom = require('@hapi/boom');
 
-const UserService = require('./../../services/db/user.service');
+const UserService = require('../../services/db/user.service');
 const service = new UserService();
 
 function isVerificationExpired(createdAt, expirationTime){
