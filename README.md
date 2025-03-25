@@ -22,8 +22,8 @@ The `public` folder contains everything related to the frontend:
 - **assets**: Contains images and other static files.
 - **components**: Previously used for PHP modular design but is not in use at the moment.
 
-### Backend (backend)
-The `backend` folder contains everything related to the server-side logic:
+### api (backend)
+The `api` folder contains everything related to the server-side logic:
 - **config**: Contains environment variables managed with `dotenv`.
 - **db**: Handles the configuration of Sequelize CLI, database connections, model structure, relationships, and migrations.
 - **libs**: Contains the Sequelize configuration that is used outside of the CLI and other general utility libraries.

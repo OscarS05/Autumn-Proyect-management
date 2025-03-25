@@ -1,0 +1,70 @@
+const boom = require('@hapi/boom');
+const { rateLimit } = require('express-rate-limit');
+const jwt = require('jsonwebtoken');
+
+const { config } = require('../../../config/config');
+const { setCookieRefreshToken } = require('../../../utils/cookieHelper');
+const { AuthRedis } = require('../../infrastructure/repositories/cache/index');
+const { authService } = require('../../application/services/index');
+
+
+const limiter = (limit, windowMs) => rateLimit( {
+  windowMs: windowMs,
+  limit: limit,
+  message: 'Too many email requests, please try again after an 15 minutes',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+async function validateSession(req, res, next) {
+  const accessToken = req.headers.authorization?.split(' ')[1];
+  const refreshToken = req.cookies.refreshToken;
+
+  if(!accessToken || !refreshToken){
+    return next(boom.unauthorized('Tokens not provided'));
+  }
+
+  try {
+    const decodedAccessToken = authService.validateAccessToken(accessToken);
+    if(decodedAccessToken){
+      req.user = decodedAccessToken;
+      req.tokens = { accessToken };
+      return next();
+    }
+  } catch (accessError) {
+    if(accessError.name === 'TokenExpiredError'){
+      try {
+        const decodedRefreshToken = authService.validateRefreshToken(refreshToken);
+        const isValidRefreshTokenInRedis = await AuthRedis.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
+        if(!isValidRefreshTokenInRedis){
+          return next(boom.unauthorized('Refresh token in redis is invalid'));
+        }
+        if(isValidRefreshTokenInRedis !== refreshToken){
+          return next(boom.unauthorized());
+        }
+
+        await AuthRedis.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
+
+        const user = {
+          sub: decodedRefreshToken.sub,
+          role: decodedRefreshToken.role
+        }
+
+        const newTokens = await authService.generateTokens(user);
+
+        req.user = user;
+        req.tokens = newTokens;
+        setCookieRefreshToken(res, 'refreshToken', newTokens.refreshToken)
+
+        return next();
+      } catch (refreshError) {
+        return next(boom.unauthorized(refreshError.message || 'Invalid refresh token'));
+      }
+    } else {
+      return next(boom.unauthorized(accessError.message || 'Invalid token'));
+    }
+  }
+}
+
+
+module.exports = { limiter, validateSession };
