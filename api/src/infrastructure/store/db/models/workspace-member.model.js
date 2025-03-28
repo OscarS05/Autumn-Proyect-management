@@ -27,12 +27,6 @@ const WorkspaceMemberSchema = {
     type: Sequelize.DataTypes.STRING,
     defaultValue: 'member',
   },
-  propertyStatus: {
-    field: 'property_status',
-    allowNull: false,
-    type: Sequelize.DataTypes.STRING,
-    defaultValue: 'Free',
-  },
   workspaceId:{
     field: 'workspace_id',
     allowNull: false,

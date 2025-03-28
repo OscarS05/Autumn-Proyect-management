@@ -1,5 +1,6 @@
 const Redis = require("ioredis");
 const { config } = require('../../../../config/config');
+const logger = require('../../../../utils/logger/logger');
 
 const redis = new Redis({
   host: config.redisHost,
@@ -7,9 +8,13 @@ const redis = new Redis({
   password: config.redisPassword,
 });
 
-// const redis = new Redis(config.redisUrl);
+redis.on("connect", () =>{
+  console.info("Redis connected!");
+  if(config.isProd) logger.info('Redis connected!');
+});
 
-redis.on("connect", () => console.log("Connected to Redis Cloud"));
-redis.on("error", (err) => console.error("Error in Redis:", err));
+redis.on("error", (err) =>{
+  logger.error(`❌ redis connection failed: ${err.message}`);
+});
 
 module.exports = redis;

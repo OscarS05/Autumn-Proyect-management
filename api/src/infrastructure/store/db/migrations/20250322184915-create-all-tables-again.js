@@ -120,12 +120,6 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: 'member',
       },
-      propertyStatus: {
-        field: 'property_status',
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: 'Free',
-      },
       workspaceId:{
         field: 'workspace_id',
         allowNull: false,
@@ -221,12 +215,6 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
-      },
-      propertyStatus: {
-        field: 'property_status',
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: 'guest',
       },
       addedAt: {
         field: 'added_at',
@@ -349,12 +337,6 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
-      },
-      propertyStatus: {
-        field: 'property_status',
-        allowNull: false,
-        type: Sequelize.STRING,
-        defaultValue: 'guest',
       },
       addedAt: {
         allowNull: false,
@@ -672,23 +654,23 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable(USER_TABLE);
-    await queryInterface.dropTable(WORKSPACE_TABLE);
-    await queryInterface.dropTable(WORKSPACE_MEMBER_TABLE);
-    await queryInterface.dropTable(PROJECT_TABLE);
-    await queryInterface.dropTable(PROJECT_MEMBER_TABLE);
+    await queryInterface.dropTable(ITEM_MEMBER_TABLE);
+    await queryInterface.dropTable(CHECKLIST_ITEM_TABLE);
+    await queryInterface.dropTable(CHECKLIST_TABLE);
+    await queryInterface.dropTable(LABEL_TABLE);
+    await queryInterface.dropTable(COLOR_TABLE);
+    await queryInterface.dropTable(CARD_ATTACHMENT_TABLE);
+    await queryInterface.dropTable(CARD_MEMBER_TABLE);
+    await queryInterface.dropTable(CARD_TABLE);
+    await queryInterface.dropTable(LIST_TABLE);
+    await queryInterface.dropTable(TEAM_MEMBER_TABLE);
     await queryInterface.dropTable(PROJECT_TEAM_TABLE);
     await queryInterface.dropTable(TEAM_TABLE);
-    await queryInterface.dropTable(TEAM_MEMBER_TABLE);
-    await queryInterface.dropTable(LIST_TABLE);
-    await queryInterface.dropTable(CARD_TABLE);
-    await queryInterface.dropTable(CARD_MEMBER_TABLE);
-    await queryInterface.dropTable(CARD_ATTACHMENT_TABLE);
-    await queryInterface.dropTable(COLOR_TABLE);
-    await queryInterface.dropTable(LABEL_TABLE);
-    await queryInterface.dropTable(CHECKLIST_TABLE);
-    await queryInterface.dropTable(CHECKLIST_ITEM_TABLE);
-    await queryInterface.dropTable(ITEM_MEMBER_TABLE);
+    await queryInterface.dropTable(PROJECT_MEMBER_TABLE);
+    await queryInterface.dropTable(PROJECT_TABLE);
+    await queryInterface.dropTable(WORKSPACE_MEMBER_TABLE);
+    await queryInterface.dropTable(WORKSPACE_TABLE);
+    await queryInterface.dropTable(USER_TABLE);
   }
 
 };

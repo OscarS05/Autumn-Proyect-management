@@ -1,13 +1,17 @@
 const boom = require('@hapi/boom');
 
 class WorkspaceMemberService {
-  constructor(sequelize, models, redisModels, workspaceService, projectService, projectMemberService) {
-    this.sequelize = sequelize;
-    this.models = models;
-    this.redisModels = redisModels;
-    this.workspaceService = workspaceService;
-    this.projectService = projectService;
-    this.projectMemberService = projectMemberService;
+  // constructor(sequelize, models, redisModels, workspaceService, projectService, projectMemberService) {
+  //   this.sequelize = sequelize;
+  //   this.models = models;
+  //   this.redisModels = redisModels;
+  //   this.workspaceService = workspaceService;
+  //   this.projectService = projectService;
+  //   this.projectMemberService = projectMemberService;
+  // }
+
+  constructor({ getWorkspaceMemberByUserIdUseCase }) {
+    this.getWorkspaceMemberByUserIdUseCase = getWorkspaceMemberByUserIdUseCase;
   }
 
   async create(workspaceId, userId){
@@ -254,18 +258,8 @@ class WorkspaceMemberService {
     }
   }
 
-  async findStatusByUserId(workspaceId, userId){
-    try {
-      const status = await this.models.WorkspaceMember.findOne({
-        where: { workspaceId, userId },
-        attributes: ['id', 'role', 'propertyStatus', 'userId'],
-      });
-      if(!status) throw boom.notFound('Workspace member or workspace not found');
-
-      return status.dataValues;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Failed to find role');
-    }
+  async getWorkspaceMemberByUserId(workspaceId, userId){
+    return await this.getWorkspaceMemberByUserIdUseCase.execute(workspaceId, userId);
   }
 
   async findAllMembers(workspaceId){

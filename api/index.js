@@ -8,6 +8,7 @@ const routerApi = require('./src/interfaces/routes');
 const { config } = require('./config/config');
 
 const path = require('path');
+const morganMiddleware = require('./utils/logger/morgan');
 
 const port = config.port || 3000;
 const app = express();
@@ -28,6 +29,7 @@ app.use(cors({
 require('./utils/auth');
 require('./utils/cron');
 
+app.use(morganMiddleware);
 routerApi(app);
 
 const publicPath = path.join(__dirname, '../public');
@@ -52,17 +54,6 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
-
-const redis = require('./src/infrastructure/store/cache/index');
-(async () => {
-  try {
-    await redis.set("test", "123", "EX", 10);
-    const valor = await redis.get("test");
-    console.log("Value stored in Redis:", valor);
-  } catch (err) {
-    console.error("Error in Redis:", err);
-  }
-})();
 
 app.listen(port, () => {
   console.log(`Server run in PORT: ${port}`);

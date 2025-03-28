@@ -1,94 +1,39 @@
 const boom = require('@hapi/boom');
 
 class WorkspaceService {
-  constructor(sequelize, models, redisModels) {
-    this.sequelize = sequelize;
-    this.models = models;
-    this.redisModels = redisModels;
+  constructor(
+    { createWorkspaceUseCase, updateWorkspaceUseCase, countWorkspacesByUserUseCase, deleteWorkspaceUseCase, getWorkspacesAndProjectsUseCase },
+    { getProjectsUseCase }
+  ){
+    // workspace use cases
+    this.createWorkspaceUseCase = createWorkspaceUseCase;
+    this.updateWorkspaceUseCase = updateWorkspaceUseCase;
+    this.deleteWorkspaceUseCase = deleteWorkspaceUseCase;
+    this.getWorkspacesAndProjectsUseCase = getWorkspacesAndProjectsUseCase;
+    this.countWorkspacesByUserUseCase = countWorkspacesByUserUseCase;
+
+    // project use cases
+    this.getProjectsUseCase = getProjectsUseCase;
   }
 
-  async create({ name, description, userId }) {
-    const transaction = await this.sequelize.transaction();
-    try {
-      const workspace = await this.models.Workspace.create(
-        { name: name, description: description, userId: userId },
-        { transaction }
-      );
-      const workspaceMember = await this.models.WorkspaceMember.create(
-        { userId, workspaceId: workspace.dataValues.id, role: 'admin', propertyStatus: 'owner'},
-        { transaction }
-      )
-
-      await transaction.commit();
-
-      try {
-        Promise.all([
-          await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, [ workspace.dataValues ]),
-          await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(
-            userId,
-            [workspaceMember.workspaceId],
-            [workspaceMember.id]
-          ),
-        ])
-      } catch (error) {
-        throw boom.badRequest(error.message || 'Something went wrong to save workspace in Redis');
-      }
-
-      return workspace;
-    } catch (error) {
-      await transaction.rollback();
-      return boom.badRequest(error.message || 'Failed to create workspace');
-    }
+  async createWorkspace(workspaceData) {
+    return await this.createWorkspaceUseCase.execute(workspaceData);
   }
 
-  async update(workspaceId, data, userId) {
-    if(Object.keys(data).length === 0){
-      throw boom.badRequest('Please, try again');
-    }
-
-    try {
-      const [updatedRows, [updatedWorkspace]] = await this.models.Workspace.update(data, {
-        where: { id: workspaceId, userId },
-        returning: true,
-      });
-
-      await this.redisModels.WorkspaceRedis.updateWorkspace(updatedWorkspace.dataValues);
-
-      if(!updatedRows) return boom.notFound('Workspace not found');
-      return updatedWorkspace;
-    } catch (error) {
-      return boom.badRequest(error.message || 'Failed to update workspace');
-    }
+  async update(workspaceId, data) {
+    return await this.updateWorkspaceUseCase.execute(workspaceId, data);
   }
 
-  async delete(userId, workspaceId, workspaceMembersIds){
-    const transaction = await this.sequelize.transaction();
-    try {
-      const deleted = await this.models.Workspace.destroy({
-        where: { id: workspaceId, userId },
-        transaction
-      });
-      // Hacer validaciones de negocio antes de eliminar el workspace
-      if (deleted === 0){
-        await transaction.rollback();
-        throw boom.notFound('Workspace not found or unauthorized');
-      }
-
-      await transaction.commit();
-      await this.redisModels.WorkspaceRedis.deleteWorkspace(workspaceId, userId, workspaceMembersIds);
-
-      return deleted;
-    } catch (error) {
-      await transaction.rollback();
-      throw boom.badRequest(error.message || 'Failed to delete workspace');
-    }
+  async delete(workspaceId){
+    const projects = await this.getProjectsUseCase.execute(workspaceId);
+    return await this.deleteWorkspaceUseCase.execute(workspaceId, projects);
   }
 
   async findWorkspaceAndItsProjects(workspaceId, userId){
     try {
       const Workspace = await this.models.Workspace.findAll({
         where: { id: workspaceId },
-        include: [{ model: this.models.Project, as: 'project' }]
+        include: [{ model: this.models.Project, as: 'projects' }]
       });
 
       await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, Workspace);
@@ -98,55 +43,12 @@ class WorkspaceService {
     }
   }
 
-  async findWorkspacesAndProjects(userId) {
-    try {
-      const Workspaces = await this.models.WorkspaceMember.findAll({
-        where: { userId },
-        include: [{
-            model: this.models.Workspace,
-            as: 'workspace',
-            include: [{ model: this.models.Project, as: 'project', }],
-          }],
-      });
-      if(Workspaces.length === 0) return [];
-
-      const { workspaceIds, workspaceMemberIds } = Workspaces.reduce((acc, data) => {
-        if(data){
-          acc.workspaceIds.push(data.workspaceId);
-          acc.workspaceMemberIds.push(data.id);
-        }
-        return acc;
-      }, { workspaceIds: [], workspaceMemberIds: [] });
-
-      const listOfWorkspaces = Workspaces.map(member => member.workspace.dataValues);
-
-      await this.redisModels.WorkspaceRedis.saveWorkspaces(userId, listOfWorkspaces);
-      await this.redisModels.WorkspaceMemberRedis.saveWorkspaceIdByUserId(
-        userId,
-        workspaceIds,
-        workspaceMemberIds
-      );
-
-      const organizedWorkspaces = listOfWorkspaces.reduce((acc, data) => {
-        if(data.userId === userId){
-          acc.owner.push(data);
-        } else if(data.userId !== userId){
-          acc.guest.push(data);
-        }
-        return acc;
-      }, { owner: [], guest: [] });
-
-      return organizedWorkspaces;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Failed to find workspaces and projects');
-    }
+  async getWorkspacesAndProjects(userId) {
+    return await this.getWorkspacesAndProjectsUseCase.execute(userId);
   }
 
   async countWorkspacesByUserId(userId){
-    const count = await this.models.Workspace.count(
-      { where: { userId } }
-    );
-    return count;
+    return await this.countWorkspacesByUserUseCase.execute(userId);
   }
 }
 

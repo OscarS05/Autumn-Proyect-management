@@ -47,7 +47,7 @@ class Workspace extends Model {
     });
 
     this.hasMany(models.Project, {
-      as: 'project',
+      as: 'projects',
       foreignKey: 'workspaceId',
     });
   }

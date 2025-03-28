@@ -26,6 +26,7 @@ function boomErrorHandler(err, req, res, next){
 }
 
 function errorHandler(err, req, res, next){
+  console.log('err:', err);
   res.status(500).json({
     message: err,
     stack: err.message,

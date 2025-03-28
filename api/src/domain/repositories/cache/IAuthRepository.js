@@ -1,6 +1,6 @@
 const boom = require('@hapi/boom');
 
-class IAuthRepository {
+class IAuthCacheRepository {
   async saveRefreshToken(userId, refreshToken) {
     throw boom.notImplemented('The saveRefreshToken() method is not implemented');
   }
@@ -11,6 +11,18 @@ class IAuthRepository {
 
   async removeRefreshToken(userId, refreshToken) {
     throw boom.notImplemented('The removeRefreshTokens() method is not implemented');
+  }
+
+  async saveAccessToken(userId, accessToken) {
+    throw boom.notImplemented('The saveAccessToken() method is not implemented');
+  }
+
+  async verifyAccessTokenInRedis(userId, accessToken) {
+    throw boom.notImplemented('The verifyAccessTokenInRedis() method is not implemented');
+  }
+
+  async removeAccessToken(userId, accessToken) {
+    throw boom.notImplemented('The saveAccessToken() method is not implemented');
   }
 
   async saveTokenInRedis(userId, token){
@@ -26,4 +38,4 @@ class IAuthRepository {
   }
 }
 
-module.exports = IAuthRepository;
+module.exports = IAuthCacheRepository;

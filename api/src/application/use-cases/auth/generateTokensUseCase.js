@@ -2,6 +2,7 @@ const boom = require('@hapi/boom');
 const jwt = require('jsonwebtoken');
 
 const { config } = require('../../../../config/config');
+const logger = require('../../../../utils/logger/logger');
 
 class GenerateTokensUseCase {
   constructor({ AuthRedis }){
@@ -19,7 +20,12 @@ class GenerateTokensUseCase {
     const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '15m' });
     const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '15d' });
 
-    await this.AuthRedis.saveRefreshToken(payload.sub, refreshToken);
+    try {
+      await this.AuthRedis.saveAccessToken(payload.sub, accessToken);
+      await this.AuthRedis.saveRefreshToken(payload.sub, refreshToken);
+    } catch (error) {
+      logger.warn('❗Failed to save workspaces and projects in Redis by error: ', error);
+    }
 
     return { accessToken, refreshToken };
   }

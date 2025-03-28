@@ -1,9 +1,9 @@
 const boom = require('@hapi/boom');
 
-const IAuthRepository = require('../../../domain/repositories/cache/IAuthRepository');
+const IAuthCacheRepository = require('../../../domain/repositories/cache/IAuthRepository');
 
 
-class AuthRedisService extends IAuthRepository {
+class AuthRedisRepository extends IAuthCacheRepository {
   constructor(redisClient){
     super();
     this.redis = redisClient;
@@ -11,6 +11,10 @@ class AuthRedisService extends IAuthRepository {
 
   refreshTokenKey(userId, refreshToken){
     return `refresh_token:${userId}:${refreshToken.slice(-10)}`;
+  }
+
+  accessTokenKey(userId, accessToken){
+    return `access_token:${userId}:${accessToken.slice(-10)}`;
   }
 
   tokenToVerifyEmail(userId, token){
@@ -25,15 +29,30 @@ class AuthRedisService extends IAuthRepository {
   }
 
   async verifyRefreshTokenInRedis(userId, refreshToken) {
-    const storedToken = await this.redis.get(this.refreshTokenKey(userId, refreshToken));
-    if(storedToken == null) throw boom.badRequest('Key does not exist');
-
-    return storedToken;
+    return await this.redis.get(this.refreshTokenKey(userId, refreshToken));
   }
 
   async removeRefreshToken(userId, refreshToken) {
     const response = await this.redis.del(this.refreshTokenKey(userId, refreshToken));
     if(response === 0) throw boom.badRequest('Failed to remove refresh token in Redis (The key might not exist)');
+
+    return response;
+  }
+
+  async saveAccessToken(userId, accessToken) {
+    const response = await this.redis.set(this.accessTokenKey(userId, accessToken), accessToken, 'EX', 15 * 24 * 60 * 60);
+    if(response !== 'OK') throw boom.badRequest('Failed to save Access token in Redis');
+
+    return response;
+  }
+
+  async verifyAccessTokenInRedis(userId, accessToken) {
+    return await this.redis.get(this.accessTokenKey(userId, accessToken));
+  }
+
+  async removeAccessToken(userId, accessToken) {
+    const response = await this.redis.del(this.accessTokenKey(userId, accessToken));
+    if(response === 0) throw boom.badRequest('Failed to remove access token in Redis (The key might not exist)');
 
     return response;
   }
@@ -61,4 +80,4 @@ class AuthRedisService extends IAuthRepository {
   }
 }
 
-module.exports = AuthRedisService;
+module.exports = AuthRedisRepository;

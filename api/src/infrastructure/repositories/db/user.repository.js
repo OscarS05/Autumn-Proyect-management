@@ -1,4 +1,4 @@
-const IUserRepository = require('../../../domain/repositories/IUserRepository');
+const IUserRepository = require('../../../domain/repositories/db/IUserRepository');
 
 class UserRepository extends IUserRepository {
   constructor(db){
@@ -40,7 +40,7 @@ class UserRepository extends IUserRepository {
 
   async delete(userId) {
     return await this.db.models.User.destroy({
-      where: { id: userId}
+      where: { id: userId }
     });
   }
 

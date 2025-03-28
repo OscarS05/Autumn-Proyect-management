@@ -7,8 +7,12 @@ class BaseRedisService {
     return `user:${userId}:workspaces`;
   }
 
-  userWorkspaceMemberKey(userId){
-    return `user:${userId}:workspaceMembers`;
+  userWorkspaceMemberIdsKey(userId){
+    return `user:${userId}:workspaceMembersIds`;
+  }
+
+  workspaceMember(workspaceMemberId){
+    return `workspaceMember:${workspaceMemberId}`;
   }
 
   workspaceKey(workspaceId) {
@@ -25,10 +29,6 @@ class BaseRedisService {
 
   projectMembers(projectId){
     return `project:${projectId}:members`;
-  }
-
-  workspaceMembersByUserId(workspaceId){
-    return `workspace:${workspaceId}:members`;
   }
 }
 

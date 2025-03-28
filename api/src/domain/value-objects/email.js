@@ -1,7 +1,9 @@
+const boom = require('@hapi/boom');
+
 class Email {
   constructor(value) {
     if (!this.validate(value)) {
-      throw new Error('The email is not valid');
+      throw boom.badData('The email is not valid');
     }
     this.value = value;
   }

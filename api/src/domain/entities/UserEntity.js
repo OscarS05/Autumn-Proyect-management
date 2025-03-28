@@ -21,6 +21,17 @@ class UserEntity {
       throw boom.badData('The name must contain at least 3 letters');
     }
   }
+
+  toPlainObject() {
+    return {
+      id: this.id,
+      name: this.name,
+      email: this.email.value,
+      password: this.password.value,
+      recoveryToken: this.recoveryToken,
+      role: this.role,
+    };
+  }
 }
 
 module.exports = UserEntity;

@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const id = Joi.number().integer();
+const id = Joi.string().uuid();
 const role = Joi.string().valid('member', 'admin');
 
 const createWorkspaceMember = Joi.object({

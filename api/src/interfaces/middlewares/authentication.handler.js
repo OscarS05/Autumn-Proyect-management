@@ -35,14 +35,19 @@ async function validateSession(req, res, next) {
     if(accessError.name === 'TokenExpiredError'){
       try {
         const decodedRefreshToken = authService.validateRefreshToken(refreshToken);
-        const isValidRefreshTokenInRedis = await AuthRedis.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken);
-        if(!isValidRefreshTokenInRedis){
-          return next(boom.unauthorized('Refresh token in redis is invalid'));
-        }
-        if(isValidRefreshTokenInRedis !== refreshToken){
-          return next(boom.unauthorized());
-        }
 
+        const [ storedAccessToken, storedRefreshToken ] = await Promise.all([
+          await AuthRedis.verifyAccessTokenInRedis(decodedRefreshToken.sub, accessToken),
+          await AuthRedis.verifyRefreshTokenInRedis(decodedRefreshToken.sub, refreshToken),
+        ]);
+
+        if(!storedRefreshToken) throw boom.unauthorized('Refresh token in redis is invalid');
+        if(!storedAccessToken) throw boom.unauthorized('Access token in redis is invalid');
+
+        if(storedRefreshToken !== refreshToken) throw boom.unauthorized('Refresh token does not match');
+        if(storedAccessToken !== accessToken) throw boom.unauthorized('Access token does not match');
+
+        await AuthRedis.removeAccessToken(decodedRefreshToken.sub, accessToken);
         await AuthRedis.removeRefreshToken(decodedRefreshToken.sub, refreshToken);
 
         const user = {

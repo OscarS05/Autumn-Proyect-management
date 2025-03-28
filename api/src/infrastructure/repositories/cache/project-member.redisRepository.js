@@ -1,5 +1,5 @@
 const boom = require('@hapi/boom');
-const BaseRedisService = require('./base.redisService');
+const BaseRedisService = require('./base.redisRepository');
 
 class ProjectMemberRedisService extends BaseRedisService {
   constructor(redisClient){
@@ -40,6 +40,10 @@ class ProjectMemberRedisService extends BaseRedisService {
     } catch (error) {
       throw boom.badRequest(error.message || 'Failed to delete project member');
     }
+  }
+
+  async getProjectMemberIds(projectId) {
+    return await this.redis.smembers(this.projectMembers(projectId));
   }
 }
 

@@ -15,16 +15,9 @@ class SignUpUseCase {
 
     userData.password = await bcrypt.hash(userData.password, 10);
 
-    const user = new UserEntity(userData)
-    const formattedUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email.value,
-      password: user.password.value,
-      recoveryToken: user.recoveryToken,
-      role: user.role
-    }
-    const userCreated = await this.userRepository.create(formattedUser);
+    const user = new UserEntity(userData).toPlainObject();
+    const userCreated = await this.userRepository.create(user);
+
     return new UserDto(userCreated);
   }
 }

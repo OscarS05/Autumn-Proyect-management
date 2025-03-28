@@ -1,18 +1,20 @@
 const redisClient = require('../../store/cache/index');
 
-const AuthRedisService = require('./auth.redisService');
-const WorkspaceRedisService = require('./workspace.redisService');
-const WorkspaceMemberRedisService = require('./workspace-member.redisService');
-const ProjectRedisService = require('./project.redisService');
-const ProjectMemberRedisService = require('./project-member.redisService');
+const BaseRedisService = require('./base.redisRepository');
+const AuthRedisRepository = require('./auth.redisRepository');
+const WorkspaceRedisService = require('./workspace.redisRepository');
+const WorkspaceMemberRedisService = require('./workspace-member.redisRepository');
+const ProjectRedisService = require('./project.redisRepository');
+const ProjectMemberRedisService = require('./project-member.redisRepository');
 
 const config = {
   redisClient: redisClient
 }
 
-const AuthRedis = new AuthRedisService(config.redisClient);
+const baseRedisService = new BaseRedisService(config.redisClient);
+const AuthRedis = new AuthRedisRepository(config.redisClient);
 const ProjectRedis = new ProjectRedisService(config.redisClient);
-const WorkspaceRedis = new WorkspaceRedisService(config.redisClient, ProjectRedis);
+const WorkspaceRedis = new WorkspaceRedisService(config.redisClient, ProjectRedis, baseRedisService);
 const WorkspaceMemberRedis = new WorkspaceMemberRedisService(config.redisClient);
 const ProjectMemberRedis = new ProjectMemberRedisService(config.redisClient);
 

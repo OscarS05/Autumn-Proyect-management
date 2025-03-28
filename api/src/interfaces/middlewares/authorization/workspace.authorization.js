@@ -22,7 +22,6 @@ async function authorizationToCreateWorkspace(req, res, next){
 
     next();
   } catch (error) {
-    console.error("Error in auth middleware:", error);
     next(error);
   }
 }
@@ -31,12 +30,11 @@ async function checkAdminRole(req, res, next){
   const user = req.user;
   const { workspaceId } = req.params;
   try {
-    const memberStatus = await workspaceMemberService.findStatusByUserId(workspaceId, user.sub);
-    if(memberStatus.role !== 'admin'){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
+    const workspaceMember = await workspaceMemberService.getWorkspaceMemberByUserId(workspaceId, user.sub);
+    if(!workspaceMember) throw boom.notFound('Workspace member not found');
+    if(workspaceMember.role === 'member') throw boom.forbidden('You do not have permission to update the workspace');
 
-    req.workspaceMemberStatus = memberStatus;
+    req.workspaceMember = workspaceMember;
     next();
   } catch (error) {
     next(error);
@@ -47,12 +45,12 @@ async function checkOwnership(req, res, next){
   try {
     const user = req.user;
     const { workspaceId } = req.params;
-    const memberStatus = await workspaceMemberService.findStatusByUserId(workspaceId, user.sub);
-    if(memberStatus.propertyStatus !== 'owner'){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
 
-    req.ownerStatus = memberStatus;
+    const workspaceMember = await workspaceMemberService.getWorkspaceMemberByUserId(workspaceId, user.sub);
+    if(!workspaceMember) throw boom.notFound('Workspace member not found');
+    if(workspaceMember.propertyStatus === 'owner') throw boom.forbidden('You do not have permission to delete the workspace');
+
+    req.workspaceMember = workspaceMember;
     next();
   } catch (error) {
     next(error);
@@ -65,9 +63,7 @@ async function checkWorkspaceMembership(req, res, next){
     const { workspaceId } = req.params;
 
     const workspaceMember = await workspaceMemberService.checkWorkspaceMembership(workspaceId, user.sub);
-    if(!workspaceMember){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
+    if(!workspaceMember) throw boom.forbidden('You do not have permission to perform this action');
 
     req.workspaceMemberStatus = workspaceMember;
     next();
