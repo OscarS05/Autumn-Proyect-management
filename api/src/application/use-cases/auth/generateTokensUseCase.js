@@ -17,14 +17,14 @@ class GenerateTokensUseCase {
       role: user.role
     };
 
-    const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '15m' });
+    const accessToken = jwt.sign(payload, config.jwtAccessSecret, { expiresIn: '60m' });
     const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '15d' });
 
     try {
       await this.AuthRedis.saveAccessToken(payload.sub, accessToken);
       await this.AuthRedis.saveRefreshToken(payload.sub, refreshToken);
     } catch (error) {
-      logger.warn('❗Failed to save workspaces and projects in Redis by error: ', error);
+      logger.warn('❗Failed to save tokens in Redis by error: ', error);
     }
 
     return { accessToken, refreshToken };

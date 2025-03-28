@@ -9,12 +9,12 @@ class WorkspaceDto {
     this.createdAt = createdAt
   }
 
-  static fromEntity(workspace, userId){
+  static fromEntity(workspace){
     return {
       id: workspace.id,
       name: workspace.name,
       userId: workspace.userId,
-      role: workspace.role ? workspace.role : workspace.userId === userId || 'member',
+      role: workspace.role || 'member',
       projects: workspace.projects ? workspace.projects.map(ProjectDto.fromEntity) : [],
     };
   }

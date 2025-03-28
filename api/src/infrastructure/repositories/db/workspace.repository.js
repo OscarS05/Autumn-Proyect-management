@@ -54,10 +54,17 @@ class WorkspaceRepository extends IWorkspaceRepository {
     });
   }
 
-  async findById(workspaceId) {
+  async findById(workspaceMember) {
     return await this.db.models.Workspace.findOne({
-      where: { id: workspaceId },
-      include: [{ model: this.models.Project, as: 'projects' }]
+      where: { id: workspaceMember.workspaceId },
+      include: [{
+        model: this.db.models.Project,
+        as: 'projects',
+        include: [{
+          model: this.db.models.ProjectMember,
+          as: 'projectMembers'
+        }]
+      }]
     });
   }
 

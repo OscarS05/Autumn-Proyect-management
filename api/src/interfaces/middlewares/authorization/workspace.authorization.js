@@ -62,10 +62,10 @@ async function checkWorkspaceMembership(req, res, next){
     const user = req.user;
     const { workspaceId } = req.params;
 
-    const workspaceMember = await workspaceMemberService.checkWorkspaceMembership(workspaceId, user.sub);
-    if(!workspaceMember) throw boom.forbidden('You do not have permission to perform this action');
+    const workspaceMember = await workspaceMemberService.getWorkspaceMemberByUserId(workspaceId, user.sub);
+    if(!workspaceMember.id) throw boom.forbidden('You do not have permission to perform this action');
 
-    req.workspaceMemberStatus = workspaceMember;
+    req.workspaceMember = workspaceMember;
     next();
   } catch (error) {
     next(error);

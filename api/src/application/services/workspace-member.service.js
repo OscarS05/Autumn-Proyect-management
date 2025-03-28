@@ -277,17 +277,17 @@ class WorkspaceMemberService {
     }
   }
 
-  async checkWorkspaceMembership(workspaceId, userId){
-    try {
-      const workspaceMember = await this.models.WorkspaceMember.findOne(
-        { where: { workspaceId, userId } }
-      );
+  // async checkWorkspaceMembership(workspaceId, userId){
+  //   try {
+  //     const workspaceMember = await this.models.WorkspaceMember.findOne(
+  //       { where: { workspaceId, userId } }
+  //     );
 
-      return workspaceMember;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Failed to check workspace membership');
-    }
-  }
+  //     return workspaceMember;
+  //   } catch (error) {
+  //     throw boom.badRequest(error.message || 'Failed to check workspace membership');
+  //   }
+  // }
 }
 
 module.exports = WorkspaceMemberService;

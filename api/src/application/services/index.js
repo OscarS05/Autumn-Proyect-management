@@ -27,7 +27,7 @@ const projectUseCases = require('../use-cases/project/index');
 
 const userService = new UserService(userUseCases);
 const authService = new AuthService(authUseCases, userUseCases);
-const workspaceService = new WorkspaceService(workspaceUseCases, projectUseCases);
+const workspaceService = new WorkspaceService(workspaceUseCases);
 const workspaceMemberService = new WorkspaceMemberService(workspaceMemberUseCases);
 
 const projectService = new ProjectService(config.sequelize, config.models, redisModels);
