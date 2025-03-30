@@ -21,8 +21,17 @@ class GenerateTokensUseCase {
     const refreshToken = jwt.sign(payload, config.jwtRefreshSecret, { expiresIn: '15d' });
 
     try {
-      await this.AuthRedis.saveAccessToken(payload.sub, accessToken);
-      await this.AuthRedis.saveRefreshToken(payload.sub, refreshToken);
+      const result = await Promise.allSettled([
+        this.AuthRedis.saveAccessToken(payload.sub, accessToken),
+        this.AuthRedis.saveRefreshToken(payload.sub, refreshToken),
+      ]);
+
+      result.forEach((result, index) => {
+        if(result.status === "rejected"){
+          const tokenType = index === 0 ? 'accessToken' : 'refreshToken';
+          logger.warn(`❗Failed to save ${tokenType} in Redis: `, result.reason);
+        }
+      })
     } catch (error) {
       logger.warn('❗Failed to save tokens in Redis by error: ', error);
     }

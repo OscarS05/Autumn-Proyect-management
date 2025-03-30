@@ -1,14 +1,14 @@
 const ProjectDto = require('../../dtos/project.dto');
 
-class GetProjectsUseCase {
+class GetProjectsByWorkspaceMemberUseCase {
   constructor({ projectRepository }){
     this.projectRepository = projectRepository;
   }
 
-  async execute(workspaceId){
-    const projects = await this.projectRepository.findAll(workspaceId);
-    return projects.map(project => new ProjectDto(project));
+  async execute(workspaceId, workspaceMemberId){
+    const projects = await this.projectRepository.findAllByWorkspaceMember(workspaceId, workspaceMemberId);
+    return projects.map(project => ProjectDto.withProjectMembers(project));
   }
 }
 
-module.exports = GetProjectsUseCase;
+module.exports = GetProjectsByWorkspaceMemberUseCase;

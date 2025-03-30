@@ -1,3 +1,4 @@
+const boom = require('@hapi/boom');
 const IWorkspaceMemberRepository = require('../../../domain/repositories/db/IWorkspaceMemberRepository');
 
 class WorkspaceMemberRepository extends IWorkspaceMemberRepository {
@@ -7,31 +8,76 @@ class WorkspaceMemberRepository extends IWorkspaceMemberRepository {
   }
 
   async create(workspaceEntity){
-    throw boom.notImplemented('the create() method is not implemented');
+    return await this.db.models.WorkspaceMember.create(workspaceEntity);
   }
 
-  async update(workspaceEntity){
-    throw boom.notImplemented('the update() method is not implemented');
+  async updateRole(workspaceMemberId, newRole){
+    return await this.db.models.WorkspaceMember.update(
+      { role: newRole },
+      { where: { id: workspaceMemberId }, returning: true }
+    );
+  }
+
+  async transferOwnership(currentOwner, newOwner){
+    const transaction = await this.db.transaction();
+    try {
+      const [ updatedRows, [ updatedWorkspace ] ] = await this.db.models.Workspace.update(
+        { userId: newOwner.userId },
+        { where: { id: currentOwner.workspaceId }, returning: true, transaction }
+      );
+      if(updatedRows === 0) throw boom.badRequest('Failed to update workspace owner');
+
+      const [ newOwnerUpdated, formerOwnerUpdated ] = await Promise.all([
+        this.db.models.WorkspaceMember.update(
+          { role: 'owner' },
+          { where: { id: newOwner.id }, transaction }
+        ),
+        this.db.models.WorkspaceMember.update(
+          { role: 'admin' },
+          { where: { id: currentOwner.id }, transaction }
+        ),
+      ]);
+      await transaction.commit();
+      return newOwnerUpdated;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 
   async delete(workspaceMemberId){
-    throw boom.notImplemented('the delete() method is not implemented');
+    return await this.db.models.WorkspaceMember.destroy({ where: { id: workspaceMemberId } });
   }
 
   async findWorkspaceMemberByUserId(workspaceId, userId){
     return await this.db.models.WorkspaceMember.findOne({
       where: { workspaceId, userId },
+      include: [{ model: this.db.models.User, as:'user', attributes: ['id', 'name'] }]
     });
   }
 
   async findWorkspaceMemberById(workspaceMemberId){
-    throw boom.notImplemented('the findMemberByUserId() method is not implemented');
+    return await this.db.models.WorkspaceMember.findOne({
+      where: { id: workspaceMemberId },
+      include: [{ model: this.db.models.User, as:'user', attributes: ['id', 'name'] }]
+    });
+  }
+
+  async findAllWithData(workspaceId){
+    return await this.db.models.WorkspaceMember.findAll({
+      where: { workspaceId },
+      include: [
+        { model: this.db.models.User, as:'user', attributes: ['id', 'name'] },
+        { model: this.db.models.Team, as: 'teams', through: { attributes: [] } },
+        { model: this.db.models.Project, as: 'projects', through: { attributes: [] } }
+      ]
+    });
   }
 
   async findAll(workspaceId){
-    return await this.db.models.WorkspaceMember.findAll(
-      { where: { workspaceId } }
-    );
+    return await this.db.models.WorkspaceMember.findAll({
+      where: { workspaceId }
+    });
   }
 }
 

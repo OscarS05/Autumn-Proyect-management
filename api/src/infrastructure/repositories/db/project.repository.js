@@ -23,10 +23,28 @@ class ProjectRepository extends IProjectRepository{
     throw boom.notImplemented('the findById() method is not implemented');
   }
 
-  async findAll(workspaceId){
-    return await this.db.models.Project.findAll(
-      { where: { workspaceId } }
-    );
+  async findAllByWorkspaceMember(workspaceId, workspaceMemberId){
+    const projects = await this.db.models.Project.findAll({
+      where: { workspaceId },
+      include: [
+        {
+          model: this.db.models.ProjectMember,
+          as: 'projectMembers',
+          required: true,
+          where: { workspaceMemberId },
+          attributes: []
+        }
+      ],
+      attributes: ['id', 'name']
+    });
+
+    const projectIds = projects.map(p => p.id);
+    if (projectIds.length === 0) return [];
+
+    return await this.db.models.Project.findAll({
+      where: { id: projectIds },
+      include: [{ model: this.db.models.ProjectMember, as: 'projectMembers'}]
+    });
   }
 }
 

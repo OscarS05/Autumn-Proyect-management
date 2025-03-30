@@ -22,7 +22,7 @@ const removeMember =  Joi.object({
 });
 
 const transferOwnership = Joi.object({
-  newOwnerId: id.required()
+  workspaceMemberId: id.required()
 });
 
 module.exports = { createWorkspaceMember, updateWorkspaceMember, transferOwnership, updateWorkspaceMemberIdParams, removeMember }

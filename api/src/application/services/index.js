@@ -23,12 +23,13 @@ const authUseCases = require('../use-cases/auth/index');
 const workspaceUseCases = require('../use-cases/workspace/index');
 const workspaceMemberUseCases = require('../use-cases/workspace-member/index');
 const projectUseCases = require('../use-cases/project/index');
+const projectMemberUseCases = require('../use-cases/project-member/index');
 
 
 const userService = new UserService(userUseCases);
 const authService = new AuthService(authUseCases, userUseCases);
 const workspaceService = new WorkspaceService(workspaceUseCases);
-const workspaceMemberService = new WorkspaceMemberService(workspaceMemberUseCases);
+const workspaceMemberService = new WorkspaceMemberService(workspaceMemberUseCases, projectUseCases);
 
 const projectService = new ProjectService(config.sequelize, config.models, redisModels);
 const projectMemberService = new ProjectMemberService(config.sequelize, config.models, redisModels, projectService);

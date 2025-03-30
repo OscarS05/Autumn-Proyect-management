@@ -25,10 +25,7 @@ const ProjectMemberSchema = {
   role: {
     allowNull: false,
     type: DataTypes.STRING,
-    defaultValue: 'member',
-    validate: {
-      isIn: [['admin', 'member']],
-    },
+    defaultValue: 'member'
   },
   projectId:{
     field: 'project_id',

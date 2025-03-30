@@ -1,5 +1,5 @@
 class GetWorkspaceMemberByUserIdUseCase {
-  constructor(workspaceMemberRepository){
+  constructor({ workspaceMemberRepository }){
     this.workspaceMemberRepository = workspaceMemberRepository;
   }
 
