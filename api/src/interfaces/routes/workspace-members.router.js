@@ -1,4 +1,4 @@
-const router = require('./team.router');
+const router = require('./workspace.router');
 
 const { workspaceIdSchema } = require('../schemas/workspace.schema');
 const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember, transferOwnership } = require('../schemas/workspace-member.schema');

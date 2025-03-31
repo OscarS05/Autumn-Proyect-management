@@ -16,6 +16,10 @@ class IProjectMemberRepository {
     throw boom.notImplemented('the crdeleteeate() method is not implemented');
   }
 
+  async findByWorkspaceMember(workspaceMemberId){
+    throw boom.notImplemented('the findByWorkspaceMember() method is not implemented');
+  }
+
   async findAll(projectId){
     throw boom.notImplemented('the findAll() method is not implemented');
   }

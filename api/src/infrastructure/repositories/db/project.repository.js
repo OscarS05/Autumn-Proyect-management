@@ -7,20 +7,35 @@ class ProjectRepository extends IProjectRepository{
     this.db = db;
   }
 
-  async create(projectEntity){
-    throw boom.notImplemented('the create() method is not implemented');
+  async create(projectEntity, projectMemberEntity){
+    const transaction = await this.db.transaction();
+    try {
+      const project = await this.db.models.Project.create(projectEntity, { transaction });
+      await this.db.models.ProjectMember.create(projectMemberEntity, { transaction });
+      await transaction.commit();
+
+      return project;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 
-  async update(projectEntity){
-    throw boom.notImplemented('the update() method is not implemented');
+  async update(projectId, projectUpdateEntity){
+    return await this.db.models.Project.update(projectUpdateEntity, {
+      where: { id: projectId },
+      returning: true,
+    });
   }
 
-  async delete(workspaceId){
-    throw boom.notImplemented('the delete() method is not implemented');
+  async delete(projectId){
+    return await this.db.models.Project.destroy({ where: { id: projectId } });
   }
 
-  async findById(workspaceId){
-    throw boom.notImplemented('the findById() method is not implemented');
+  async findAllByWorkspace(workspaceId){
+    return await this.db.models.Project.findAll({
+      where: { workspaceId }
+    });
   }
 
   async findAllByWorkspaceMember(workspaceId, workspaceMemberId){
@@ -45,6 +60,12 @@ class ProjectRepository extends IProjectRepository{
       where: { id: projectIds },
       include: [{ model: this.db.models.ProjectMember, as: 'projectMembers'}]
     });
+  }
+
+  async countProjects(workspaceMemberId){
+    return await this.db.models.ProjectMember.count(
+      { where: { workspaceMemberId } }
+    )
   }
 }
 

@@ -46,10 +46,20 @@ class ProjectMemberRepository extends IProjectMemberRepository {
     throw boom.notImplemented('the crdeleteeate() method is not implemented');
   }
 
+  async findByWorkspaceMember(workspaceMemberId, projectId){
+    return await this.db.models.ProjectMember.findOne({ where: { projectId, workspaceMemberId } });
+  }
+
   async findAll(workspaceMemberId){
     return await this.db.models.ProjectMember.findAll({
       where: { workspaceMemberId },
       include: [{ model: this.db.models.Project, as: 'project' }]
+    });
+  }
+
+  async findAllByProject(projectId){
+    return await this.db.models.ProjectMember.findAll({
+      where: { projectId }
     });
   }
 }

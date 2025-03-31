@@ -3,8 +3,8 @@ const boom = require('@hapi/boom');
 const { workspaceService, workspaceMemberService } = require('../../../application/services/index');
 
 const LIMITS = {
-  BASIC: { WORKSPACES: 6, PROJECTS: 10, TEAMS: 10 },
-  PREMIUM: { WORKSPACES: 20, PROJECTS: 25, TEAMS: 25 },
+  BASIC: { WORKSPACES: 8, PROJECTS: 20, TEAMS: 20 },
+  PREMIUM: { WORKSPACES: 30, PROJECTS: 40, TEAMS: 40 },
 }
 
 async function authorizationToCreateWorkspace(req, res, next){

@@ -4,11 +4,10 @@ const { projectService, projectMemberService } = require('../../../application/s
 const { LIMITS } = require('./workspace.authorization');
 
 async function authorizationToCreateProject(req, res, next){
-  const user = req.user;
-  if(!user) return next(boom.unauthorized('User not authenticated'));
-  const { workspaceId, workspaceMemberId } = req.body;
   try {
-    const count = await projectService.countProjectsByWorkspaceMember(workspaceId, workspaceMemberId);
+    const user = req.user;
+    const workspaceMember = req.workspaceMember;
+    const count = await projectService.countProjects(workspaceMember);
 
     if(user.role === 'basic' && count >= LIMITS.BASIC.PROJECTS){
       throw boom.forbidden('Project limit reached for basic users');
@@ -44,13 +43,14 @@ async function checkAdminRole(req, res, next){
   try {
     const userId = req.user.sub;
     const { projectId } = req.params;
+    const workspaceMember = req.workspaceMember;
 
-    const member = await projectMemberService.getProjectMemberByUserId(projectId, userId);
-    if(member.role !== 'admin'){
+    const projectMember = await projectMemberService.getProjectMemberByWorkspaceMember(workspaceMember.id, projectId);
+    if(projectMember.role === 'member'){
       throw boom.forbidden('You do not have permission to perform this action');
     }
 
-    req.projectMember = member;
+    req.projectMember = projectMember;
     next();
   } catch (error) {
     next(error);
@@ -82,13 +82,14 @@ async function checkOwnership(req, res, next){
   try {
     const user = req.user;
     const { projectId } = req.params;
+    const workspaceMember = req.workspaceMember;
 
-    const member = await projectMemberService.getProjectMemberByUserId(projectId, user.sub);
-    if(member.propertyStatus !== 'owner'){
+    const projectMember = await projectMemberService.getProjectMemberByWorkspaceMember(workspaceMember.id, projectId);
+    if(projectMember.role !== 'owner'){
       throw boom.forbidden('You do not have permission to perform this action');
     }
 
-    req.ownerStatus = member;
+    req.projectMember = projectMember;
     next();
   } catch (error) {
     next(error);

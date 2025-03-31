@@ -1,100 +1,45 @@
-const express = require('express');
-const router = express.Router();
-const boom = require('@hapi/boom');
+const router = require('./workspace-members.router');
 
 const { workspaceIdSchema } = require('../schemas/workspace.schema');
-const { createProject, deleteProject, updateProject, projectIdSchema } = require('../schemas/project.schema');
+const { createProject, updateProject, projectIdSchema } = require('../schemas/project.schema');
 const { checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
 
 const { validatorHandler } = require('../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
 const { authorizationToCreateProject, checkAdminRole, checkOwnership } = require('../middlewares/authorization/project.authorization');
 
-const { projectService } = require('../../application/services/index');
-const { ProjectRedis } = require('../../infrastructure/repositories/cache/index');
+const projectControllers = require('../controllers/project.controller');
 
-
-router.get('/:workspaceId',
+router.get('/:workspaceId/projects',
   validateSession,
   validatorHandler(workspaceIdSchema, 'params'),
   checkWorkspaceMembership,
-  async (req, res, next) => {
-    try {
-      const { workspaceId } = req.params;
-
-      const projectsInRedis = await ProjectRedis.findAllProjects(workspaceId);
-      if(projectsInRedis && projectsInRedis.length > 0){
-        return res.status(200).json({ projects: projectsInRedis });
-      }
-      const projectsInDb = await projectService.findAll(workspaceId);
-      if(projectsInDb && projectsInDb.length > 0){
-        return res.status(200).json({ projects: projectsInDb });
-      }
-
-      res.status(200).json({ message: 'Workspace not found', workspace: projectsInDb });
-    } catch (error) {
-      next(error);
-    }
-  }
+  projectControllers.getProjectsByWorkspace,
 );
 
-router.post('/',
+router.post('/:workspaceId/projects',
   validateSession,
   validatorHandler(createProject, 'body'),
+  checkWorkspaceMembership,
   authorizationToCreateProject,
-  async (req, res, next) => {
-    try {
-      const { name, visibility, workspaceId, workspaceMemberId } = req.body;
-      const userId = req.user.sub;
-
-      const projectCreated = await projectService.create({ name, visibility, workspaceId, workspaceMemberId });
-      if(!projectCreated) throw boom.badRequest('Failed to create workspace');
-
-      res.status(201).json({ message: 'Project created successfully', project: projectCreated });
-    } catch (error) {
-      next(error);
-    }
-  }
+  projectControllers.createProject,
 );
 
-router.patch('/:projectId',
+router.patch('/:workspaceId/projects/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
   validatorHandler(updateProject, 'body'),
+  checkWorkspaceMembership,
   checkAdminRole,
-  async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const data = req.body;
-
-      const updatedProject = await projectService.update(projectId, data);
-      if(!updatedProject) return boom.badRequest('Failed to create workspace');
-
-      res.status(200).json({ message: 'Project updated successfully', project: updatedProject });
-    } catch (error) {
-      next(error);
-    }
-  }
+  projectControllers.updateProject
 );
 
-router.delete('/:projectId',
+router.delete('/:workspaceId/projects/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
-  validatorHandler(deleteProject, 'body'),
+  checkWorkspaceMembership,
   checkOwnership,
-  async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const { workspaceId, workspaceMemberId, projectMemberId } = req.body;
-
-      const response = await projectService.delete(projectId, workspaceId, workspaceMemberId, projectMemberId);
-      if(response === 0) return boom.badRequest('Failed to delete project');
-
-      res.status(200).json({ message: 'Project deleted successfully' });
-    } catch (error) {
-      next(error);
-    }
-  }
+  projectControllers.deleteProject
 );
 
 module.exports = router;

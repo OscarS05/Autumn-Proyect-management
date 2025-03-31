@@ -17,8 +17,12 @@ class IProjectRepository {
     throw boom.notImplemented('the findById() method is not implemented');
   }
 
-  async findAll(){
-    throw boom.notImplemented('the findAll() method is not implemented');
+  async findAllByWorkspace(){
+    throw boom.notImplemented('the findAllByWorkspace() method is not implemented');
+  }
+
+  async findAllByWorkspaceMember(){
+    throw boom.notImplemented('the findAllByWorkspaceMember() method is not implemented');
   }
 }
 

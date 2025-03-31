@@ -1,11 +1,8 @@
 const boom = require("@hapi/boom");
 
 class ProjectMemberService {
-  constructor(sequelize, models, redisModels, projectService){
-    this.sequelize = sequelize;
-    this.models = models;
-    this.redisModels = redisModels;
-    this.projectService = projectService;
+  constructor({ getProjectMemberByWorkspaceMemberUseCase }){
+    this.getProjectMemberByWorkspaceMemberUseCase = getProjectMemberByWorkspaceMemberUseCase;
   }
 
   async addProjectMemberController(projectId, workspaceMemberId){
@@ -342,7 +339,12 @@ class ProjectMemberService {
     }
   }
 
+  async getProjectMemberByWorkspaceMember(workspaceMemberId, projectId){
+    return await this.getProjectMemberByWorkspaceMemberUseCase.execute(workspaceMemberId, projectId);
+  }
+
   async getProjectMemberById(projectId, projectMemberId){
+    return await this.getProjectMemberByWorkspaceMemberUseCase.execute();
     try {
       const member = await this.models.ProjectMember.findOne({
         where: { id: projectMemberId, projectId },

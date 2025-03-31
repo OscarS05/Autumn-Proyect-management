@@ -1,9 +1,15 @@
 const dbRepositories = require('../../../infrastructure/repositories/db/index');
 
-const GetProjectMembersUseCase = require('./GetProjectMembers');
+const GetProjectMembersOfWorkspaceMemberUseCase = require('./GetProjectMembersOfWorkspaceMemberUseCase');
+const GetProjectMemberByWorkspaceMemberUseCase = require('./GetProjectMemberByWorkspaceMemberUseCase');
+const GetProjectMembersByWorkspaceUseCase = require('./GetProjectMembersByWorkspaceUseCase');
 
-const getProjectMembersUseCase = new GetProjectMembersUseCase(dbRepositories);
+const getProjectMembersOfWorkspaceMemberUseCase = new GetProjectMembersOfWorkspaceMemberUseCase(dbRepositories);
+const getProjectMemberByWorkspaceMemberUseCase = new GetProjectMemberByWorkspaceMemberUseCase(dbRepositories);
+const getProjectMembersByWorkspaceUseCase = new GetProjectMembersByWorkspaceUseCase(dbRepositories);
 
 module.exports = {
-  getProjectMembersUseCase,
+  getProjectMembersOfWorkspaceMemberUseCase,
+  getProjectMemberByWorkspaceMemberUseCase,
+  getProjectMembersByWorkspaceUseCase,
 }

@@ -1,4 +1,4 @@
-const router = require('./workspace.router');
+const router = require('./project-members.router');
 const boom = require('@hapi/boom');
 
 const { checkWorkspaceMembership } = require('../middlewares/authorization/workspace.authorization');
