@@ -22,7 +22,7 @@ class RemoveWorkspaceMemberUseCase {
     if(requesterAsWorkspaceMember.role === 'member' && workspaceMemberToBeRemoved.role === 'member'){
       throw boom.forbidden('You cannot remove another member');
     }
-
+    // Aquí falta la lógica de negocio al momento de eliminar un workspace member que pertenece a algunos equipos
     if(projectsOfMemberToBeRemoved.length >= 1){
       await this.removeMemberWithProjects(workspaceMemberToBeRemoved, workspaceMembers, projectsOfMemberToBeRemoved);
     }
@@ -40,14 +40,15 @@ class RemoveWorkspaceMemberUseCase {
     }
 
     const projectsWhichMemberIsOwner = projectsOfMemberToBeRemoved.filter(project => project.workspaceMemberId === workspaceMemberToBeRemoved.id);
-    if(!projectsWhichMemberIsOwner.length === 0) return;
+    if(projectsWhichMemberIsOwner.length === 0) return;
 
-    const results = await Promise.allSettled(projectsOfMemberToBeRemoved.map(async (project) => {
+    const results = await Promise.allSettled(projectsWhichMemberIsOwner.map(async (project) => {
+      const currentProjectOwner = project.projectMembers.find(projectMember => projectMember.workspaceMemberId === workspaceMemberToBeRemoved.id);
       const availableMembers = project.projectMembers.filter(projectMember => projectMember.workspaceMemberId !== workspaceMemberToBeRemoved.id);
       if (availableMembers.length === 0) {
         throw boom.forbidden(`Cannot remove the member. No project members available to take ownership of project: ${project.name}`);
       }
-      await this.projectMemberRepository.transferOwnership(project.id, workspaceMemberToBeRemoved, availableMembers[0]);
+      await this.projectMemberRepository.transferOwnership(project.id, currentProjectOwner, availableMembers[0]);
     }));
 
     const errors = results.filter(r => r.status === "rejected").map(r => r.reason.message);
@@ -59,36 +60,29 @@ class RemoveWorkspaceMemberUseCase {
   }
 
   async leaveTheWorkspace(requesterAsWorkspaceMember, workspaceMembers){
-    if(requesterAsWorkspaceMember.role === 'owner'){
-      return await this.handleOwnerExit(requesterAsWorkspaceMember, workspaceMembers);
-    } else if(requesterAsWorkspaceMember.role !== 'owner') {
-      return await this.deleteWorkspaceMember(requesterAsWorkspaceMember.id);
-    }
+    return workspaceMembers.role === 'owner'
+      ? await this.handleOwnerExit(requesterAsWorkspaceMember, workspaceMembers)
+      : await this.deleteWorkspaceMember(requesterAsWorkspaceMember.id)
   }
 
   async handleOwnerExit(requesterAsWorkspaceMember, workspaceMembers){
-    const isTheOnlyMember = workspaceMembers.length === 1 && workspaceMembers[0].role === 'owner'
-    if(isTheOnlyMember){
+    if(workspaceMembers.length === 1 && workspaceMembers[0].role === 'owner'){
       return await this.workspaceRepository.delete(requesterAsWorkspaceMember.workspaceId);
-    } else if(workspaceMembers.length > 1){
-      const { admins, members } = workspaceMembers.reduce((acc, member) => {
-        if(member.role !== 'owner'){
-          if(member.role === 'admin'){
-            acc.admins.push(member);
-          } else if(member.role === 'member'){
-            acc.members.push(member);
-          }
-        }
-        return acc;
-      }, { admins: [], members: [] });
-
-      if(admins.length > 0){
-        await this.workspaceMemberRepository.transferOwnership(requesterAsWorkspaceMember, admins[0]);
-      } else if(members.length > 0){
-        await this.workspaceMemberRepository.transferOwnership(requesterAsWorkspaceMember, members[0]);
-      }
-      return await this.deleteWorkspaceMember(requesterAsWorkspaceMember.id);
     }
+
+    let admins = [];
+    let members = [];
+
+    for (const member of workspaceMembers) {
+      if(member.role === 'admin') admins.push(member);
+      if(member.role === 'member') members.push(member);
+    }
+
+    const newWorkspaceMember = admins.length > 0 ? admins[0] : members.length > 0 ? members[0] : null;
+    if(!newWorkspaceMember) throw boom.badImplementation('No suitable member found to transfer project ownership');
+
+    await this.workspaceMemberRepository.transferOwnership(requesterAsWorkspaceMember, newWorkspaceMember);
+    return await this.deleteWorkspaceMember(requesterAsWorkspaceMember.id);
   }
 }
 

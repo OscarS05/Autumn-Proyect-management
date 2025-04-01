@@ -32,7 +32,9 @@ const changeRoleToMember = async (req, res, next) => {
   try {
     const { workspaceId, workspaceMemberId } = req.params;
     const { newRole } = req.body;
+    const requesterAsWorkspaceMember = req.workspaceMember;
 
+    if(requesterAsWorkspaceMember.id === workspaceMemberId) throw boom.forbidden('You cannot update your own role in the project');
     const updatedMember = await workspaceMemberService.updateRole(workspaceId, workspaceMemberId, newRole);
     if(!updatedMember) throw boom.badRequest('update role to workspace member operation returns null');
 
@@ -44,7 +46,7 @@ const changeRoleToMember = async (req, res, next) => {
 
 const transferOwnership = async (req, res, next) => {
   try {
-    const { workspaceMemberId } = req.body;
+    const { workspaceId, workspaceMemberId } = req.params;
     const requesterAsWorkspaceMember = req.workspaceMember;
 
     await workspaceMemberService.transferOwnership(requesterAsWorkspaceMember, workspaceMemberId);

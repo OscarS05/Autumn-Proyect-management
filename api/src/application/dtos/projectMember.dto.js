@@ -18,6 +18,22 @@ class ProjectMemberDto {
       project: new ProjectDto(projectMember.project),
     }
   }
+
+  static fromModel(projectMember, teams){
+    return {
+      id: projectMember.id,
+      name: projectMember.workspaceMember.user.name,
+      workspaceMemberId: projectMember.workspaceMember.id,
+      projectId: projectMember.projectId,
+      role: projectMember.role,
+      teams: teams
+        .filter(team => team.teamMembers.some(tm => tm.workspaceMemberId === projectMember.workspaceMemberId))
+        .map(team => ({
+          id: team.id,
+          name: team.name,
+        }))
+    };
+  }
 }
 
 module.exports = ProjectMemberDto;

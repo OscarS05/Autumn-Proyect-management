@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 
 class ProjectMemberEntity {
-  constructor({ workspaceMemberId, role, id: projectId, addedAt }) {
+  constructor({ workspaceMemberId, role, projectId, addedAt }) {
     this.id = uuidv4();
     this.workspaceMemberId = workspaceMemberId;
     this.role = role || 'member';

@@ -25,14 +25,12 @@ async function authorizationToCreateProject(req, res, next){
 async function checkProjectMembership(req, res, next){
   try {
     const user = req.user;
-    const { projectId } = req.params;
+    const { workspaceId, projectId } = req.params;
 
-    const isMember = await projectMemberService.getProjectMemberByUserId(projectId, user.sub);
-    if(!isMember){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
+    const projectMember = await projectMemberService.getProjectMemberByUserId(user.sub, workspaceId, projectId);
+    if(!projectMember?.id) throw boom.forbidden('You do not belong to the workspace');
 
-    req.projectMember = isMember;
+    req.projectMember = projectMember;
     next();
   } catch (error) {
     next(error);
@@ -42,36 +40,12 @@ async function checkProjectMembership(req, res, next){
 async function checkAdminRole(req, res, next){
   try {
     const userId = req.user.sub;
-    const { projectId } = req.params;
-    const workspaceMember = req.workspaceMember;
+    const { workspaceId, projectId } = req.params;
 
-    const projectMember = await projectMemberService.getProjectMemberByWorkspaceMember(workspaceMember.id, projectId);
-    if(projectMember.role === 'member'){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
+    const projectMember = await projectMemberService.getProjectMemberByUserId(userId, workspaceId, projectId);
+    if(projectMember?.role === 'member') throw boom.forbidden('You do not have permission to perform this action');
 
     req.projectMember = projectMember;
-    next();
-  } catch (error) {
-    next(error);
-  }
-}
-
-async function checkOwnershipToTransfer(req, res, next){
-  try {
-    const user = req.user;
-    const { projectId } = req.params;
-    const { currentOwnerId } = req.body;
-
-    const member = await projectMemberService.getProjectMemberByUserId(projectId, user.sub);
-    if(member.propertyStatus !== 'owner' && member.role !== 'admin'){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
-    if(member.workspaceMemberId !== currentOwnerId){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
-
-    req.ownerStatus = member;
     next();
   } catch (error) {
     next(error);
@@ -81,13 +55,10 @@ async function checkOwnershipToTransfer(req, res, next){
 async function checkOwnership(req, res, next){
   try {
     const user = req.user;
-    const { projectId } = req.params;
-    const workspaceMember = req.workspaceMember;
+    const { workspaceId, projectId } = req.params;
 
-    const projectMember = await projectMemberService.getProjectMemberByWorkspaceMember(workspaceMember.id, projectId);
-    if(projectMember.role !== 'owner'){
-      throw boom.forbidden('You do not have permission to perform this action');
-    }
+    const projectMember = await projectMemberService.getProjectMemberByUserId(user.sub, workspaceId, projectId);
+    if(projectMember.role !== 'owner') throw boom.forbidden('You do not have permission to perform this action');
 
     req.projectMember = projectMember;
     next();
@@ -100,6 +71,5 @@ module.exports = {
   checkAdminRole,
   checkProjectMembership,
   authorizationToCreateProject,
-  checkOwnershipToTransfer,
   checkOwnership
 };

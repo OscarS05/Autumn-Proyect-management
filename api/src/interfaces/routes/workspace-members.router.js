@@ -1,7 +1,7 @@
 const router = require('./workspace.router');
 
 const { workspaceIdSchema } = require('../schemas/workspace.schema');
-const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember, transferOwnership } = require('../schemas/workspace-member.schema');
+const { createWorkspaceMember, updateWorkspaceMember, updateWorkspaceMemberIdParams, removeMember } = require('../schemas/workspace-member.schema');
 
 const { validatorHandler } = require('../middlewares/validator.handler');
 const { validateSession } = require('../middlewares/authentication.handler');
@@ -32,10 +32,9 @@ router.patch('/:workspaceId/members/:workspaceMemberId',
   workspaceMemberController.changeRoleToMember
 );
 
-router.patch('/:workspaceId/ownership',
+router.patch('/:workspaceId/members/:workspaceMemberId/ownership',
   validateSession,
-  validatorHandler(workspaceIdSchema, 'params'),
-  validatorHandler(transferOwnership, 'body'),
+  validatorHandler(updateWorkspaceMemberIdParams, 'params'),
   checkOwnership,
   workspaceMemberController.transferOwnership
 )

@@ -1,9 +1,11 @@
+const boom = require('@hapi/boom');
+
 class GetProjectMemberByWorkspaceMemberUseCase {
-  constructor({ projectMemberRepository }){
+  constructor({ projectMemberRepository }) {
     this.projectMemberRepository = projectMemberRepository;
   }
 
-  async execute(workspaceMemberId, projectId){
+  async execute(workspaceMemberId, projectId) {
     return await this.projectMemberRepository.findByWorkspaceMember(workspaceMemberId, projectId);
   }
 }

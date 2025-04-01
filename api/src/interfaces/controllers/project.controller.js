@@ -46,9 +46,9 @@ const updateProject = async (req, res, next) => {
 
 const deleteProject = async (req, res, next) => {
   try {
-    const projectMember = req.projectMember;
+    const { projectId } = req.params;
 
-    const response = await projectService.delete(projectMember.projectId);
+    const response = await projectService.delete(projectId);
     if(response === 0) return boom.badRequest('Failed to delete project');
 
     res.status(200).json({ message: 'Project deleted successfully' });

@@ -1,6 +1,6 @@
 const ProjectMemberDto = require("../../dtos/projectMember.dto");
 
-class GetProjectMembersByWorkspaceUseCase {
+class GetProjectMembersByProjectUseCase {
   constructor({ projectMemberRepository }){
     this.projectMemberRepository = projectMemberRepository;
   }
@@ -11,4 +11,4 @@ class GetProjectMembersByWorkspaceUseCase {
   }
 }
 
-module.exports = GetProjectMembersByWorkspaceUseCase;
+module.exports = GetProjectMembersByProjectUseCase;

@@ -20,8 +20,20 @@ class IProjectMemberRepository {
     throw boom.notImplemented('the findByWorkspaceMember() method is not implemented');
   }
 
-  async findAll(projectId){
-    throw boom.notImplemented('the findAll() method is not implemented');
+  async findByUser(userId, workspaceId, projectId){
+    throw boom.notImplemented('the findByUser(userId, workspaceId, projectId) method is not implemented');
+  }
+
+  async findAll(workspaceMemberId){
+    throw boom.notImplemented('the findAll(workspaceMemberId) method is not implemented');
+  }
+
+  async findAllByProject(projectId){
+    throw boom.notImplemented('the findAll(projectId) method is not implemented');
+  }
+
+  async findProjectWithItsMembersAndTeams(projectId){
+    throw boom.notImplemented('the findProjectWithItsMembersAndTeams(projectId) method is not implemented');
   }
 }
 

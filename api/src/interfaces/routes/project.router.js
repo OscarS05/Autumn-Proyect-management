@@ -29,7 +29,6 @@ router.patch('/:workspaceId/projects/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
   validatorHandler(updateProject, 'body'),
-  checkWorkspaceMembership,
   checkAdminRole,
   projectControllers.updateProject
 );
@@ -37,7 +36,6 @@ router.patch('/:workspaceId/projects/:projectId',
 router.delete('/:workspaceId/projects/:projectId',
   validateSession,
   validatorHandler(projectIdSchema, 'params'),
-  checkWorkspaceMembership,
   checkOwnership,
   projectControllers.deleteProject
 );

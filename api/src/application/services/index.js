@@ -22,7 +22,7 @@ const workspaceMemberService = new WorkspaceMemberService(workspaceMemberUseCase
 const projectService = new ProjectService(projectUseCases, projectMemberUseCases);
 const projectMemberService = new ProjectMemberService(projectMemberUseCases);
 
-const teamService = new TeamService(config.sequelize, config.models, projectMemberService);
+const teamService = new TeamService();
 
 
 

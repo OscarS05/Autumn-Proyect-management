@@ -10,8 +10,10 @@ class CreateProjectUseCase {
   async execute(projectData){
     const projectEntity = new ProjectEntity(projectData);
     projectEntity.role = 'owner';
+    const { id: projectId, ...rest } = projectEntity;
+    const updatedProject = { projectId, ...rest };
 
-    const projectMemberEntity = new ProjectMemberEntity(projectEntity);
+    const projectMemberEntity = new ProjectMemberEntity(updatedProject);
 
     const projectCreated = await this.projectRepository.create(projectEntity, projectMemberEntity);
     return new ProjectDto(projectCreated);

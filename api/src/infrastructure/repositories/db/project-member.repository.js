@@ -8,11 +8,14 @@ class ProjectMemberRepository extends IProjectMemberRepository {
   }
 
   async create(projectMemberEntity){
-    throw boom.notImplemented('the create() method is not implemented');
+    return await this.db.models.ProjectMember.create(projectMemberEntity);
   }
 
   async updateRole(projectMemberId, newRole){
-    throw boom.notImplemented('the updateRole() method is not implemented');
+    return await this.db.models.ProjectMember.update(
+      { role: newRole },
+      { where: { id: projectMemberId }, returning: true }
+    );
   }
 
   async transferOwnership(projectId, currentOwner, newOwner){
@@ -31,7 +34,7 @@ class ProjectMemberRepository extends IProjectMemberRepository {
         ),
         this.db.models.ProjectMember.update(
           { role: 'admin' },
-          { where: { workspaceMemberId: currentOwner.id }, transaction }
+          { where: { workspaceMemberId: currentOwner.workspaceMemberId }, transaction }
         ),
       ]);
       await transaction.commit();
@@ -43,11 +46,27 @@ class ProjectMemberRepository extends IProjectMemberRepository {
   }
 
   async delete(projectMemberId){
-    throw boom.notImplemented('the crdeleteeate() method is not implemented');
+    return await this.db.models.ProjectMember.destroy({ where: { id: projectMemberId } });
+  }
+
+  async findProjectMemberById(projectMemberId, projectId){
+    return await this.db.models.ProjectMember.findOne({ where: { id: projectMemberId, projectId } });
   }
 
   async findByWorkspaceMember(workspaceMemberId, projectId){
     return await this.db.models.ProjectMember.findOne({ where: { projectId, workspaceMemberId } });
+  }
+
+  async findByUser(userId, workspaceId, projectId){
+    return await this.db.models.ProjectMember.findOne({
+      where: { projectId },
+      include: [{
+        model: this.db.models.WorkspaceMember,
+        as: 'workspaceMember',
+        attributes: [],
+        where: { userId, workspaceId }
+      }]
+    });
   }
 
   async findAll(workspaceMemberId){
@@ -58,8 +77,49 @@ class ProjectMemberRepository extends IProjectMemberRepository {
   }
 
   async findAllByProject(projectId){
-    return await this.db.models.ProjectMember.findAll({
-      where: { projectId }
+    return await this.db.models.ProjectMember.findAll({ where: { projectId } });
+  }
+
+  async findProjectWithItsMembersAndTeams(projectId){
+    return await this.db.models.Project.findOne({
+      where: { id: projectId },
+      include: [
+        {
+          model: this.db.models.ProjectMember,
+          as: 'projectMembers',
+          include: [{
+            model: this.db.models.WorkspaceMember,
+            as: 'workspaceMember',
+            attributes: ['id', 'userId'],
+            include: [{
+              model: this.db.models.User,
+              as: 'user',
+              attributes: ['id', 'name'],
+            }]
+          }]
+        },
+        {
+          model: this.db.models.Team,
+          as: 'teams',
+          attributes: ['id', 'name', 'workspaceId'],
+          include: [{
+            model: this.db.models.TeamMember,
+            as: 'teamMembers',
+            include: [{
+              model: this.db.models.WorkspaceMember,
+              as: 'workspaceMember',
+              attributes: ['id', 'userId'],
+              include: [{
+                model: this.db.models.User,
+                as: 'user',
+                attributes: ['id', 'name'],
+              }]
+            }]
+          }],
+          through: { attributes: [] },
+        }
+      ],
+      attributes: ['id', 'name', 'workspaceId'],
     });
   }
 }
