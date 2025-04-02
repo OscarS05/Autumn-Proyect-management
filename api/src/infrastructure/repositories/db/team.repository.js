@@ -1,0 +1,88 @@
+const ITeamRepository = require('../../../domain/repositories/db/ITeamRepository');
+
+class TeamRepository extends ITeamRepository {
+  constructor(db){
+    super();
+    this.db = db;
+  }
+
+  async create(teamEntity, teamMemberEntity){
+    const transaction = await this.db.transaction();
+    try {
+      const [ teamCreated, teamMemberCreated ] = await Promise.all([
+        this.db.models.Team.create(teamEntity, { transaction }),
+        this.db.models.TeamMember.create(teamMemberEntity, { transaction }),
+      ]);
+
+      await transaction.commit();
+      return teamCreated;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  async assignProject(teamId, projectId){
+    return await this.db.models.ProjectTeam.create({ teamId, projectId });
+  }
+
+  async update(id, teamName){
+    return await this.db.models.Team.update(teamName, { where: { id }, returning: true });
+  }
+
+  async unassignProject(teamId, projectId){
+    return await this.db.models.ProjectTeam.destroy({ where: { teamId, projectId } });
+  }
+
+  async delete(teamId){
+    return await this.db.models.Team.destroy({ where: { id: teamId } });
+  }
+
+  async findById(teamId, workspaceId){
+    return await this.db.models.Team.findOne({ where: { id: teamId, workspaceId } });
+  }
+
+  async findProjectAssigned(teamId, projectId){
+    return await this.db.models.ProjectTeam.findOne({ where: { teamId, projectId } });
+  }
+
+  async findAllProjectsAssigned(teamId){
+    return await this.db.models.ProjectTeam.findAll({ where: { teamId } });
+  }
+
+  async findAllByWorkspace(workspaceId){
+    return await this.db.models.Team.findAll({
+      where: { workspaceId },
+      include: [
+        {
+          model: this.db.models.TeamMember,
+          as: 'teamMembers',
+          include: [{
+            model: this.db.models.WorkspaceMember,
+            as: 'workspaceMember',
+            attributes: ['id', 'userId', 'workspaceId'],
+            include: [{
+              model: this.db.models.User,
+              as: 'user',
+              attributes: ['id', 'name']
+            }],
+          }]
+        },
+        {
+          model: this.db.models.Project,
+          as: 'projects'
+        }
+      ],
+    });
+  }
+
+  async findAllByWorkspaceMember(workspaceMemberId){
+    throw boom.notImplemented('the findAllByWorkspaceMember(workspaceMemberId) method is not implemented');
+  }
+
+  async countTeams(workspaceMemberId){
+    return await this.db.models.Team.count({ where: { workspaceMemberId } });
+  }
+}
+
+module.exports = TeamRepository;

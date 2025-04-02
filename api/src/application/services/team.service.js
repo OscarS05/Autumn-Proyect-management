@@ -1,382 +1,134 @@
 const boom = require('@hapi/boom');
 
-const ACTIONS = {
-  MEMBER: [ "leave_team" ],
-  ADMIN: [ "remove_member", "change_role", "leave_team" ],
-  OWNER: [ "remove_member", "change_role", "leave_team", "transfer_ownership" ]
-}
-
 class TeamService {
-  constructor(sequelize, models, projectMemberService) {
-    this.sequelize = sequelize;
-    this.models = models;
-    this.projectMemberService = projectMemberService
+  constructor({
+      countTeamsUseCase,
+      createTeamUseCase,
+      getTeamUseCase,
+      getProjectAssignedUseCase,
+      getAllProjectsAssignedUseCase,
+      getTeamsByWorkspaceUseCase,
+      assignProjectUseCase,
+      updateTeamUseCase,
+      unassignProjectUseCase,
+      deleteTeamUseCase
+    },
+    { getTeamMembersByIdUseCase, getTeamMemberUseCase },
+    { getProjectMembersByProjectUseCase },
+    { getProjectUseCase }
+  ) {
+    // Team use cases
+    this.getAllProjectsAssignedUseCase = getAllProjectsAssignedUseCase;
+    this.getProjectAssignedUseCase = getProjectAssignedUseCase;
+    this.getTeamUseCase = getTeamUseCase;
+    this.getTeamsByWorkspaceUseCase = getTeamsByWorkspaceUseCase;
+    this.countTeamsUseCase = countTeamsUseCase;
+    this.createTeamUseCase = createTeamUseCase;
+    this.assignProjectUseCase = assignProjectUseCase;
+    this.updateTeamUseCase = updateTeamUseCase;
+    this.unassignProjectUseCase = unassignProjectUseCase;
+    this.deleteTeamUseCase = deleteTeamUseCase;
+
+    // Team memeber use cases
+    this.getTeamMembersByIdUseCase = getTeamMembersByIdUseCase;
+    this.getTeamMemberUseCase = getTeamMemberUseCase;
+
+    // Project member use cases
+    this.getProjectMembersByProjectUseCase = getProjectMembersByProjectUseCase;
+
+    // Project use cases
+    this.getProjectUseCase = getProjectUseCase;
   }
 
-  async createTeam(name, workspaceId, workspaceMemberId){
-    const transaction = await this.sequelize.transaction();
-    try {
-      const teamCreated = await this.models.Team.create(
-        { name, workspaceId, workspaceMemberId },
-        { transaction }
-      );
-      const teamMemberCreated = await this.models.TeamMember.create(
-        { workspaceId, workspaceMemberId, teamId: teamCreated.id, role: 'admin', propertyStatus: 'owner' },
-        { transaction }
-      );
-
-      await transaction.commit();
-      return teamCreated?.dataValues;
-    } catch (error) {
-      await transaction.rollback();
-      throw boom.badRequest(error.message || 'Something went wrong while creating the team');
-    }
+  async createTeam(teamData){
+    return await this.createTeamUseCase.execute(teamData);
   }
 
-  async updateTeam(name, teamId){
-    try {
-      const updatedTeam = await this.models.Team.update(
-        { name },
-        { where: { id: teamId }, returning: true }
-      );
-
-      return updatedTeam;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while updating team');
-    }
+  async updateTeam(teamId, name){
+    return await this.updateTeamUseCase.execute(teamId, name);
   }
 
-  async updateTeamController(name, teamId){
-    try {
-      const [updatedRows , [updatedTeam]] = await this.updateTeam(name, teamId);
-      if(updatedRows === 0) throw boom.notFound('Team not found');
+  async assignProject(workspaceId, teamId, projectId){
+    const [ teamMembers, projectMembers ] = await Promise.all([
+      this.getTeamMembers(teamId, workspaceId),
+      this.getProjectMembersByProjectUseCase.execute(projectId),
+    ]);
 
-      return updatedTeam;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while updating team');
-    }
+    if(teamMembers.length === 0) throw boom.notFound('No team members found');
+    if(projectMembers.length === 0) throw boom.notFound('No project members found');
+
+    return await this.assignProjectUseCase.execute(teamMembers, projectMembers, teamId, projectId);
   }
 
-  async assignProject(teamId, projectId){
-    try {
-      const assignedProject = await this.models.ProjectTeam.create(
-        { teamId, projectId }
-      );
+  async unassignProject(workspaceId, teamId, projectId, removeTeamMembersFromProject){
+    const [ team, project, projectTeam, teamMembers, projectMembers ] = await Promise.all([
+      this.getTeam(teamId, workspaceId),
+      this.getProjectUseCase.execute(projectId),
+      this.getProjectAssigned(teamId, projectId),
+      this.getTeamMembers(teamId, workspaceId),
+      this.getProjectMembersByProjectUseCase.execute(projectId),
+    ]);
+    if (!team) throw boom.notFound('Team does not exist or does not belong to this workspace');
+    if (!project) throw boom.notFound('Project does not exist or does not belong to this workspace');
+    if (!projectTeam) throw boom.notFound('Team is not assigned to this project');
+    if (teamMembers.length === 0) throw boom.notFound('Team does not have any members');
+    if(projectMembers.length === 0) throw boom.notFound('Project does not have any members');
 
-      return assignedProject;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while assigning a project');
-    }
+    return await this.unassignProjectUseCase.execute(removeTeamMembersFromProject, teamMembers, projectMembers, teamId, projectId);
   }
 
-  async assignProjectController(workspaceId, teamId, projectId){
-    try {
-      const teamMembers = await this.getTeamMembers(workspaceId, teamId);
-      if(teamMembers.length === 0) throw boom.notFound('Team does not exist');
+  async deleteTeam(workspaceId, teamId){
+    const [ team, teamProjects, teamMembers ] = await Promise.all([
+      this.getTeam(teamId, workspaceId),
+      this.getProjectsAssigned(teamId),
+      this.getTeamMembers(teamId, workspaceId),
+    ]);
 
-      const projectMembers = await this.projectMemberService.getProjectMembers(projectId);
-      if(projectMembers.length === 0) throw boom.notFound('Project does not exist');
+    if(!team?.id) throw boom.notFound('Team not found');
+    if(teamProjects.length === 0) return await this.deleteTeamUseCase.execute(teamId, []);
 
-      const nonProjectTeamMembers = teamMembers.filter(teamMember =>
-        !projectMembers.some(projectMember => projectMember.workspaceMemberId === teamMember.workspaceMemberId)
-      );
+    const projectMembersPerAssignedProject = await Promise.all(
+      teamProjects.map(teamProject => this.getProjectMembersByProjectUseCase.execute(teamProject.projectId)),
+    );
 
-      const assignedProject = await this.assignProject(teamId, projectId);
+    const projectMembersInTeam = await Promise.all(
+      projectMembersPerAssignedProject.map(membersOfProjectAssigned => {
+        const projectId = membersOfProjectAssigned.length > 0 ? membersOfProjectAssigned[0].projectId : null;
+        return this.unassignProjectUseCase.handleTeamMembersInProject(teamMembers, membersOfProjectAssigned, projectId)
+      })
+    );
 
-      if(nonProjectTeamMembers.length === 0) return { assignedProject, addedMembers: [] };
-      const addedMembers = await Promise.all(
-        nonProjectTeamMembers.map(member => this.projectMemberService.addProjectMember(projectId, member.workspaceMemberId))
-      );
-
-      return { assignedProject,  addedMembers };
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while assigning a project');
-    }
+    const flattenedProjectMembersInTeam = projectMembersInTeam.flat();
+    return await this.deleteTeamUseCase.execute(teamId, flattenedProjectMembersInTeam);
   }
 
-  async unassignProject(teamId, projectId){
-    const transaction = await this.sequelize.transaction();
-    try {
-      const unassignedProject = await this.models.ProjectTeam.destroy(
-        { where: { teamId, projectId }, transaction }
-      );
-      await transaction.commit();
-      return unassignedProject;
-    } catch (error) {
-      await transaction.rollback();
-      throw boom.badRequest(error.message || 'Something went wrong while unassigning a project');
-    }
+  async getProjectsAssigned(teamId){
+    return await this.getAllProjectsAssignedUseCase.execute(teamId);
   }
 
-  async unassignProjectController(workspaceId, teamId, projectId, removeTeamMembersFromProject){
-    const transaction = await this.sequelize.transaction();
-    try {
-      const [ team, project, projectTeam, teamMembers ] = await Promise.all([
-        this.models.Team.findOne({ where: { id: teamId, workspaceId }, transaction }),
-        this.models.Project.findOne({ where: { id: projectId, workspaceId }, transaction }),
-        this.models.ProjectTeam.findOne({ where: { teamId, projectId }, transaction }),
-        this.getTeamMembers(workspaceId, teamId)
-      ]);
-      if (!team) throw boom.notFound('Team does not exist or does not belong to this workspace');
-      if (!project) throw boom.notFound('Project does not exist or does not belong to this workspace');
-      if (!projectTeam) throw boom.notFound('Team is not assigned to this project');
-      if (teamMembers === 0) throw boom.notFound('Team does not have any members');
-
-      if(!removeTeamMembersFromProject) {
-        const unassignedProject = await this.unassignProject(teamId, projectId);
-        await transaction.commit();
-        return unassignedProject;
-      } else if(removeTeamMembersFromProject){
-        const response = await this.unassignProjectRemovingMembers(teamMembers, teamId, projectId);
-        await transaction.commit();
-        return response;
-      }
-    } catch (error) {
-      await transaction.rollback();
-      throw boom.badRequest(error.message || 'Something went wrong while unassigning a project');
-    }
+  async getProjectAssigned(teamId, projectId){
+    return await this.getProjectAssignedUseCase.execute(teamId, projectId);
   }
 
-  async unassignProjectRemovingMembers(teamMembers, teamId, projectId){
-    const transaction = await this.sequelize.transaction();
-    try {
-      const projectMembersInTeam = await this.controllerDeleteTeamMemberInProject(teamMembers, projectId);
-      const unassignedProject = await this.unassignProject(teamId, projectId);
-
-      const removedMembers = await Promise.all(
-        projectMembersInTeam.map(member => this.projectMemberService.deleteMember(projectId, member.id))
-      );
-
-      await transaction.commit();
-      return { unassignedProject, removedMembers };
-    } catch (error) {
-      await transaction.rollback();
-      throw boom.badRequest(error.message || 'Something went wrong while unassigning a project');
-    }
+  async getTeam(teamId, workspaceId){
+    return await this.getTeamUseCase.execute(teamId, workspaceId);
   }
 
-  async controllerDeleteTeamMemberInProject(teamMembers, projectId){
-    const transaction = await this.sequelize.transaction();
-    try {
-      const projectMembers = await this.projectMemberService.getProjectMembers(projectId);
-      if(projectMembers.length === 0) throw boom.notFound('Project does not exist');
-      if(teamMembers.length === 0) throw boom.notFound('Team does not exist');
-
-      const teamMembersOnProject = teamMembers.filter(teamMember =>
-        projectMembers.some(projectMember => projectMember.workspaceMemberId === teamMember.workspaceMemberId)
-      );
-      if(teamMembersOnProject.length === 0) throw boom.notFound('Team members are not part of this project');
-
-      const projectMembersNotInTeam = projectMembers.filter(projectMember =>
-        !teamMembers.some(teamMember => teamMember.workspaceMemberId === projectMember.workspaceMemberId)
-      );
-      if(projectMembersNotInTeam.length === 0){
-        throw boom.forbidden(
-          `The team cannot be removed from the project because all project members are part of the team. Please, add a new member to the project ${projectId} before unassigning the team`
-        );
-      }
-
-      const projectMembersInTeam = projectMembers.filter(projectMember =>
-        teamMembers.some(teamMember => teamMember.workspaceMemberId === projectMember.workspaceMemberId)
-      );
-      const teamMemberIsOwnerOnProject = projectMembersInTeam.find(member => member.propertyStatus === 'owner');
-      if(teamMemberIsOwnerOnProject){
-        const newOwner =
-          projectMembersNotInTeam.find(member => member.role === 'admin') ||
-          projectMembersNotInTeam.find(member => member.role === 'member');
-        if(!newOwner) throw boom.forbidden('Cannot transfer ownership because no suitable owner is available.');
-
-        await this.projectMemberService.transferOwnership(
-          projectId, teamMemberIsOwnerOnProject.workspaceMemberId, newOwner.workspaceMemberId
-        );
-      }
-      await transaction.commit();
-      return projectMembersInTeam;
-    } catch (error) {
-      await transaction.rollback();
-      throw boom.badRequest(error.message || 'Something went wrong while deleting a team member from a project');
-    }
+  async getTeamsByWorkspace(requesterAsWorkspaceMember){
+    return await this.getTeamsByWorkspaceUseCase.execute(requesterAsWorkspaceMember);
   }
 
-  async deleteTeamController(workspaceId, teamId){
-    try {
-      const [ team, teamProjects, teamMembers ] = await Promise.all([
-        this.models.Team.findOne({ where: { id: teamId, workspaceId } }),
-        this.models.ProjectTeam.findAll({ where: { teamId } }),
-        this.getTeamMembers(workspaceId, teamId)
-      ]);
-      if(!team) throw boom.notFound('Team not found');
-      if(teamProjects.length === 0) throw boom.badRequest('Team does not have any projects assigned');
-
-      const projectMembersInTeam = await Promise.all(teamProjects.map((teamProject) =>
-        this.controllerDeleteTeamMemberInProject(teamMembers, teamProject.projectId)
-      ));
-
-      const teamDeleted = await this.deleteTeam(teamId);
-      const teamMembersDeletedFromProjects = await Promise.all(projectMembersInTeam.map((projectMembers) =>
-        Promise.all(projectMembers.map((member) =>
-          this.projectMemberService.deleteMember(member.projectId, member.id)
-        ))
-      ));
-
-      return { teamDeleted, teamMembersDeletedFromProjects };
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while deleting a team');
-    }
+  async getTeamMembers(teamId, workspaceId){
+    return await this.getTeamMembersByIdUseCase.execute(teamId, workspaceId);
   }
 
-  async deleteTeam(teamId){
-    try {
-      const response = await this.models.Team.destroy(
-        { where: { id: teamId } }
-      );
-      return response;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while deleting a team');
-    }
+  async getTeamMemberByUserId(userId, workspaceId, teamId){
+    return await this.getTeamMemberUseCase.execute(userId, workspaceId, teamId);
   }
 
-  async getTeamsByWorkspace(workspaceId){
-    try {
-      const teams = await this.models.Team.findAll({
-        where: { workspaceId },
-        include: [
-          {
-            model: this.models.TeamMember,
-            as: 'teamMembers',
-            include: [{
-              model: this.models.WorkspaceMember,
-              as: 'workspaceMember',
-              attributes: ['id', 'userId', 'workspaceId'],
-              include: [{
-                model: this.models.User,
-                as: 'user',
-                attributes: ['id', 'name']
-              }],
-            }]
-          },
-          {
-            model: this.models.Project,
-            as: 'projects'
-          }
-        ],
-
-      });
-      return teams;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while finding teams');
-    }
+  async countTeams(workspaceMemberId){
+    return await this.countTeamsUseCase.execute(workspaceMemberId);
   }
-
-  async getTeamsByWorkspaceController(workspaceId, requesterUserId){
-    try {
-      const teams = await this.getTeamsByWorkspace(workspaceId);
-      if(teams.length === 0) return [];
-
-      const formattedTeams = teams.map(team => {
-        const { teamMembers, owner } = team.teamMembers.reduce((acc, member) => {
-          const userData = member.workspaceMember.user;
-          const teamMember = {
-            teamMemberId: member.id,
-            workspaceMemberId: member.workspaceMemberId,
-            role: member.role,
-            propertyStatus: member.propertyStatus,
-            userId: userData.id,
-            name: userData.name,
-          }
-          acc.teamMembers.push(teamMember);
-
-          if(teamMember.propertyStatus === 'owner'){
-            acc.owner.name = teamMember.name;
-          }
-
-          return acc;
-        }, { teamMembers: [], owner: {} });
-
-        const projects = team.projects.map(project => {
-          return {
-            projectId: project.id,
-            // background: project.backgound
-            name: project.name
-          }
-        });
-
-        const formattedData = {
-          id: team.id,
-          name: team.name,
-          owner: owner || { name: "unknown" },
-          workspaceId: team.workspaceId,
-          members: teamMembers,
-          projects: projects,
-          requesterActions: []
-        };
-
-        let requesterActions = {};
-        const requester = teamMembers.find(member => member.userId == requesterUserId);
-        if(!requester) return formattedData;
-
-        if(requester.propertyStatus === 'owner'){
-          requesterActions = {
-            status: requester.propertyStatus,
-            canModify: ['admin', 'guest', 'member'],
-            actions: ACTIONS.OWNER
-          }
-        } else if (requester.propertyStatus === 'guest'){
-          requesterActions = {
-            status: requester.propertyStatus,
-            canModify: requester.role == 'admin' ? ['guest', 'member'] : ['member'],
-            actions: requester.role == 'admin' ? ACTIONS.ADMIN : ACTIONS.MEMBER
-          }
-        }
-
-        return {
-          ...formattedData,
-          requesterActions,
-        };
-      });
-
-      return formattedTeams
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while finding teams');
-    }
-  }
-
-  async getTeamMembers(workspaceId, teamId){
-    try {
-      const teamMembers = await this.models.TeamMember.findAll(
-        { where: { workspaceId, teamId } }
-      );
-
-      return teamMembers;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while assigning a project');
-    }
-  }
-
-  async getTeamMembership(workspaceId, workspaceMemberId){
-    try {
-      const teamMember = await this.models.TeamMember.findOne({
-        where: { workspaceId, workspaceMemberId }
-      });
-
-      return teamMember;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while finding team member');
-    }
-  }
-
-  async countTeamsByOwnership(workspaceId, workspaceMemberId){
-    try {
-      const count = await this.models.Team.count(
-        { where: { workspaceId, workspaceMemberId } }
-      );
-
-      return count;
-    } catch (error) {
-      throw boom.badRequest(error.message || 'Something went wrong while count teams by ownership');
-    }
-  }
-
 }
 
 module.exports = TeamService;

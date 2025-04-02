@@ -4,6 +4,8 @@ const workspaceUseCases = require('../use-cases/workspace/index');
 const workspaceMemberUseCases = require('../use-cases/workspace-member/index');
 const projectUseCases = require('../use-cases/project/index');
 const projectMemberUseCases = require('../use-cases/project-member/index');
+const teamUseCases = require('../use-cases/team');
+const teamMemberUseCases = require('../use-cases/team-member/index');
 
 
 const UserService = require('./user.service');
@@ -21,8 +23,7 @@ const workspaceService = new WorkspaceService(workspaceUseCases);
 const workspaceMemberService = new WorkspaceMemberService(workspaceMemberUseCases, projectUseCases);
 const projectService = new ProjectService(projectUseCases, projectMemberUseCases);
 const projectMemberService = new ProjectMemberService(projectMemberUseCases);
-
-const teamService = new TeamService();
+const teamService = new TeamService(teamUseCases, teamMemberUseCases, projectMemberUseCases, projectUseCases);
 
 
 

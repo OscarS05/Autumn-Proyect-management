@@ -32,6 +32,10 @@ class ProjectRepository extends IProjectRepository{
     return await this.db.models.Project.destroy({ where: { id: projectId } });
   }
 
+  async findById(projectId){
+    return await this.db.models.Project.findOne({ where: { id: projectId } });
+  }
+
   async findAllByWorkspace(workspaceId){
     return await this.db.models.Project.findAll({
       where: { workspaceId }
