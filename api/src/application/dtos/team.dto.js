@@ -29,10 +29,20 @@ class TeamDto {
     };
   }
 
+  static withMembers(team){
+    return {
+      id: team.id,
+      name: team.name,
+      workspaceMemberId: team.workspaceMemberId,
+      workspaceId: team.workspaceId,
+      members: team.teamMembers.map(member => new TeamMemberDto(member)),
+    }
+  }
+
   static WithData(team, requesterAsWorkspaceMember){
     return {
       id: team.id,
-      name: team.members,
+      name: team.name,
       owner: this.getOwner(team.teamMembers),
       workspaceId: team.workspaceId,
       members: team.teamMembers.map(member => TeamMemberDto.withName(member)),

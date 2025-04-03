@@ -1,6 +1,7 @@
 const dbRepositories = require('../../../infrastructure/repositories/db/index');
 
 const CountTeamsUseCase = require('./CountTeamsUseCase');
+const GetTeamsByWorkspaceMemberUseCase = require('./GetTeamsByWorkspaceMemberUseCase');
 const GetAllProjectsAssignedUseCase = require('./GetAllProjectsAssignedUseCase');
 const GetProjectAssignedUseCase = require('./GetProjectAssignedUseCase');
 const GetTeamUseCase = require('./GetTeamUseCase');
@@ -12,6 +13,7 @@ const UnassignProjectUseCase = require('./UnassignProjectUseCase');
 const DeleteTeamUseCase = require('./DeleteTeamUseCase');
 
 const countTeamsUseCase = new CountTeamsUseCase(dbRepositories);
+const getTeamsByWorkspaceMemberUseCase = new GetTeamsByWorkspaceMemberUseCase(dbRepositories);
 const getAllProjectsAssignedUseCase = new GetAllProjectsAssignedUseCase(dbRepositories);
 const getProjectAssignedUseCase = new GetProjectAssignedUseCase(dbRepositories);
 const getTeamUseCase = new GetTeamUseCase(dbRepositories);
@@ -25,6 +27,7 @@ const deleteTeamUseCase = new DeleteTeamUseCase(dbRepositories);
 module.exports = {
   countTeamsUseCase,
   createTeamUseCase,
+  getTeamsByWorkspaceMemberUseCase,
   getAllProjectsAssignedUseCase,
   getProjectAssignedUseCase,
   assignProjectUseCase,

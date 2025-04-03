@@ -13,8 +13,31 @@ class TeamMemberRepository extends ITeamMemberRepository{
     throw boom.notImplemented('the updateRole(teamMemberId, newRole) method is not implemented');
   }
 
-  async transferOwnership(currentOwner, newOwner){
-    throw boom.notImplemented('the transferOwnership(currentOwner, newOwner) method is not implemented');
+  async transferOwnership(teamId, currentOwner, newOwner){
+    const transaction = await this.db.transaction();
+    try {
+      const [ updatedRows, [ updatedWorkspace ] ] = await this.db.models.Team.update(
+        { workspaceMemberId: newOwner.workspaceMemberId },
+        { where: { id: teamId }, returning: true, transaction }
+      );
+      if(updatedRows === 0) throw boom.badRequest('Failed to update workspace owner');
+
+      const [ newOwnerUpdated, formerOwnerUpdated ] = await Promise.all([
+        this.db.models.TeamMember.update(
+          { role: 'owner' },
+          { where: { workspaceMemberId: newOwner.workspaceMemberId }, transaction }
+        ),
+        this.db.models.TeamMember.update(
+          { role: 'admin' },
+          { where: { workspaceMemberId: currentOwner.workspaceMemberId }, transaction }
+        ),
+      ]);
+      await transaction.commit();
+      return newOwnerUpdated;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 
   async delete(teamMemberId){

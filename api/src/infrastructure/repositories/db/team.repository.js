@@ -77,7 +77,20 @@ class TeamRepository extends ITeamRepository {
   }
 
   async findAllByWorkspaceMember(workspaceMemberId){
-    throw boom.notImplemented('the findAllByWorkspaceMember(workspaceMemberId) method is not implemented');
+    const teamMembers = await this.db.models.TeamMember.findAll({
+      where: { workspaceMemberId },
+      attributes: ['teamId']
+    });
+
+    const teamIds = teamMembers.map(member => member.teamId);
+
+    return await this.db.models.Team.findAll({
+      where: { id: teamIds },
+      include: [{
+        model: this.db.models.TeamMember,
+        as: 'teamMembers',
+      }]
+    });
   }
 
   async countTeams(workspaceMemberId){

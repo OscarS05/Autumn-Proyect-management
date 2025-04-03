@@ -2,17 +2,18 @@ const boom = require('@hapi/boom');
 const logger = require('../../../../utils/logger/logger');
 
 class RemoveWorkspaceMemberUseCase {
-  constructor({ workspaceMemberRepository, projectMemberRepository, workspaceRepository }){
+  constructor({ workspaceMemberRepository, projectMemberRepository, workspaceRepository, teamMemberRepository }){
     this.workspaceMemberRepository = workspaceMemberRepository;
     this.projectMemberRepository = projectMemberRepository;
     this.workspaceRepository = workspaceRepository;
+    this.teamMemberRepository = teamMemberRepository;
   }
 
   async deleteWorkspaceMember(workspaceMemberId){
     return await this.workspaceMemberRepository.delete(workspaceMemberId);
   }
 
-  async execute(requesterAsWorkspaceMember, workspaceMemberToBeRemoved, workspaceMembers, projectsOfMemberToBeRemoved){
+  async execute(requesterAsWorkspaceMember, workspaceMemberToBeRemoved, workspaceMembers, projectsOfMemberToBeRemoved, teamsOfMemberToBeRemoved){
     if(requesterAsWorkspaceMember.workspaceId !== workspaceMemberToBeRemoved.workspaceId){
       throw boom.conflict('The workspace member to be removed does not belong to the workspace');
     }
@@ -22,7 +23,10 @@ class RemoveWorkspaceMemberUseCase {
     if(requesterAsWorkspaceMember.role === 'member' && workspaceMemberToBeRemoved.role === 'member'){
       throw boom.forbidden('You cannot remove another member');
     }
-    // Aquí falta la lógica de negocio al momento de eliminar un workspace member que pertenece a algunos equipos
+
+    if(teamsOfMemberToBeRemoved.length >= 1){
+      await this.removeMemberWithTeams(workspaceMemberToBeRemoved, workspaceMembers, teamsOfMemberToBeRemoved);
+    }
     if(projectsOfMemberToBeRemoved.length >= 1){
       await this.removeMemberWithProjects(workspaceMemberToBeRemoved, workspaceMembers, projectsOfMemberToBeRemoved);
     }
@@ -33,10 +37,37 @@ class RemoveWorkspaceMemberUseCase {
     }
   }
 
+  async removeMemberWithTeams(workspaceMemberToBeRemoved, workspaceMembers, teamsOfMemberToBeRemoved){
+    const teamsWithOnlyOwner = teamsOfMemberToBeRemoved.filter(team => team.members.length === 1);
+    if (teamsWithOnlyOwner.length > 0 && workspaceMembers.length > 1) {
+      throw boom.forbidden(`You must assign a new team member before leaving the workspace. In the team: ${teamsWithOnlyOwner.map(t => t.name).join(', ')}`);
+    }
+
+    const teamsWhichMemberIsOwner = teamsOfMemberToBeRemoved.filter(team => team.workspaceMemberId === workspaceMemberToBeRemoved.id);
+    if (teamsWhichMemberIsOwner.length === 0) return;
+
+    const results = await Promise.allSettled(teamsWhichMemberIsOwner.map(async (team) => {
+      const currentTeamOwner = team.members.find(teamMember => teamMember.workspaceMemberId === workspaceMemberToBeRemoved.id);
+      const availableMembers = team.members.filter(teamMember => teamMember.workspaceMemberId !== workspaceMemberToBeRemoved.id);
+      if (availableMembers.length === 0) {
+      throw boom.forbidden(`Cannot remove the member. No team members available to take ownership of team: ${team.name}`);
+      }
+
+      await this.teamMemberRepository.transferOwnership(team.id, currentTeamOwner, availableMembers[0]);
+    }));
+
+    const errors = results.filter(r => r.status === "rejected").map(r => r.reason.message);
+    if (errors.length > 0) {
+      logger.info(`❗Some teams failed to transfer ownership: ${errors.join('; ')}`);
+    }
+
+    return results;
+  }
+
   async removeMemberWithProjects(workspaceMemberToBeRemoved, workspaceMembers, projectsOfMemberToBeRemoved){
     const projectsWithOnlyOwner = projectsOfMemberToBeRemoved.filter(project => project.projectMembers.length === 1);
     if(projectsWithOnlyOwner.length > 0 && workspaceMembers.length > 1){
-      throw boom.forbidden(`You must assign a new member before leaving the workspace. In the project: ${projectsWithOnlyOwner.map(p => p.name).join(', ')}`);
+      throw boom.forbidden(`You must assign a new project member before leaving the workspace. In the project: ${projectsWithOnlyOwner.map(p => p.name).join(', ')}`);
     }
 
     const projectsWhichMemberIsOwner = projectsOfMemberToBeRemoved.filter(project => project.workspaceMemberId === workspaceMemberToBeRemoved.id);
@@ -60,7 +91,7 @@ class RemoveWorkspaceMemberUseCase {
   }
 
   async leaveTheWorkspace(requesterAsWorkspaceMember, workspaceMembers){
-    return workspaceMembers.role === 'owner'
+    return requesterAsWorkspaceMember.role === 'owner'
       ? await this.handleOwnerExit(requesterAsWorkspaceMember, workspaceMembers)
       : await this.deleteWorkspaceMember(requesterAsWorkspaceMember.id)
   }

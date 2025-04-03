@@ -10,7 +10,10 @@ class WorkspaceMemberService {
       updateRoleUseCase,
       transferOwnershipUseCase,
       removeWorkspaceMemberUseCase
-    }, { getProjectsByWorkspaceMemberUseCase }) {
+    },
+    { getProjectsByWorkspaceMemberUseCase },
+    { getTeamsByWorkspaceMemberUseCase }
+  ) {
     this.getWorkspaceMemberByIdUseCase = getWorkspaceMemberByIdUseCase;
     this.getWorkspaceMemberByUserIdUseCase = getWorkspaceMemberByUserIdUseCase;
     this.getWorkspaceMembersWithDataUseCase = getWorkspaceMembersWithDataUseCase;
@@ -20,7 +23,11 @@ class WorkspaceMemberService {
     this.transferOwnershipUseCase = transferOwnershipUseCase;
     this.removeWorkspaceMemberUseCase = removeWorkspaceMemberUseCase;
 
+    //project use cases
     this.getProjectsByWorkspaceMemberUseCase = getProjectsByWorkspaceMemberUseCase;
+
+    // team use cases
+    this.getTeamsByWorkspaceMemberUseCase = getTeamsByWorkspaceMemberUseCase;
   }
 
   async addMemberToWorkspace(workspaceId, userIdToAdd){
@@ -48,11 +55,13 @@ class WorkspaceMemberService {
       workspaceMemberToBeRemoved.id
     );
 
+    const teamsOfMemberToBeRemoved = await this.getTeamsByWorkspaceMemberUseCase.execute(workspaceMemberId);
     return await this.removeWorkspaceMemberUseCase.execute(
       requesterAsWorkspaceMember,
       workspaceMemberToBeRemoved,
       workspaceMembers,
-      projectsWithMembers
+      projectsWithMembers,
+      teamsOfMemberToBeRemoved
     );
   }
 
