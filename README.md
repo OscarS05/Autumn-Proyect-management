@@ -1,93 +1,103 @@
-# **Autumn - Project Management Platform**
+# Autumn API
 
-## Description
-Autumn is a project management platform inspired by Trello. The platform allows users to create and manage projects in an intuitive and organized way. Like Trello, it focuses on organizing projects into boards, lists, and cards. Users can perform CRUD (Create, Read, Update, Delete) operations on lists and cards. 
+Autumn is an API for collaborative project management inspired by Trello. It is built using **Node.js, Express.js, PostgreSQL, JWT authentication, Redis for caching, Sequelize ORM, and Docker**. The project follows **SOLID principles, Clean Architecture, and Domain-Driven Design (DDD)** to ensure maintainability and scalability.
 
-The platform also supports:
-- **Authentication**: Users can sign up, log in, and authenticate using JWT tokens.
-- **Sign-up & Email Verification**: New users can sign up, and email verification is required before they can start using the platform.
-- **Password Recovery**: Users can recover their passwords via email using JWT tokens.
+## Technologies Used
+- **Node.js** - Backend runtime
+- **Express.js** - Web framework
+- **PostgreSQL** - Database
+- **Sequelize ORM** - Object-Relational Mapping
+- **Redis** - Caching system
+- **JWT Authentication** - Secure authentication
+- **Passport.js** - Authentication middleware
+- **Docker** - Containerized environment
+- **Winston & Morgan** - Logging and performance monitoring
+- **Nodemailer** - Email service
+- **Joi** - Data validation
+- **Express-rate-limit** - Rate limiting middleware
 
-The primary goal of Autumn is to provide a simple and efficient way for teams and individuals to manage their projects, similar to Trello's visual approach, using lists and cards as the core organizational structure.
+## Authentication System
+Autumn implements a **JWT-based authentication system** with access and refresh tokens. A key feature of this system is **auto-authentication**: as long as the refresh token remains valid, the user session remains active indefinitely. However, if the user does not log in for **15 consecutive days**, the refresh token will expire and and re-authentication will be required.
 
 ## Project Structure
+The project follows **Clean Architecture and Domain-Driven Design (DDD)** principles. The `api/src/` directory is structured as follows:
+```
+api/src/
+├── application/
+│   ├── dtos/
+│   ├── services/
+│   └── use-cases/
+├── domain/
+│   ├── repositories/ (contracts)
+│   ├── entities/
+│   └── value-objects/
+├── infrastructure/
+│   ├── adapters/
+│   ├── repositories/ (implementations)
+│   └── store/ (DB, ORM, cache configuration)
+├── interfaces/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── routes/
+│   └── schemas/
+├── config/ (environment variables)
+└── utils/ (helpers)
+```
 
-### Frontend (public)
-The `public` folder contains everything related to the frontend:
-- **index.html**: Contains only a single HTML line. All the content is dynamically rendered from JavaScript.
-- **js**: This folder contains the main JavaScript file, `router.js`, which handles routing and the rendering of different views. The views are modular and located in the `views` folder. Other important files are:
-  - **controllers**: Handles the interaction between views and the data.
-  - **api**: Contains functions to interact with the backend API.
-- **css**: The CSS folder is organized by views, with each view having its own styles. There is also a general styles file for shared styling.
-- **assets**: Contains images and other static files.
-- **components**: Previously used for PHP modular design but is not in use at the moment.
+## The Frontend
+Initially, Autumn was designed as a **full-stack** project with a frontend built in **Vanilla JavaScript**. However, as the focus of the project shifted towards **backend development**, the frontend was discontinued. The **`public/`** directory still contains frontend files, but they are no longer maintained or developed further.
 
-### api (backend)
-The `api` folder contains everything related to the server-side logic:
-- **config**: Contains environment variables managed with `dotenv`.
-- **db**: Handles the configuration of Sequelize CLI, database connections, model structure, relationships, and migrations.
-- **libs**: Contains the Sequelize configuration that is used outside of the CLI and other general utility libraries.
-- **middlewares**: Manages error handling and data validation.
-- **routes**: Contains the API endpoints for handling requests.
-- **schemas**: Defines data validation schemas using JOI.
-- **services**: Implements business logic using Object-Oriented Programming (OOP).
-- **utils**: Stores Passport.js strategies for authentication and a CRON job that deletes unverified users after 7 days.
-- **index.js**: The main entry point for the backend, which centralizes all the configurations and initializes the server.
+## How to Run the Project
+### Prerequisites
+- **Docker** installed on your machine
+- **Node.js** and **npm** installed
 
-## Requirements to Run
-
-1. Install the necessary dependencies using npm:
-    ```bash
-    npm install
-    ```
-
-2. For development, run the following:
-    ```bash
-    npm run dev
-    ```
-
-3. For production, use:
-    ```bash
-    npm run start
-    ```
-
-## Installation and Usage Instructions
-
+### Setup and Installation
 1. Clone the repository:
-    ```bash
-    git clone <repository-url>
-    ```
+   ```bash
+   git clone git@github.com:OscarS05/Autumn-Proyect-management.git
+   cd autumn
+   ```
+2. Create a **.env** file based on the provided `.env.example`.
+3. Start the services using Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
+4. Install dependencies:
+   ```bash
+   npm install
+   ```
+5. Run database migrations:
+   ```bash
+   npm run migrations:run
+   ```
+6. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-2. Install the dependencies:
-    ```bash
-    npm install
-    ```
+## Available Scripts
+```json
+"scripts": {
+  "dev": "nodemon api/index.js",
+  "start": "node api/index.js",
+  "lint": "eslint",
+  "migrations:generate": "sequelize-cli migration:generate --name",
+  "migrations:run": "sequelize-cli db:migrate",
+  "migrations:revert": "sequelize-cli db:migrate:undo",
+  "migrations:delete": "sequelize-cli db:migrate:undo:all",
+  "environment:status": "sequelize-cli db:migrate:status"
+}
+```
 
-3. Configure the `.env` file in the root of the backend directory. Ensure the required environment variables (such as database URL, JWT secret, etc.) are correctly set.
+## Project Status
+Autumn is still in **active development**. The backend is fully functional for authentication, user management, and workspace/project/team CRUD operations. The remaining features under development include:
 
-4. In the `public/js/api/api.js` file, change the base URL of the API depending on whether you're in development or production mode.
+- **CRUD for:** Team members, lists, cards, card members, labels, label colors, attachments, checklists, checklist items, and checklist item members.
+- **Real-time chat for projects using Socket.io**.
+- **Comprehensive testing implementation**.
 
-5. Run the development server:
-    ```bash
-    npm run dev
-    ```
+Once all planned features are completed, **API documentation will be added using Swagger**.
 
-   Or for production:
-    ```bash
-    npm run start
-    ```
-
-
-## Tags
-
-In this project we use the following tags to organize and classify the different versions and states of the project:
-
-- **`v1.0`**: Initial version containing the entire front-end design completed along with basic navigation, but no pagination, functionality or back-end.
-- **`v2.0`**: Functional project version with authentication and CRUD of lists and cards
-
-
-
-## License
-
-This project is licensed under the MIT License.
-
+---
+This project is a work in progress, but all completed features are fully functional. 🚀
