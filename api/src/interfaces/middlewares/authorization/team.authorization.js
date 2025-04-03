@@ -29,6 +29,7 @@ async function checkTeamMembership(req, res, next){
     const { workspaceId, teamId } = req.params;
 
     const teamMember = await teamService.getTeamMemberByUserId(user.sub, workspaceId, teamId);
+    if(!teamMember.id) throw boom.notFound('You do not belong to the team');
     if(teamMember.role === 'member') throw boom.forbidden('You do not have permission to perform this action');
 
     req.teamMember = teamMember;
@@ -79,9 +80,25 @@ async function checkTeamOwnership(req, res, next){
   }
 }
 
+async function checkAdminRole(req, res, next){
+  try {
+    const user = req.user;
+    const { workspaceId, teamId } = req.params;
+
+    const teamMember = await teamService.getTeamMemberByUserId(user.sub, workspaceId, teamId);
+    if(teamMember.role === 'member') throw boom.forbidden('You do not have permission to perform this action');
+
+    req.teamMember = teamMember;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   authorizationToCreateTeam,
   checkAdminRoleToAssign,
   checkTeamMembership,
-  checkTeamOwnership
+  checkTeamOwnership,
+  checkAdminRole
 };

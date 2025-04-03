@@ -15,6 +15,7 @@ const WorkspaceMemberService = require('./workspace-member.service');
 const ProjectService = require('./project.service');
 const ProjectMemberService = require('./project-member.service');
 const TeamService = require('./team.service');
+const TeamMemberService = require('./team-member.service');
 
 
 const userService = new UserService(userUseCases);
@@ -24,7 +25,7 @@ const workspaceMemberService = new WorkspaceMemberService(workspaceMemberUseCase
 const projectService = new ProjectService(projectUseCases, projectMemberUseCases);
 const projectMemberService = new ProjectMemberService(projectMemberUseCases);
 const teamService = new TeamService(teamUseCases, teamMemberUseCases, projectMemberUseCases, projectUseCases);
-
+const teamMemberService = new TeamMemberService(teamMemberUseCases, teamService);
 
 
 module.exports = {
@@ -34,5 +35,6 @@ module.exports = {
   workspaceMemberService,
   projectService,
   projectMemberService,
-  teamService
+  teamService,
+  teamMemberService
 };

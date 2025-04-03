@@ -6,11 +6,12 @@ class TeamMemberRepository extends ITeamMemberRepository{
     this.db = db;
   }
 
-  async create(teamMemberEntity){
-    throw boom.notImplemented('the create() method is not implemented');
+  async create(teamId, teamMemberEntity){
+    return await this.db.models.TeamMember.create(teamMemberEntity, { where: { teamId } });
   }
+
   async updateRole(teamMemberId, newRole){
-    throw boom.notImplemented('the updateRole(teamMemberId, newRole) method is not implemented');
+    return await this.db.models.TeamMember.update({ role: newRole }, { where: { id: teamMemberId }, returning: true });
   }
 
   async transferOwnership(teamId, currentOwner, newOwner){
@@ -41,7 +42,27 @@ class TeamMemberRepository extends ITeamMemberRepository{
   }
 
   async delete(teamMemberId){
-    throw boom.notImplemented('the delete(teamMemberId) method is not implemented');
+    return await this.db.models.TeamMember.destroy({ where: { id: teamMemberId } });
+  }
+
+  async findProjectsByTeamMember(projectIds, teamMember){
+    return await this.db.models.Project.findAll({
+      where: { id: projectIds },
+      include: [
+        {
+          model: this.db.models.ProjectMember,
+          as: 'projectMembers',
+          where: { workspaceMemberId: teamMember.workspaceMemberId },
+          attributes: []
+        },
+        {
+          model: this.db.models.Team,
+          as: 'teams',
+          attributes: [ 'id', 'name', 'workspaceMemberId' ],
+          through: []
+        }
+      ]
+    });
   }
 
   async findAll(teamId, workspaceId){
@@ -57,6 +78,10 @@ class TeamMemberRepository extends ITeamMemberRepository{
         where: { workspaceId, userId }
       }]
     });
+  }
+
+  async findOneById(teamId, teamMemberId){
+    return await this.db.models.TeamMember.findOne({ where: { id: teamMemberId, teamId } });
   }
 }
 
