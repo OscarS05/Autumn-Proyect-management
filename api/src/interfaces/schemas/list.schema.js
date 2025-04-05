@@ -1,21 +1,25 @@
 const Joi = require('joi');
 
-const id = Joi.number().integer();
-const name = Joi.string().min(3).max(50);
-const nameList = Joi.string().min(3).max(50);
+const id = Joi.string().uuid();
+const name = Joi.string().min(3).max(80);
 
-const createListSchema = Joi.object({
+const listIdSchema = Joi.object({
+  listId: id.required(),
+});
+
+const listSchema = Joi.object({
+  workspaceId: id.required(),
+  projectId: id.required(),
+  listId: id.required(),
+});
+
+const listNameSchema = Joi.object({
   name: name.required(),
 });
 
 const updateListSchema = Joi.object({
-  listName: nameList.required(),
   newName: name.required(),
 });
 
-const deleteListSchema = Joi.object({
-  listName: name.required(),
-});
 
-
-module.exports = { createListSchema, updateListSchema, deleteListSchema };
+module.exports = { listNameSchema, listIdSchema, updateListSchema, listSchema };

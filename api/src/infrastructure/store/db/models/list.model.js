@@ -36,7 +36,7 @@ const ListSchema = {
 
 class List extends Model {
   static associate(models) {
-    this.belongsTo(models.Project, { as: 'project' });
+    this.belongsTo(models.Project, { as: 'project', foreignKey: 'projectId' });
 
     this.hasMany(models.Card, {
       as: 'card',

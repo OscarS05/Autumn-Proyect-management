@@ -1,70 +1,42 @@
-// const boom = require('@hapi/boom');
+const boom = require('@hapi/boom');
 
-// const { models } = require('../../infrastructure/store/db/sequelize');
-// const { config } = require('../../../config/config');
-// const UserService = require('./user.service');
-// const service = new UserService();
+class ListService {
+  constructor({ createListUseCase, getAllListsUseCase, getListUseCase, updateListUseCase, deleteListUseCase, checkProjectMembershipByListUseCase }) {
+    this.checkProjectMembershipByListUseCase = checkProjectMembershipByListUseCase;
+    this.getListUseCase = getListUseCase;
+    this.getAllListsUseCase = getAllListsUseCase;
+    this.createListUseCase = createListUseCase;
+    this.updateListUseCase = updateListUseCase;
+    this.deleteListUseCase = deleteListUseCase;
+  }
 
-// class ListService {
-//   constructor() {}
+  async create(listData) {
+    return await this.createListUseCase.execute(listData);
+  }
 
-//   async create(listName) {
-//     if (!listName) {
-//       throw boom.badRequest('Invalid data. Please try again.');
-//     }
-//     const listNameCreated = await models.List.create(listName);
-//     if(!listNameCreated){
-//       throw boom.internal('Failed to create the list. Please try again.');
-//     }
-//     return listNameCreated;
-//   }
+  async update(projectId, listId, newName) {
+    const list = await this.getList(projectId, listId);
+    if(!list?.id) throw boom.notFound('The list to be updated was not found');
+    return await this.updateListUseCase.execute(listId, newName);
+  }
 
-//   async update({listName, newName}) {
-//     if(!listName && !newName){
-//       throw boom.badRequest('Please, enter the new name')
-//     }
-//     const list = await this.findByName(listName);
-//     if (!list) {
-//       throw boom.notFound('List not found');
-//     }
-//     try {
-//       const rta = await list.update({ name: newName });
-//       return rta;
-//     } catch (error) {
-//       throw boom.badRequest('Failed to update list');
-//     }
-//   }
+  async delete(projectId, listId){
+    const list = await this.getList(projectId, listId);
+    if(!list?.id) throw boom.notFound('The list to be deleted was not found');
+    return await this.deleteListUseCase.execute(projectId, listId);
+  }
 
-//   async delete({ listName }){
-//     if(!listName){
-//       throw boom.badRequest('Please, try again');
-//     }
-//     try {
-//       const list = await this.findByName(listName);
-//       if(!list){
-//         throw boom.notFound('List not found to delete');
-//       }
-//       const rta = await list.destroy();
-//       return rta;
-//     } catch (error) {
-//       throw boom.internal('Internal error');
-//     }
-//   }
+  async getList(projectId, listId){
+    return await this.getListUseCase.execute(projectId, listId);
+  }
 
-//   async findByName(listName){
-//     console.log('THIS LISTNAME', listName);
-//     const list = await models.List.findOne({
-//       where: { name: listName },
-//     });
-//     return list;
-//   }
+  async findAll(projectId){
+    return await this.getAllListsUseCase.execute(projectId);
+  }
 
-//   async findAll(){
-//     const List = await models.List.findAll({
-//       include: ['card'],
-//     });
-//     return List.map(list => list.toJSON());
-//   }
-// }
+  async projectMembershipByList(userId, listId){
+    return await this.checkProjectMembershipByListUseCase.execute(userId, listId);
+  }
+}
 
-// module.exports = ListService;
+module.exports = ListService;

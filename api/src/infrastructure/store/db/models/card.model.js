@@ -41,7 +41,7 @@ const CardSchema = {
 
 class Card extends Model {
   static associate(models) {
-    this.belongsTo(models.List, { as: 'list' });
+    this.belongsTo(models.List, { as: 'list', foreignKey: 'listId' });
 
     this.belongsToMany(models.ProjectMember, {
       through: models.CardMember,

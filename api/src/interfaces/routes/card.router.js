@@ -1,77 +1,44 @@
-// const express = require('express');
+const express = require('express');
+const router = express.Router();
 
-// const CardService = require('../../application/services/card.service');
-// const { validatorHandler } = require('../middlewares/validator.handler');
-// const { createCardSchema, updateCardSchema, deleteCardSchema } = require('../schemas/card.schema');
+const { validateSession } = require('../middlewares/authentication.handler');
+const { validatorHandler } = require('../middlewares/validator.handler');
+const { validateListAuthorization } = require('../middlewares/authorization/list.authorization');
+const { validateCardAuthorization } = require('../middlewares/authorization/card.authorization');
+const { listIdSchema } = require('../schemas/list.schema');
+const { cardSchemas, createCardSchema, updateCardSchema } = require('../schemas/card.schema');
 
-// const router = express.Router();
-// const service = new CardService();
+const cardControllers = require('../controllers/card.controller');
 
-// router.get('/:listId', async (req, res, next) => {
-//   try {
-//     const { listId } = req.params;
-//     const cards = await service.findByListId(listId);
-//     res.json(cards);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+router.get('/lists/:listId/cards',
+  validateSession,
+  validatorHandler(listIdSchema, 'params'),
+  validateListAuthorization,
+  cardControllers.getCards
+);
 
-// router.get('/:name', async (req, res, next) => {
-//   try {
-//     const { name } = req.params;
-//     const cardId = await service.findByName(name);
-//     res.json(cardId);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+router.post('/lists/:listId/cards',
+  validateSession,
+  validatorHandler(listIdSchema, 'params'),
+  validatorHandler(createCardSchema, 'body'),
+  validateListAuthorization,
+  cardControllers.createCard
+);
 
-// router.get('/', async (req, res, next) => {
-//   try {
-//     const cards = await service.findAll();
-//     res.json(cards);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+router.patch('/lists/:listId/cards/:cardId',
+  validateSession,
+  validatorHandler(cardSchemas, 'params'),
+  validatorHandler(updateCardSchema, 'body'),
+  validateCardAuthorization,
+  cardControllers.updateCard
+);
 
-// router.post('/create-card',
-//   validatorHandler(createCardSchema, 'body'),
-//   async (req, res, next) => {
-//     try {
-//       const body = req.body;
-//       const rta = await service.create(body);
-//       res.status(201).json(rta);
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// );
-
-// router.patch('/update-card',
-//   validatorHandler(updateCardSchema, 'body'),
-//   async (req, res, next) => {
-//     try {
-//       const data = req.body;
-//       const rta = await service.update(data);
-//       res.status(200).json({rta});
-//     } catch (error) {
-//       next(error);
-//     }
-// });
-
-// router.delete('/delete-card',
-//   validatorHandler(deleteCardSchema, 'body'),
-//   async (req, res, next) => {
-//     try {
-//       const data = req.body;
-//       const rta = await service.delete(data);
-//       res.status(200).json({rta});
-//     } catch (error) {
-//       next(error);
-//     }
-// });
+router.delete('/lists/:listId/cards/:cardId',
+  validateSession,
+  validatorHandler(cardSchemas, 'params'),
+  validateCardAuthorization,
+  cardControllers.deleteCard
+);
 
 
-// module.exports = router;
+module.exports = router;

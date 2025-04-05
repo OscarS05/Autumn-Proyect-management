@@ -1,25 +1,24 @@
 const Joi = require('joi');
 
-const id = Joi.number().integer();
+const id = Joi.string().uuid();
 const name = Joi.string().min(3).max(50);
+const description = Joi.string().max(255);
 const newName = Joi.string().min(3).max(50);
-const listId = Joi.number().integer();
+
+const cardSchemas = Joi.object({
+  listId: id.required(),
+  cardId: id.required()
+});
 
 const createCardSchema = Joi.object({
-  cardName: name.required(),
-  listId: listId.required(),
+  name: name.required(),
+  description: description,
 });
 
 const updateCardSchema = Joi.object({
-  cardName: name.required(),
   newName: newName.required(),
-  listId: listId.required(),
-});
-
-const deleteCardSchema = Joi.object({
-  cardName: name.required(),
-  listId: listId.required(),
+  description: description,
 });
 
 
-module.exports = { createCardSchema, updateCardSchema, deleteCardSchema }
+module.exports = { cardSchemas, createCardSchema, updateCardSchema }
