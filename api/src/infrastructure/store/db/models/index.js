@@ -14,7 +14,7 @@ const { Checklist, ChecklistSchema } = require('./checklist.model');
 const { ChecklistItem, CHECKLIST_ITEM_TABLE } = require('./checklist-item.model');
 const { ItemMember, ItemMemberSchema } = require('./item-members.model');
 const { Label, LabelSchema } = require('./label.model');
-const { Color, ColorSchema } = require('./color.model');
+const { CARD_LABELS_TABLE, CardLabel, CardLabelSchema } = require('./card-labels.model');
 
 function setupModels(sequelize){
   User.init(UserSchema, User.config(sequelize));
@@ -33,7 +33,7 @@ function setupModels(sequelize){
   ChecklistItem.init(CHECKLIST_ITEM_TABLE, ChecklistItem.config(sequelize));
   ItemMember.init(ItemMemberSchema, ItemMember.config(sequelize));
   Label.init(LabelSchema, Label.config(sequelize));
-  Color.init(ColorSchema, Color.config(sequelize));
+  CardLabel.init(CardLabelSchema, CardLabel.config(sequelize));
 
 
 
@@ -50,6 +50,7 @@ function setupModels(sequelize){
   Checklist.associate(sequelize.models);
   ChecklistItem.associate(sequelize.models);
   Label.associate(sequelize.models);
+  CardLabel.associate(sequelize.models);
 }
 
 module.exports = setupModels;

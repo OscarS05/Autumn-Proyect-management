@@ -1,6 +1,5 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
-const { CARD_TABLE } = require('./card.model');
-const { COLOR_TABLE } = require('./color.model');
+const { PROJECT_TABLE } = require('./project.model');
 
 
 const LABEL_TABLE = 'labels';
@@ -16,46 +15,33 @@ const LabelSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  status: {
+  color: {
+    type: Sequelize.STRING,
     allowNull: false,
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
   },
-  colorId: {
-    field: 'color_id',
+  projectId: {
+    field: 'project_id',
+    type: Sequelize.UUID,
     allowNull: false,
-    type: DataTypes.UUID,
     references: {
-      model: COLOR_TABLE,
+      model: PROJECT_TABLE,
       key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   },
-  cardId: {
-    field: 'card_id',
-    allowNull: false,
-    type: DataTypes.UUID,
-    references: {
-      model: CARD_TABLE,
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE'
-  },
-  createdAt: {
-    allowNull: false,
-    type: DataTypes.DATE,
-    field: 'created_at',
-    defaultValue: Sequelize.NOW
-  }
 }
 
 class Label extends Model {
   static associate(models) {
-    this.belongsTo(models.Card, { as: 'card' });
+    this.belongsTo(models.Project, { as: 'project' });
 
-    this.hasOne(models.Color, { as: 'color' });
+    this.belongsToMany(models.Card, {
+      through: models.CardLabel,
+      foreignKey: 'labelId',
+      otherKey: 'cardId',
+      as: 'cards'
+    });
   }
 
   static config(sequelize) {

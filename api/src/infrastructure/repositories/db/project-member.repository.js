@@ -49,8 +49,8 @@ class ProjectMemberRepository extends IProjectMemberRepository {
     return await this.db.models.ProjectMember.destroy({ where: { id: projectMemberId } });
   }
 
-  async findProjectMemberById(projectMemberId, projectId){
-    return await this.db.models.ProjectMember.findOne({ where: { id: projectMemberId, projectId } });
+  async findProjectMemberById(projectMemberId){
+    return await this.db.models.ProjectMember.findOne({ where: { id: projectMemberId } });
   }
 
   async findByWorkspaceMember(workspaceMemberId, projectId){
@@ -120,6 +120,30 @@ class ProjectMemberRepository extends IProjectMemberRepository {
         }
       ],
       attributes: ['id', 'name', 'workspaceId'],
+    });
+  }
+
+  async getProjectMemberByCard(userId, card){
+    return await this.db.models.ProjectMember.findOne({
+      where: { projectId: card.list.projectId },
+      include: [{
+        model: this.db.models.WorkspaceMember,
+        as: 'workspaceMember',
+        attributes: [],
+        where: { userId }
+      }]
+    });
+  }
+
+  async checkProjectMemberByUser(userId, projectId){
+    return await this.db.models.ProjectMember.findOne({
+      where: { projectId },
+      include: [{
+        model: this.db.models.WorkspaceMember,
+        as: 'workspaceMember',
+        where: { userId },
+        attributes: []
+      }]
     });
   }
 }

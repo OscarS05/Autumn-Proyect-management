@@ -10,6 +10,7 @@ const AddMemberToProjectUseCase = require('./AddMemberToProjectUseCase');
 const UpdateRoleUseCase = require('./UpdateRoleUseCase');
 const TransferOwnershipUseCase = require('./TransferOwnershipUseCase');
 const RemoveMemberUseCase = require('./RemoveMemberUseCase');
+const CheckProjectMembershipByUserUseCase = require('./CheckProjectMembershipByUserUseCase');
 
 const getProjectMembersOfWorkspaceMemberUseCase = new GetProjectMembersOfWorkspaceMemberUseCase(dbRepositories);
 const getProjectMembersByProjectUseCase = new GetProjectMembersByProjectUseCase(dbRepositories);
@@ -21,6 +22,7 @@ const addMemberToProjectUseCase = new AddMemberToProjectUseCase(dbRepositories);
 const updateRoleUseCase = new UpdateRoleUseCase(dbRepositories);
 const transferOwnershipUseCase = new TransferOwnershipUseCase(dbRepositories);
 const removeMemberUseCase = new RemoveMemberUseCase(dbRepositories);
+const checkProjectMembershipByUserUseCase = new CheckProjectMembershipByUserUseCase(dbRepositories);
 
 module.exports = {
   getProjectMembersOfWorkspaceMemberUseCase,
@@ -34,4 +36,5 @@ module.exports = {
   updateRoleUseCase,
   transferOwnershipUseCase,
   removeMemberUseCase,
+  checkProjectMembershipByUserUseCase,
 }

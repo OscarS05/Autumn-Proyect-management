@@ -1,13 +1,14 @@
 const boom = require('@hapi/boom');
 
 class CardService {
-  constructor({ getAllUseCase, getCardUseCase, createCardUseCase, checkProjectMembershipByCardUseCase, updateCardUseCase, deleteCardUseCase }) {
+  constructor({ getAllUseCase, getCardUseCase, createCardUseCase, checkProjectMemberByCardAndListUseCase, getProjectMemberByCardUseCase, updateCardUseCase, deleteCardUseCase }) {
     this.getAllUseCase = getAllUseCase;
     this.getCardUseCase = getCardUseCase;
-    this.checkProjectMembershipByCardUseCase = checkProjectMembershipByCardUseCase;
+    this.checkProjectMemberByCardAndListUseCase = checkProjectMemberByCardAndListUseCase;
     this.createCardUseCase = createCardUseCase;
     this.updateCardUseCase = updateCardUseCase;
     this.deleteCardUseCase = deleteCardUseCase;
+    this.getProjectMemberByCardUseCase = getProjectMemberByCardUseCase;
   }
 
   async create(cardData) {
@@ -30,8 +31,12 @@ class CardService {
     return await this.getAllUseCase.execute(listId);
   }
 
-  async projectMembershipByCard(userId, listId, cardId){
-    return await this.checkProjectMembershipByCardUseCase.execute(userId, listId, cardId);
+  async checkProjectMemberByCardAndList(userId, listId, cardId){
+    return await this.checkProjectMemberByCardAndListUseCase.execute(userId, listId, cardId);
+  }
+
+  async getProjectMemberByCard(userId, cardId){
+    return await this.getProjectMemberByCardUseCase.execute(userId, cardId);
   }
 }
 

@@ -49,6 +49,13 @@ class Card extends Model {
       as: 'members',
     });
 
+    this.belongsToMany(models.Label, {
+      through: models.CardLabel,
+      foreignKey: 'cardId',
+      otherKey: 'labelId',
+      as: 'labels'
+    });
+
     this.hasMany(models.CardAttachment, {
       foreignKey: 'cardId',
       as: 'attachments'

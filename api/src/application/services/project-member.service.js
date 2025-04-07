@@ -11,6 +11,7 @@ class ProjectMemberService {
       updateRoleUseCase,
       transferOwnershipUseCase,
       removeMemberUseCase,
+      checkProjectMembershipByUserUseCase,
     }
   ){
     this.getProjectMemberByUserUseCase = getProjectMemberByUserUseCase;
@@ -22,6 +23,7 @@ class ProjectMemberService {
     this.updateRoleUseCase = updateRoleUseCase;
     this.transferOwnershipUseCase = transferOwnershipUseCase;
     this.removeMemberUseCase = removeMemberUseCase;
+    this.checkProjectMembershipByUserUseCase = checkProjectMembershipByUserUseCase;
   }
 
   async addMemberToProject(projectId, workspaceMemberId){
@@ -31,20 +33,20 @@ class ProjectMemberService {
   }
 
   async updateRole(projectId, projectMemberId, newRole){
-    const memberToBeUpdated = await this.getProjectMemberById(projectMemberId, projectId);
+    const memberToBeUpdated = await this.getProjectMemberById(projectMemberId);
     if(!memberToBeUpdated?.id) throw boom.notFound('The project member does not exist in the project');
     return await this.updateRoleUseCase.execute(memberToBeUpdated, newRole);
   }
 
   async transferOwnership(projectId, currentProjectOwner, newProjectOwnerId){
-    const newProjectOwner = await this.getProjectMemberById(newProjectOwnerId, projectId);
+    const newProjectOwner = await this.getProjectMemberById(newProjectOwnerId);
     if(!newProjectOwner?.id) throw boom.notFound('The member to be updated as project owner does not exist in the project');
     return await this.transferOwnershipUseCase.execute(projectId, currentProjectOwner, newProjectOwner);
   }
 
   async removeMemberController(projectId, projectMemberId, requesterAsProjectMember){
     const [ memberTobeRemoved, projectMembers ] = await Promise.all([
-      this.getProjectMemberById(projectMemberId, projectId),
+      this.getProjectMemberById(projectMemberId),
       this.getProjectMembers(projectId),
     ]);
     if(!memberTobeRemoved?.id) throw boom.notFound('The member to be removed was not found in the project');
@@ -63,8 +65,12 @@ class ProjectMemberService {
     return await this.getProjectMemberByUserUseCase.execute(userId, workspaceId, projectId);
   }
 
-  async getProjectMemberById(projectMemberId, projectId){
-    return await this.getMemberByIdUseCase.execute(projectMemberId, projectId);
+  async getProjectMemberById(projectMemberId){
+    return await this.getMemberByIdUseCase.execute(projectMemberId);
+  }
+
+  async checkProjectMembershipByUser(userId, projectId){
+    return await this.checkProjectMembershipByUserUseCase.execute(userId, projectId);
   }
 }
 

@@ -24,11 +24,15 @@ class CardRepository extends ICardRepository {
     return await this.db.models.Card.findOne({ where: { id: cardId } });
   }
 
+  async findOneByIdWithList(cardId){
+    return await this.db.models.Card.findOne({ where: { id: cardId }, include: [{ model: this.db.models.List, as: 'list' }] });
+  }
+
   async findAll(listId){
     return await this.db.models.Card.findAll({ where: { listId } });
   }
 
-  async checkProjectMembershipByCard(userId, listId, cardId){
+  async checkProjectMemberByCardAndList(userId, listId, cardId){
     return await this.db.models.Card.findOne({
       where: { id: cardId },
       include: [{
@@ -48,12 +52,7 @@ class CardRepository extends ICardRepository {
               model: this.db.models.WorkspaceMember,
               as: 'workspaceMember',
               attributes: [],
-              include: [{
-                model: this.db.models.User,
-                as: 'user',
-                attributes: [],
-                where: { id: userId },
-              }],
+              where: { userId },
             }]
           }],
         }],

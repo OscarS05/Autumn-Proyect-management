@@ -41,12 +41,7 @@ class ListRepository extends IListRepository {
             model: this.db.models.WorkspaceMember,
             as: 'workspaceMember',
             attributes: [],
-            include: [{
-              model: this.db.models.User,
-              as: 'user',
-              where: { id: userId },
-              attributes: [],
-            }],
+            where: { userId },
           }]
         }],
       }],

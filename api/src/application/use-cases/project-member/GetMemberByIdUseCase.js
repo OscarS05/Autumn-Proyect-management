@@ -5,8 +5,8 @@ class GetMemberByIdUseCase {
     this.projectMemberRepository = projectMemberRepository;
   }
 
-  async execute(projectMemberId, projectId){
-    const projectMember = await this.projectMemberRepository.findProjectMemberById(projectMemberId, projectId);
+  async execute(projectMemberId){
+    const projectMember = await this.projectMemberRepository.findProjectMemberById(projectMemberId);
     return new ProjectMemberDto(projectMember)
   }
 }
