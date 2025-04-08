@@ -51,7 +51,11 @@ const ChecklistItemSchema = {
 
 class ChecklistItem extends Model {
   static associate(models) {
-    this.belongsTo(models.Checklist, { as: 'checklist' });
+    this.belongsTo(models.Checklist, {
+      foreignKey: 'checklistId',
+      as: 'checklist'
+    });
+
 
     this.belongsToMany(models.ProjectMember, {
       through: models.ItemMember,
@@ -64,11 +68,10 @@ class ChecklistItem extends Model {
     return {
       sequelize,
       tableName: CHECKLIST_ITEM_TABLE,
-      modelName: 'Item',
+      modelName: 'ChecklistItem',
       timestamps: false
     }
   }
 }
-
 
 module.exports = { CHECKLIST_ITEM_TABLE, ChecklistItemSchema, ChecklistItem }

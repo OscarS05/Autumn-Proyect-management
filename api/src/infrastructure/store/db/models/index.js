@@ -11,10 +11,10 @@ const { Card, CardSchema } = require('./card.model');
 const { CardMember, CardMemberSchema } = require('./card-member.model');
 const { CardAttachment, CardAttachmentSchema } = require('./card-attachment.model');
 const { Checklist, ChecklistSchema } = require('./checklist.model');
-const { ChecklistItem, CHECKLIST_ITEM_TABLE } = require('./checklist-item.model');
+const { ChecklistItem, ChecklistItemSchema } = require('./checklist-item.model');
 const { ItemMember, ItemMemberSchema } = require('./item-members.model');
 const { Label, LabelSchema } = require('./label.model');
-const { CARD_LABELS_TABLE, CardLabel, CardLabelSchema } = require('./card-labels.model');
+const { CardLabel, CardLabelSchema } = require('./card-labels.model');
 
 function setupModels(sequelize){
   User.init(UserSchema, User.config(sequelize));
@@ -30,12 +30,10 @@ function setupModels(sequelize){
   CardMember.init(CardMemberSchema, CardMember.config(sequelize));
   CardAttachment.init(CardAttachmentSchema, CardAttachment.config(sequelize));
   Checklist.init(ChecklistSchema, Checklist.config(sequelize));
-  ChecklistItem.init(CHECKLIST_ITEM_TABLE, ChecklistItem.config(sequelize));
+  ChecklistItem.init(ChecklistItemSchema, ChecklistItem.config(sequelize));
   ItemMember.init(ItemMemberSchema, ItemMember.config(sequelize));
   Label.init(LabelSchema, Label.config(sequelize));
   CardLabel.init(CardLabelSchema, CardLabel.config(sequelize));
-
-
 
   User.associate(sequelize.models);
   Workspace.associate(sequelize.models);

@@ -41,7 +41,7 @@ router.delete('/projects/:projectId/labels/:labelId',
   labelControllers.deleteLabel
 );
 
-cardMemberRouter.get('/:cardId/labels/visibility',
+cardMemberRouter.get('/:cardId/labels/',
   validateSession,
   validatorHandler(cardIdSchema, 'params'),
   checkProjectMembershipByCard,

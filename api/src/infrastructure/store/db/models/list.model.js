@@ -39,7 +39,7 @@ class List extends Model {
     this.belongsTo(models.Project, { as: 'project', foreignKey: 'projectId' });
 
     this.hasMany(models.Card, {
-      as: 'card',
+      as: 'cards',
       foreignKey: 'listId',
     });
   }

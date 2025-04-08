@@ -66,7 +66,7 @@ class Project extends Model {
     });
 
     this.hasMany(models.List, {
-      as: 'list',
+      as: 'lists',
       foreignKey: 'projectId',
     });
 

@@ -27,7 +27,7 @@ class LabelRepository extends ILabelRepository{
     return await this.db.models.Label.destroy({ where: { id: labelId } });
   }
 
-  async findVisibleLabels(cardId){
+  async findLabelsByCard(cardId){
     return await this.db.models.Card.findOne({
       where: { id: cardId },
       include: [{ model: this.db.models.Label, as: 'labels' }]

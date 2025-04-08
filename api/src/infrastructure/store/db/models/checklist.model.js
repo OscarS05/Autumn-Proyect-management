@@ -38,10 +38,11 @@ class Checklist extends Model {
   static associate(models) {
     this.belongsTo(models.Card, { as: 'card' });
 
-    this.hasMany(models.Item, {
+    this.hasMany(models.ChecklistItem, {
       foreignKey: 'checklistId',
-      as: 'checklists',
+      as: 'items',
     });
+
   }
 
   static config(sequelize) {
@@ -53,6 +54,5 @@ class Checklist extends Model {
     }
   }
 }
-
 
 module.exports = { CHECKLIST_TABLE, ChecklistSchema, Checklist }

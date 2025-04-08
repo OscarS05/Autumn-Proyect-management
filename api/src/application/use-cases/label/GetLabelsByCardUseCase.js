@@ -7,7 +7,7 @@ class GetLabelsByCardUseCase {
   }
 
   async execute(cardId){
-    const cardWithLabels = await this.labelRepository.findVisibleLabels(cardId);
+    const cardWithLabels = await this.labelRepository.findLabelsByCard(cardId);
 
     return cardWithLabels?.labels?.length > 0
       ? cardWithLabels.labels.map(label => {

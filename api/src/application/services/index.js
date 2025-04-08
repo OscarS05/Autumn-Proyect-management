@@ -10,6 +10,7 @@ const listUseCases = require('../use-cases/list/index');
 const cardUseCases = require('../use-cases/card/index');
 const cardMemberUseCases = require('../use-cases/card-member/index');
 const labelUseCases = require('../use-cases/label/index');
+const checklistUseCases = require('../use-cases/checklist/index');
 
 
 const UserService = require('./user.service');
@@ -24,6 +25,7 @@ const ListService = require('./list.service');
 const CardService = require('./card.service');
 const CardMemberService = require('./card-member.service');
 const LabelService = require('./label.service');
+const ChecklistService = require('./checklist.service');
 
 
 const userService = new UserService(userUseCases);
@@ -38,6 +40,7 @@ const listService = new ListService(listUseCases);
 const cardService = new CardService(cardUseCases);
 const cardMemberService = new CardMemberService(cardMemberUseCases, projectMemberUseCases);
 const labelService = new LabelService(labelUseCases);
+const checklistService = new ChecklistService(checklistUseCases);
 
 
 module.exports = {
@@ -52,5 +55,6 @@ module.exports = {
   listService,
   cardService,
   cardMemberService,
-  labelService
+  labelService,
+  checklistService
 };

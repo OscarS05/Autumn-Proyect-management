@@ -54,7 +54,7 @@ class ProjectMember extends Model {
       as: 'cards',
     });
 
-    this.belongsToMany(models.Item, {
+    this.belongsToMany(models.ChecklistItem, {
       through: models.ItemMember,
       foreignKey: 'projectMemberId',
       as: 'items',
