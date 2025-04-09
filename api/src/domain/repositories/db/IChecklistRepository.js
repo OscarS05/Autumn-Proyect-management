@@ -24,6 +24,10 @@ class IChecklistRepository {
   async findAll(projectId){
     throw boom.notImplemented('the findAll(projectId) method is not implemented');
   }
+
+  async findOneByIdWithData(checklistId){
+    throw boom.notImplemented('the findOneByIdWithData(checklistId) method is not implemented');
+  }
 }
 
 module.exports = IChecklistRepository;

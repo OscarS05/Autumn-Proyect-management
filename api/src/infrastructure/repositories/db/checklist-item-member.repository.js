@@ -15,12 +15,29 @@ class ChecklistItemMemberRepository extends IChecklistItemMemberRepository {
     return await this.db.models.ChecklistItemMember.bulkCreate(checklistItemMembersEntities);
   }
 
-  async delete(checklistItemMemberId){
-    throw boom.notImplemented('the delete(checklistItemMemberId) method is not implemented');
+  async delete(checklistItemId, projectMemberId){
+    return await this.db.models.ChecklistItemMember.destroy({ where: { checklistItemId, projectMemberId } });
   }
 
   async findAll(checklistItemId){
-    throw boom.notImplemented('the findAll(checklistItemId) method is not implemented');
+    return await this.db.models.ChecklistItemMember.findAll({
+      where: { checklistItemId },
+      include: [{
+        model: this.db.models.ProjectMember,
+        as: 'projectMember',
+        attributes: ['id'],
+        include: [{
+          model: this.db.models.WorkspaceMember,
+          as: 'workspaceMember',
+          attributes: ['id'],
+          include: [{
+            model: this.db.models.User,
+            as: 'user',
+            attributes: ['name']
+          }]
+        }]
+      }]
+    });
   }
 
   async findAllByProjectMember(checklistItemId, projectMemberIds){

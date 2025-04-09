@@ -1,8 +1,9 @@
 const boom = require('@hapi/boom');
 
 class ChecklistService{
-  constructor({ getAllChecklistsByCardUseCase, getAllChecklistsByProjectUseCase, createChecklistUseCase, updateChecklistUseCase, deleteChecklistUseCase }){
+  constructor({ getAllChecklistsByCardUseCase, getProjectMemberByChecklistUseCase, getAllChecklistsByProjectUseCase, createChecklistUseCase, updateChecklistUseCase, deleteChecklistUseCase }){
     this.getAllChecklistsByProjectUseCase = getAllChecklistsByProjectUseCase;
+    this.getProjectMemberByChecklistUseCase = getProjectMemberByChecklistUseCase;
     this.getAllChecklistsByCardUseCase = getAllChecklistsByCardUseCase;
     this.createChecklistUseCase = createChecklistUseCase;
     this.updateChecklistUseCase = updateChecklistUseCase;
@@ -27,6 +28,10 @@ class ChecklistService{
 
   async deleteChecklist(checklistId){
     return await this.deleteChecklistUseCase.execute(checklistId);
+  }
+
+  async getProjectMemberByChecklist(userId, checklistId){
+    return await this.getProjectMemberByChecklistUseCase.execute(userId, checklistId);
   }
 }
 

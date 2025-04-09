@@ -8,14 +8,14 @@ const { checklistItemSchema, createChecklistItemSchema, schemaUpdateCheck, updat
 
 const checklistItemControllers = require('../controllers/checklist-item.controller');
 
-cardRouter.get('/:cardId/checklists/:checklistId/checklistItems',
+cardRouter.get('/:cardId/checklists/:checklistId/checklist-items',
   validateSession,
   validatorHandler(checklistSchema, 'params'),
   checkProjectMembershipByCard,
   checklistItemControllers.getAllChecklistItems
 );
 
-cardRouter.post('/:cardId/checklists/:checklistId/checklistItems',
+cardRouter.post('/:cardId/checklists/:checklistId/checklist-items',
   validateSession,
   validatorHandler(checklistSchema, 'params'),
   validatorHandler(createChecklistItemSchema, 'body'),
@@ -23,7 +23,7 @@ cardRouter.post('/:cardId/checklists/:checklistId/checklistItems',
   checklistItemControllers.createChecklistItem
 );
 
-cardRouter.patch('/:cardId/checklists/:checklistId/checklistItems/:checklistItemId',
+cardRouter.patch('/:cardId/checklists/:checklistId/checklist-items/:checklistItemId',
   validateSession,
   validatorHandler(checklistItemSchema, 'params'),
   validatorHandler(updateChecklistItemSchema, 'body'),
@@ -31,7 +31,7 @@ cardRouter.patch('/:cardId/checklists/:checklistId/checklistItems/:checklistItem
   checklistItemControllers.updateChecklistItem
 );
 
-cardRouter.patch('/:cardId/checklists/:checklistId/checklistItems/:checklistItemId/check',
+cardRouter.patch('/:cardId/checklists/:checklistId/checklist-items/:checklistItemId/check',
   validateSession,
   validatorHandler(checklistItemSchema, 'params'),
   validatorHandler(schemaUpdateCheck, 'body'),
@@ -39,7 +39,7 @@ cardRouter.patch('/:cardId/checklists/:checklistId/checklistItems/:checklistItem
   checklistItemControllers.updateTheCheckOfItem
 );
 
-cardRouter.delete('/:cardId/checklists/:checklistId/checklistItems/:checklistItemId',
+cardRouter.delete('/:cardId/checklists/:checklistId/checklist-items/:checklistItemId',
   validateSession,
   validatorHandler(checklistItemSchema, 'params'),
   checkProjectMembershipByCard,

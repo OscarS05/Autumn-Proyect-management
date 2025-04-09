@@ -47,6 +47,11 @@ class ChecklistItemMember extends Model {
       foreignKey: 'projectMemberId',
       as: 'projectMember'
     });
+
+    this.belongsTo(models.ChecklistItem, {
+      foreignKey: 'checklistItemId',
+      as: 'checklistItem'
+    });
   }
 
   static config(sequelize) {

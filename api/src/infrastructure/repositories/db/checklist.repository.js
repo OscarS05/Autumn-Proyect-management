@@ -50,6 +50,23 @@ class ChecklistRepository extends IChecklistRepository {
   async findAll(projectId){
     throw boom.notImplemented('the findAll(projectId) method is not implemented');
   }
+
+  async findOneByIdWithData(checklistId){
+    return await this.db.models.Checklist.findOne({
+      where: { id: checklistId },
+      attributes: ['id', 'name'],
+      include: [{
+        model: this.db.models.Card,
+        as: 'card',
+        attributes: ['id', 'name'],
+        include: [{
+          model: this.db.models.List,
+          as: 'list',
+          attributes: ['id', 'name', 'projectId']
+        }]
+      }]
+    });
+  }
 }
 
 module.exports = ChecklistRepository;

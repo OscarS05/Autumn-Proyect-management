@@ -1,5 +1,5 @@
 const boom = require('@hapi/boom');
-const { cardService, cardMemberService } = require('../../../application/services/index');
+const { cardService, checklistService } = require('../../../application/services/index');
 
 const validateCardAuthorization = async (req, res, next) => {
   try {
@@ -46,8 +46,24 @@ const checkProjectMembershipByCard = async (req, res, next) => {
   }
 };
 
+const checkProjectMembershipByChecklist = async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { checklistId } = req.params;
+
+    const projectMember = await checklistService.getProjectMemberByChecklist(userId, checklistId);
+    if(!projectMember?.id) throw boom.notFound('Something went wrong with data');
+
+    req.projectMember = projectMember;
+    next();
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   validateCardAuthorization,
   checkAdminRoleInProjectByCard,
   checkProjectMembershipByCard,
+  checkProjectMembershipByChecklist,
 }

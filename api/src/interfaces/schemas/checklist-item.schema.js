@@ -8,7 +8,7 @@ const dueDate = Joi.date().iso().greater('now').messages({
 });
 const isChecked = Joi.boolean();
 const assignedProjectMemberIds = Joi.array().items( Joi.string().uuid() ).messages({
-  'array.includes': 'All member IDs must be positive integers',
+  'array.includes': 'All member IDs must be uuids',
 });
 
 const checklistItemSchema = Joi.object({
