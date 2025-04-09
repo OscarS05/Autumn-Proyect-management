@@ -39,6 +39,7 @@ const checkProjectMembershipByCard = async (req, res, next) => {
     const projectMember = await cardService.getProjectMemberByCard(userId, cardId);
     if(!projectMember?.id) throw boom.notFound('Something went wrong with data');
 
+    req.projectMember = projectMember;
     next();
   } catch (error) {
     next(error);

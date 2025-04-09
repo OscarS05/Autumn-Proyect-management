@@ -1,11 +1,10 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
-const { TEAM_TABLE } = require('./team.model');
 const { PROJECT_MEMBER_TABLE } = require('./project-member.model');
-const { ITEM_TABLE } = require('./checklist-item.model');
+const { CHECKLIST_ITEM_TABLE } = require('./checklist-item.model');
 
-const ITEM_MEMBER_TABLE = 'item_members';
+const CHECKLIST_ITEM_MEMBER_TABLE = 'checklist_item_members';
 
-const ItemMemberSchema = {
+const ChecklistItemMemberSchema = {
   id: {
     allowNull: false,
     primaryKey: true,
@@ -23,12 +22,12 @@ const ItemMemberSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   },
-  itemId:{
-    field: 'item_id',
+  checklistItemId:{
+    field: 'checklist_item_id',
     allowNull: false,
     type: DataTypes.UUID,
     references: {
-      model: ITEM_TABLE,
+      model: CHECKLIST_ITEM_TABLE,
       key: 'id',
     },
     onUpdate: 'CASCADE',
@@ -42,20 +41,23 @@ const ItemMemberSchema = {
   }
 }
 
-class ItemMember extends Model {
+class ChecklistItemMember extends Model {
   static associate(models) {
-
+    this.belongsTo(models.ProjectMember, {
+      foreignKey: 'projectMemberId',
+      as: 'projectMember'
+    });
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: ITEM_MEMBER_TABLE,
-      modelName: 'ItemMember',
+      tableName: CHECKLIST_ITEM_MEMBER_TABLE,
+      modelName: 'ChecklistItemMember',
       timestamps: false
     }
   }
 }
 
 
-module.exports = { ITEM_MEMBER_TABLE, ItemMemberSchema, ItemMember };
+module.exports = { CHECKLIST_ITEM_MEMBER_TABLE, ChecklistItemMemberSchema, ChecklistItemMember };

@@ -12,7 +12,7 @@ const { CardMember, CardMemberSchema } = require('./card-member.model');
 const { CardAttachment, CardAttachmentSchema } = require('./card-attachment.model');
 const { Checklist, ChecklistSchema } = require('./checklist.model');
 const { ChecklistItem, ChecklistItemSchema } = require('./checklist-item.model');
-const { ItemMember, ItemMemberSchema } = require('./item-members.model');
+const { ChecklistItemMember, ChecklistItemMemberSchema } = require('./checklist-item-members.model');
 const { Label, LabelSchema } = require('./label.model');
 const { CardLabel, CardLabelSchema } = require('./card-labels.model');
 
@@ -31,7 +31,7 @@ function setupModels(sequelize){
   CardAttachment.init(CardAttachmentSchema, CardAttachment.config(sequelize));
   Checklist.init(ChecklistSchema, Checklist.config(sequelize));
   ChecklistItem.init(ChecklistItemSchema, ChecklistItem.config(sequelize));
-  ItemMember.init(ItemMemberSchema, ItemMember.config(sequelize));
+  ChecklistItemMember.init(ChecklistItemMemberSchema, ChecklistItemMember.config(sequelize));
   Label.init(LabelSchema, Label.config(sequelize));
   CardLabel.init(CardLabelSchema, CardLabel.config(sequelize));
 
@@ -47,6 +47,7 @@ function setupModels(sequelize){
   CardAttachment.associate(sequelize.models);
   Checklist.associate(sequelize.models);
   ChecklistItem.associate(sequelize.models);
+  ChecklistItemMember.associate(sequelize.models);
   Label.associate(sequelize.models);
   CardLabel.associate(sequelize.models);
 }

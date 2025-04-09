@@ -12,6 +12,8 @@ const CardRepository = require('./card.repository');
 const CardMemberRepository = require('./card-member.repository');
 const LabelRepository = require('./label-repository');
 const ChecklistRepository = require('./checklist.repository');
+const ChecklistItemRepository = require('./checklist-item.repository');
+const ChecklistItemMemberRepository = require('./checklist-item-member.repository');
 
 const userRepository = new UserRepository(sequelize);
 const workspaceRepository = new WorkspaceRepository(sequelize);
@@ -25,6 +27,8 @@ const cardRepository = new CardRepository(sequelize);
 const cardMemberRepository = new CardMemberRepository(sequelize);
 const labelRepository = new LabelRepository(sequelize);
 const checklistRepository = new ChecklistRepository(sequelize);
+const checklistItemRepository = new ChecklistItemRepository(sequelize);
+const checklistItemMemberRepository = new ChecklistItemMemberRepository(sequelize);
 
 module.exports = {
   userRepository,
@@ -38,5 +42,7 @@ module.exports = {
   cardRepository,
   cardMemberRepository,
   labelRepository,
-  checklistRepository
+  checklistRepository,
+  checklistItemRepository,
+  checklistItemMemberRepository
 };

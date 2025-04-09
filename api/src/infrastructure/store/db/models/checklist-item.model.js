@@ -26,20 +26,16 @@ const ChecklistItemSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   },
-  status: {
+  isChecked: {
+    field: 'is_checked',
     allowNull: false,
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
-  startDate: {
+  dueDate: {
     allowNull: true,
     type: DataTypes.DATE,
-    field: 'start_date',
-  },
-  endDate: {
-    allowNull: true,
-    type: DataTypes.DATE,
-    field: 'end_date',
+    field: 'due_date',
   },
   createdAt: {
     allowNull: false,
@@ -58,8 +54,8 @@ class ChecklistItem extends Model {
 
 
     this.belongsToMany(models.ProjectMember, {
-      through: models.ItemMember,
-      foreignKey: 'itemId',
+      through: models.ChecklistItemMember,
+      foreignKey: 'checklistItemId',
       as: 'members',
     });
   }

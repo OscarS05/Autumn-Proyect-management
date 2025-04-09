@@ -1,5 +1,6 @@
 const dbRepositories = require('../../../infrastructure/repositories/db/index');
 
+const GetAllMembersByIdUseCase = require('./GetAllMembersByIdUseCase');
 const GetProjectMembersOfWorkspaceMemberUseCase = require('./GetProjectMembersOfWorkspaceMemberUseCase');
 const GetProjectMembersByProjectUseCase = require('./GetProjectMembersByProjectUseCase');
 const GetProjectMemberByUserUseCase = require('./GetProjectMemberByUserUseCase');
@@ -12,6 +13,7 @@ const TransferOwnershipUseCase = require('./TransferOwnershipUseCase');
 const RemoveMemberUseCase = require('./RemoveMemberUseCase');
 const CheckProjectMembershipByUserUseCase = require('./CheckProjectMembershipByUserUseCase');
 
+const getAllMembersByIdUseCase = new GetAllMembersByIdUseCase(dbRepositories);
 const getProjectMembersOfWorkspaceMemberUseCase = new GetProjectMembersOfWorkspaceMemberUseCase(dbRepositories);
 const getProjectMembersByProjectUseCase = new GetProjectMembersByProjectUseCase(dbRepositories);
 const getProjectMemberByUserUseCase = new GetProjectMemberByUserUseCase(dbRepositories);
@@ -25,6 +27,7 @@ const removeMemberUseCase = new RemoveMemberUseCase(dbRepositories);
 const checkProjectMembershipByUserUseCase = new CheckProjectMembershipByUserUseCase(dbRepositories);
 
 module.exports = {
+  getAllMembersByIdUseCase,
   getProjectMembersOfWorkspaceMemberUseCase,
   getProjectMemberByWorkspaceMemberUseCase,
   getProjectMembersByProjectUseCase,

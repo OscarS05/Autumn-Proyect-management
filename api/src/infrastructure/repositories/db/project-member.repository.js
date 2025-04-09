@@ -146,6 +146,10 @@ class ProjectMemberRepository extends IProjectMemberRepository {
       }]
     });
   }
+
+  async findAllById(projectMemberIds, projectId){
+    return await this.db.models.ProjectMember.findAll({ where: { id: projectMemberIds, projectId } });
+  }
 }
 
 module.exports = ProjectMemberRepository;

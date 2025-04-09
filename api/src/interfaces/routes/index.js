@@ -4,7 +4,8 @@ const userRouter = require('./user.router');
 const authRouter = require('./auth.router');
 const workspaceRouter = require('./list.router');
 const listRouter = require('./card.router');
-const { cardRouter, labelRouter } = require('./checklist.router');
+const { labelRouter } = require('./checklist.router');
+const cardRouter = require('./checklist-item.router');
 
 function routerApi(app) {
   const router = express.Router();
