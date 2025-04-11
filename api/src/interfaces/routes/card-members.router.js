@@ -1,5 +1,4 @@
-const express = require('express');
-const router = express.Router();
+const router = require('./card-attachments.router');
 
 const { validateSession } = require('../middlewares/authentication.handler');
 const { validatorHandler } = require('../middlewares/validator.handler');

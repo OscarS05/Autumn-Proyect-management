@@ -5,6 +5,10 @@ const name = Joi.string().min(3).max(50);
 const description = Joi.string().max(255);
 const newName = Joi.string().min(3).max(50);
 
+const cardIdSchema = Joi.object({
+  cardId: id.required()
+});
+
 const cardSchemas = Joi.object({
   listId: id.required(),
   cardId: id.required()
@@ -21,4 +25,4 @@ const updateCardSchema = Joi.object({
 });
 
 
-module.exports = { cardSchemas, createCardSchema, updateCardSchema }
+module.exports = { cardSchemas, createCardSchema, updateCardSchema, cardIdSchema }

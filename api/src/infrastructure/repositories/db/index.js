@@ -9,6 +9,7 @@ const TeamRepository = require('./team.repository');
 const TeamMemberRepository = require('./team-member.repository');
 const ListRepository = require('./list.repository');
 const CardRepository = require('./card.repository');
+const CardAttachmentRepository = require('./card-attachment.repository');
 const CardMemberRepository = require('./card-member.repository');
 const LabelRepository = require('./label-repository');
 const ChecklistRepository = require('./checklist.repository');
@@ -24,6 +25,7 @@ const teamRepository = new TeamRepository(sequelize);
 const teamMemberRepository = new TeamMemberRepository(sequelize);
 const listRepository = new ListRepository(sequelize);
 const cardRepository = new CardRepository(sequelize);
+const cardAttachmentRepository = new CardAttachmentRepository(sequelize);
 const cardMemberRepository = new CardMemberRepository(sequelize);
 const labelRepository = new LabelRepository(sequelize);
 const checklistRepository = new ChecklistRepository(sequelize);
@@ -40,6 +42,7 @@ module.exports = {
   teamMemberRepository,
   listRepository,
   cardRepository,
+  cardAttachmentRepository,
   cardMemberRepository,
   labelRepository,
   checklistRepository,

@@ -1,6 +1,5 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
 const { CARD_TABLE } = require('./card.model');
-const { PROJECT_MEMBER_TABLE } = require('./project-member.model');
 
 const CARD_ATTACHMENT_TABLE = 'card_attachments';
 
@@ -11,12 +10,21 @@ const CardAttachmentSchema = {
     defaultValue: DataTypes.UUIDV4,
     type: DataTypes.UUID
   },
-  name: {
+  filename: {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  attachmentUrl: {
+  url: {
     allowNull: false,
+    type: DataTypes.TEXT
+  },
+  type: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  publicId: {
+    field: 'public_id',
+    allowNull: true,
     type: DataTypes.STRING
   },
   cardId: {
@@ -30,16 +38,11 @@ const CardAttachmentSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE'
   },
-  projectMemberId: {
-    field: 'project_member_id',
+  createdAt: {
     allowNull: false,
-    type: DataTypes.UUID,
-    references: {
-      model: PROJECT_MEMBER_TABLE,
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL'
+    type: DataTypes.DATE,
+    field: 'created_at',
+    defaultValue: DataTypes.NOW
   }
 }
 
