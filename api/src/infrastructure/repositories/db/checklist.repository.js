@@ -19,6 +19,16 @@ class ChecklistRepository extends IChecklistRepository {
     return await this.db.models.Checklist.destroy({ where: { id: checklistId } });
   }
 
+  async findOne(checklistId){
+    return await this.db.models.Checklist.findOne({
+      where: { id: checklistId },
+      include: [{
+        model: this.db.models.ChecklistItem,
+        as: 'items'
+      }]
+    });
+  }
+
   async findChecklistsByProject(projectId){
     return await this.db.models.Project.findOne({
       where: { id: projectId },

@@ -39,6 +39,19 @@ const createChecklist = async (req, res, next) => {
   }
 }
 
+const createChecklistByCopyingItems = async (req, res, next) => {
+  try {
+    const { cardId, checklistId } = req.params;
+    const { name } = req.body;
+
+    const newChecklist = await checklistService.createChecklistByCopyingItems(checklistId, { name, cardId });
+
+    res.status(201).json({ newChecklist });
+  } catch (error) {
+    next(error);
+  }
+}
+
 const updateChecklist = async (req, res, next) => {
   try {
     const { cardId, checklistId } = req.params;
@@ -69,6 +82,7 @@ module.exports = {
   getAllChecklistsByCard,
   getAllChecklistsByProject,
   createChecklist,
+  createChecklistByCopyingItems,
   updateChecklist,
   deleteChecklist,
 }

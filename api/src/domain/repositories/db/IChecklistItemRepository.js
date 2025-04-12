@@ -5,6 +5,10 @@ class IChecklistItemRepository {
     throw boom.notImplemented('the create(checklistItemEntity) method is not implemented');
   }
 
+  async bulkCreate(checklistItemEntities){
+    throw boom.notImplemented('the bulkCreate(checklistItemEntities) method is not implemented');
+  }
+
   async update(checklistItemUpdateEntity){
     throw boom.notImplemented('the update(checklistItemUpdateEntity) method is not implemented');
   }

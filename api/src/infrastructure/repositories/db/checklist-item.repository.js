@@ -11,6 +11,10 @@ class ChecklistItemRepository extends IChecklistItemRepository {
     return await this.db.models.ChecklistItem.create(checklistItemEntity);
   }
 
+  async bulkCreate(checklistItemEntities){
+    return await this.db.models.ChecklistItem.bulkCreate(checklistItemEntities);
+  }
+
   async update(checklistItemId, updateChecklistItemEntity){
     return await this.db.models.ChecklistItem.update(updateChecklistItemEntity, { where: { id: checklistItemId }, returning: true });
   }

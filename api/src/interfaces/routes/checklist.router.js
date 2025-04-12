@@ -31,6 +31,14 @@ cardRouter.post('/:cardId/checklists',
   checklistControllers.createChecklist
 );
 
+cardRouter.post('/:cardId/checklists/:checklistId/copy',
+  validateSession,
+  validatorHandler(checklistSchema, 'params'),
+  validatorHandler(createChecklistSchema, 'body'),
+  checkProjectMembershipByCard,
+  checklistControllers.createChecklistByCopyingItems
+);
+
 cardRouter.patch('/:cardId/checklists/:checklistId',
   validateSession,
   validatorHandler(checklistSchema, 'params'),
