@@ -23,7 +23,13 @@ class ListRepository extends IListRepository {
   }
 
   async findAll(projectId){
-    return await this.db.models.List.findAll({ where: { projectId } });
+    return await this.db.models.List.findAll({
+      where: { projectId },
+      include: [{
+        model: this.db.models.Card,
+        as: 'cards',
+      }]
+    });
   }
 
   async checkProjectMembershipByList(userId, listId){
